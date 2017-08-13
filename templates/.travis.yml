@@ -1,0 +1,14 @@
+language: python
+python:
+{% for v in python_versions %}
+    - '{{v}}'
+{% endfor %}
+{% if py2 %}
+    - pypy
+{% endif %}
+install:
+    - pip install coveralls tox
+script:
+    - tox -e py
+after_success:
+    - coveralls
