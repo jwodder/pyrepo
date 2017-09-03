@@ -18,3 +18,4 @@
 - Properly word-wrap the installation instructions in `README.rst` (and the
   "see also" message in the `__init__.py` docstring?) when templating
 - Add a CHANGELOG template
+- Incorporate `pyrelease.sh`
