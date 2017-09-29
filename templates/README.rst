@@ -43,7 +43,7 @@ Just use `pip <https://pip.pypa.io>`_ (You have pip, right?) to install
 use `pip <https://pip.pypa.io/>`_ for Python 3 (You have pip, right?) to
 install ``{{project_name}}`` and its dependencies::
 
-    pip3 install {{project_name}}
+    python3 -m pip install {{project_name}}
 {% endif %}
 
 
