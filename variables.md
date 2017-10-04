@@ -20,6 +20,7 @@
 - `has_travis`
 - `has_docs`
 - `has_pypi`
+- `has_doctests`
 
 - `copyright_year: str`
 

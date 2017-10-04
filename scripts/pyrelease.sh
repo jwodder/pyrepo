@@ -118,5 +118,5 @@ twine upload dist/*
 ### Upload to Dropbox?
 
 # User:
-# - Make the version docs "active" on Readthedocs?
+# - Make the version docs "active" on Readthedocs
 # - Set `__version__` to the next version number plus `.dev1`

@@ -13,7 +13,6 @@
   the year of every Git commit in the project
 - When creating `setup.py`/`setup.cfg`, if a `requirements.txt` file already
   exists in the project directory, use its contents for `install_requires`
-- Add an option for enabling doctests in `tox.ini`
 - Properly word-wrap the installation instructions in `README.rst` (and the
   "see also" message in the `__init__.py` docstring?) when templating
 - Add a CHANGELOG template
