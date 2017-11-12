@@ -4,7 +4,7 @@ setup()
 {% else %}
 from   os.path    import dirname, join
 import re
-from   setuptools import {% if not is_flat_module %}find_packages, {% endif %}setup
+from   setuptools import setup
 
 {% if is_flat_module %}
 with open(join(dirname(__file__), {{(import_name + '.py')|repr}})) as fp:
