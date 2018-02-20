@@ -40,8 +40,8 @@ Just use `pip <https://pip.pypa.io>`_ (You have pip, right?) to install
     pip install {{project_name}}
 {% else %}
 ``{{project_name}}`` requires Python {{python_versions[0]}} or higher.  Just
-use `pip <https://pip.pypa.io/>`_ for Python 3 (You have pip, right?) to
-install ``{{project_name}}`` and its dependencies::
+use `pip <https://pip.pypa.io>`_ for Python 3 (You have pip, right?) to install
+``{{project_name}}`` and its dependencies::
 
     python3 -m pip install {{project_name}}
 {% endif %}
