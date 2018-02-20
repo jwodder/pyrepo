@@ -1,4 +1,5 @@
 language: python
+cache: pip
 python:
 {% for v in python_versions %}
     - '{{v}}'
@@ -7,8 +8,8 @@ python:
     - pypy
 {% endif %}
 install:
-    - pip install coveralls tox
+    - pip install codecov tox
 script:
     - tox -e py
 after_success:
-    - coveralls
+    - codecov

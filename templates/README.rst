@@ -7,8 +7,8 @@
 .. image:: https://travis-ci.org/jwodder/{{repo_name}}.svg?branch=master
     :target: https://travis-ci.org/jwodder/{{repo_name}}
 
-.. image:: https://coveralls.io/repos/github/jwodder/{{repo_name}}/badge.svg?branch=master
-    :target: https://coveralls.io/github/jwodder/{{repo_name}}?branch=master
+.. image:: https://codecov.io/gh/jwodder/{{repo_name}}/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/jwodder/{{repo_name}}
 
 {% endif %}
 {% if has_pypi %}

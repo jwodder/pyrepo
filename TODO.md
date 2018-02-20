@@ -3,10 +3,9 @@
     - Include scripts for incrementally adding features (tests, docs, doctests,
       Travis, etc.) to an already-templated repository
 - Write scripts for adding new repositories to Read the Docs, Travis, and
-  Coveralls via their APIs
+  Codecov.io via their APIs
     - Readthedocs: not possible
     - Travis: <https://developer.travis-ci.org/resource/repository#activate>
-    - Coveralls: not possible?
     - Codecov.io: not possible?
 - Add template for `docs/index.rst` (and other `docs/*.rst` files?)
 - Determine the year used in the LICENSE and `docs/conf.py` copyright by taking
