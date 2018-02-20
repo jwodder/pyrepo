@@ -11,6 +11,7 @@
 - Add template for `docs/index.rst` (and other `docs/*.rst` files?)
 - Determine the year used in the LICENSE and `docs/conf.py` copyright by taking
   the year of every Git commit in the project
+    - `git log --format=%ad --date=format:%Y`
 - When creating `setup.py`/`setup.cfg`, if a `requirements.txt` file already
   exists in the project directory, use its contents for `install_requires`
 - Properly word-wrap the installation instructions in `README.rst` (and the

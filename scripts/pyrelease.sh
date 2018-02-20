@@ -1,6 +1,6 @@
 #!/bin/bash
+### Replace with a customized <https://pypi.python.org/pypi/zest.releaser>?
 ### TODO: Try to give this some level of idempotence
-### cf. <https://pypi.python.org/pypi/zest.releaser>?
 set -ex -o pipefail
 shopt -s lastpipe  # needed for `read`ing from a pipe
 
