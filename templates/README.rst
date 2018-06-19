@@ -13,7 +13,7 @@
 {% endif %}
 {% if has_pypi %}
 .. image:: https://img.shields.io/pypi/pyversions/{{project_name}}.svg
-    :target: https://pypi.python.org/pypi/{{project_name}}
+    :target: https://pypi.org/project/{{project_name}}/
 
 {% endif %}
 .. image:: https://img.shields.io/github/license/jwodder/{{repo_name}}.svg
@@ -22,7 +22,7 @@
 
 `GitHub <https://github.com/jwodder/{{repo_name}}>`_
 {% if has_pypi %}
-| `PyPI <https://pypi.python.org/pypi/{{project_name}}>`_
+| `PyPI <https://pypi.org/project/{{project_name}}/>`_
 {% endif %}
 {% if has_docs %}
 | `Documentation <https://{{rtfd_name}}.readthedocs.io>`_
