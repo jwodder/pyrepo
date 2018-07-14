@@ -9,8 +9,8 @@
 - `python_versions` — list of `"X.Y"` strings in ascending order
 - `py2_versions`
 - `py3_versions`
-- `py2 = '2.7' in python_versions` — whether any Python 2 versions (and thus
-  also PyPy) are supported (It's assumed Python 3 is always supported)
+- `py2 = '2.7' in python_versions` — whether any Python 2 versions are
+  supported (It's assumed Python 3 is always supported)
 - `python_requires: str` — calculated from `python_versions`
 
 - `is_flat_module: bool`
