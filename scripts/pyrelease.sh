@@ -91,9 +91,6 @@ git show -s --format=%b "v$VERSION^{commit}" | jq -Rs \
 
 rm -rf dist/  # To keep things simple
 
-### If Python version >= 2.7.9 or >= 3.2:
-# $PYTHON setup.py sdist bdist_wheel upload --sign
-
 ### Uploading via Twine (or uploading the wheel first?  Research/experiment
 ### more; cf. <https://github.com/pypa/python-packaging-user-guide/pull/260>)
 ### seems to be necessary to get the package's dependencies to be listed on its
@@ -102,8 +99,6 @@ rm -rf dist/  # To keep things simple
 ###    no matter what.
 ###  - Alternatively, maybe PyPI only lists dependencies if the first file
 ###    uploaded is a .zip sdist or a wheel and not if it's a tarball?
-
-### Else:
 
 $PYTHON setup.py sdist bdist_wheel
 ### TODO: Add a "confirmation step" here (open a shell and abort if it returns
