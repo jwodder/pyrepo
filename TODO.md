@@ -23,14 +23,13 @@
   Codecov.io via their APIs
     - Readthedocs: not possible
     - Travis: <https://developer.travis-ci.org/resource/repository#activate>
-    - Codecov.io: not possible?
+    - Codecov.io: done automatically when test results are submitted
 - Add templates for:
     - `docs/index.rst` (and other `docs/*.rst` files?)
     - `CHANGELOG.md`
     - `CONTRIBUTORS.md`
     - `test/test_FEATURE.py`?
-- Improve `pyrelease.sh`
-    - Translate it into Python?
+- Improve `pyrelease.sh`/`pyrelease.py`
 
 - Write a "RATIONALE.md" (or "BIKESHED.md"?) file for reminding me why I did
   certain things / why #2EFFFC is the correct color to paint a bikeshed
