@@ -18,3 +18,5 @@ SSH_URL="$(gh repo new -d "$DESC" "$NAME" | jq -r .ssh_url)"
 # `grep -v` won't work here, as that makes grep check if any line != "origin"
 git remote add origin "$SSH_URL"
 git push -u origin master
+
+### TODO: Also set GitHub topics based on project keywords?

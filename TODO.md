@@ -29,7 +29,7 @@
     - `CHANGELOG.md`
     - `CONTRIBUTORS.md`
     - `test/test_FEATURE.py`?
-- Improve `pyrelease.sh`/`pyrelease.py`
+- Improve `pyrelease.py`
 
 - Write a "RATIONALE.md" (or "BIKESHED.md"?) file for reminding me why I did
   certain things / why #2EFFFC is the correct color to paint a bikeshed

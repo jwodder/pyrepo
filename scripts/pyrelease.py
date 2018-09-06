@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 ### Replace with a customized <https://pypi.python.org/pypi/zest.releaser>?
 ### TODO: Try to give this some level of idempotence
+### TODO: Echo a description of each step before it's run?
 __python_requires__ = '~= 3.5'
 __requires__ = ['requests ~= 2.5']
 import os
@@ -23,6 +24,8 @@ def main():
     #2. Update CHANGELOG
     #3. First release: Set repostatus to "Active" and "Development Status"
     #   classifier to "Beta" or higher
+    #4. First release: Replace "work-in-progress" GitHub topic with
+    #   "available-on-pypi"
 
     ### Add prompts confirming that the user did all these?
 
@@ -54,7 +57,7 @@ def main():
         sys.exit('Could not parse remote Git URL: ' + repr(origin_url))
     owner, repo = m.groups()
 
-    with NamedTemporaryFile() as tmplate:
+    with NamedTemporaryFile(mode='w+') as tmplate:
         ### TODO: Try to take default commit message from CHANGELOG / include
         ### CHANGELOG section in template
         tmplate.write('''\
@@ -98,6 +101,7 @@ INSERT LONG DESCRIPTION HERE (optional)
     ).raise_for_status()
 
     rmtree('dist/', ignore_errors=True)  # To keep things simple
+    ### TODO: Suppress output unless an error occurs?
     runcmd(PYTHON, 'setup.py', 'sdist', 'bdist_wheel')
 
     ### TODO: Add a "confirmation step" here? (Open a shell and abort if it
@@ -118,11 +122,12 @@ INSERT LONG DESCRIPTION HERE (optional)
     #    'upload',
     #    *relfiles,
     #    'Code/Releases/Python/' + NAME + '/',
-    #),
+    #)
 
     # User:
     # - Make the version docs "active" on Readthedocs
     # - Set `__version__` to the next version number plus `.dev1`
+    # - Add new section to top of CHANGELOG
 
 def runcmd(*args):
     r = run(args)
@@ -134,3 +139,6 @@ def readcmd(*args):
         return check_output(args, universal_newlines=True).strip()
     except CalledProcessError as e:
         sys.exit(e.returncode)
+
+if __name__ == '__main__':
+    main()
