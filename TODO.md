@@ -30,6 +30,9 @@
     - `CONTRIBUTORS.md`
     - `test/test_FEATURE.py`?
 - Improve `pyrelease.py`
+    - Replace with a customized <https://pypi.python.org/pypi/zest.releaser>?
+    - Make the pre-release steps also update the year range in `LICENSE` and
+      `docs/conf.py`?
 
 - Write a "RATIONALE.md" (or "BIKESHED.md"?) file for reminding me why I did
   certain things / why #2EFFFC is the correct color to paint a bikeshed

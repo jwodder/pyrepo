@@ -2,6 +2,7 @@
 ### Replace with a customized <https://pypi.python.org/pypi/zest.releaser>?
 ### TODO: Try to give this some level of idempotence
 ### TODO: Echo a description of each step before it's run?
+### TODO: Suppress all subprocess output unless an error occurs?
 __python_requires__ = '~= 3.5'
 __requires__ = ['requests ~= 2.5']
 import os
@@ -22,12 +23,13 @@ def main():
     #0. Merge into `master`
     #1. Update `__version__`
     #2. Update CHANGELOG
-    #3. First release: Set repostatus to "Active" and "Development Status"
+    #3. Update year ranges in LICENSE and docs/conf.py (if necessary)
+    #4. First release: Set repostatus to "Active" and "Development Status"
     #   classifier to "Beta" or higher
-    #4. First release: Replace "work-in-progress" GitHub topic with
+    #5. First release: Replace "work-in-progress" GitHub topic with
     #   "available-on-pypi"
 
-    ### Add prompts confirming that the user did all these?
+    ### Add checks/prompts confirming that the user did all these?
 
     # GPG_TTY has to be set so that GPG can be run through Git.
     os.environ['GPG_TTY'] = os.ttyname(0)
@@ -44,12 +46,12 @@ def main():
 
     ### TODO: Run tox (and `sdist bdist_wheel`?) around here?
 
-    NAME = readcmd(PYTHON, 'setup.py', '--name')
+    #NAME = readcmd(PYTHON, 'setup.py', '--name')
     VERSION = readcmd(PYTHON, 'setup.py', '--version')
 
     origin_url = readcmd('git', 'remote', 'get-url', 'origin')
     m = re.fullmatch(
-        '(?:https://|git@)github\.com[:/]([^/]+)/([^/]+)\.git',
+        r'(?:https://|git@)github\.com[:/]([^/]+)/([^/]+)\.git',
         origin_url,
         flags=re.I,
     )
@@ -95,7 +97,7 @@ INSERT LONG DESCRIPTION HERE (optional)
         json={
             "tag_name": 'v' + VERSION,
             "name": subject,
-            "body": body.strip(),
+            "body": body.strip(),  ### TODO: Remove line wrapping?
             "draft": False,
         },
     ).raise_for_status()
@@ -114,10 +116,9 @@ INSERT LONG DESCRIPTION HERE (optional)
         runcmd(GPG, '--detach-sign', '-a', distfile)
         ### TODO: Use the --sign option to `twine upload` instead?
         relfiles.append(distfile + '.asc')
-    ### TODO: Ensure that this always uploads the wheel first?
     runcmd('twine', 'upload', *relfiles)
 
-    #runcms(
+    #runcmd(
     #    'dropbox_uploader',
     #    'upload',
     #    *relfiles,
