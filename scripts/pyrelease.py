@@ -410,7 +410,7 @@ class Changelog:
                 prev = line
         if prev is not None:
             if not sections:
-                raise ValueError('No headers in nonempty file')
+                raise ValueError('Changelog is nonempty but lacks headers')
             sections[-1].content += prev
         if sections:
             sections[-1]._end()
