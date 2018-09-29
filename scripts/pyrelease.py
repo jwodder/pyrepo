@@ -1,12 +1,12 @@
 #!/usr/bin/python3
 # TODO:
 # - Try to give this some level of idempotence
-# - Run more commands with `silent_cmd()`?
+# - Add options/individual commands for doing each release step separately
 
 __python_requires__ = '~= 3.5'
 __requires__ = [
     'attrs ~= 18.1',
-    'click ~= 6.5',
+    'click ~= 7.0',
     'in_place ~= 0.3.0',
     'requests ~= 2.5',
     'uritemplate ~= 3.0',
@@ -158,7 +158,6 @@ class Project:
         if CHECK_TOX and \
                 os.path.exists(os.path.join(self.directory), 'tox.ini'):
             runcmd('tox', cwd=self.directory)
-        ### TODO: Insert `-q` option before `check`?
         runcmd(self.python, 'setup.py', 'check', '-rms', cwd=self.directory)
 
     def commit_version(self):  ### Not idempotent
@@ -228,10 +227,8 @@ class Project:
         self.log('Building artifacts ...')
         distdir = os.path.join(self.directory, 'dist')
         rmtree(distdir, ignore_errors=True)  # To keep things simple
-        ### TODO: Insert `-q` option before `sdist` instead of using
-        ### `silent_cmd()`?
-        silent_cmd(self.python, 'setup.py', 'sdist', 'bdist_wheel',
-                   cwd=self.directory)
+        runcmd(self.python, 'setup.py', '-q', 'sdist', 'bdist_wheel',
+               cwd=self.directory)
         for distfile in os.listdir(distdir):
             distfile = os.path.join(distdir, distfile)
             self.assets.append(distfile)
@@ -470,18 +467,6 @@ def readcmd(*args, **kwargs):
                          .strip()
     except subprocess.CalledProcessError as e:
         sys.exit(e.returncode)
-
-def silent_cmd(*args, **kwargs):
-    r = subprocess.run(
-        args,
-        universal_newlines=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        **kwargs,
-    )
-    if r.returncode != 0:
-        click.secho(r.stdout, nl=False, err=True, fg='red')
-        sys.exit(r.returncode)
 
 def next_version(v):
     vs = list(map(int, v.split('.')))
