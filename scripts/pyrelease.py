@@ -281,7 +281,7 @@ class Project:
         # Add new section to top of CHANGELOG
         self.log('Adding new section to CHANGELOG ...')
         new_sect = ChangelogSection(
-            version = new_version,
+            version = 'v' + new_version,
             date    = 'in development',
             content = '',
         )
@@ -292,7 +292,7 @@ class Project:
             chlog = Changelog([
                 new_sect,
                 ChangelogSection(
-                    version = old_version,
+                    version = 'v' + old_version,
                     date    = today(),
                     content = 'Initial release',
                 ),
@@ -339,7 +339,7 @@ class Project:
         with InPlaceText(os.path.join(self.directory, 'README.rst')) as fp:
             for para in read_paragraphs(fp):
                 if para.splitlines()[0] == '.. image:: http://www.repostatus.org/badges/latest/wip.svg':
-                    print(ACTIVE_BADGE + '\n', file=fp)
+                    print(ACTIVE_BADGE, file=fp)
                 else:
                     print(para, file=fp, end='')
         # Set "Development Status" classifier to "Beta" or higher:
