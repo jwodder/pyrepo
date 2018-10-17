@@ -7,7 +7,7 @@ __python_requires__ = '~= 3.5'
 __requires__ = [
     'attrs ~= 18.1',
     'click ~= 7.0',
-    'in_place ~= 0.3.0',
+    'in_place ~= 0.4.0',
     'requests ~= 2.5',
     'uritemplate ~= 3.0',
 ]
@@ -35,7 +35,7 @@ import time
 from   tempfile    import NamedTemporaryFile
 import attr
 import click
-from   in_place    import InPlaceText
+from   in_place    import InPlace
 import requests
 from   uritemplate import expand
 
@@ -111,7 +111,7 @@ class Project:
         initfile = os.path.join(self.directory, import_name + '.py')
         if not os.path.exists(initfile):
             initfile = os.path.join(self.directory, import_name, '__init__.py')
-        with InPlaceText(initfile) as fp:
+        with InPlace(initfile, mode='t') as fp:
             for line in fp:
                 m = re.match(r'^__version__\s*=', line)
                 if m:
@@ -311,7 +311,7 @@ class Project:
             self.changelog = chlog
         # Update year ranges in LICENSE
         self.log('Ensuring LICENSE copyright line is up to date ...')
-        with InPlaceText(os.path.join(self.directory, 'LICENSE')) as fp:
+        with InPlace(os.path.join(self.directory, 'LICENSE'), mode='t') as fp:
             for line in fp:
                 m = re.match(r'^Copyright \(c\) (\d[-,\d\s]+\d) \w+', line)
                 if m:
@@ -322,7 +322,7 @@ class Project:
         docs_conf = os.path.join(self.directory, 'docs', 'conf.py')
         if os.path.exists(docs_conf):
             self.log('Ensuring docs/conf.py copyright is up to date ...')
-            with InPlaceText(docs_conf) as fp:
+            with InPlace(docs_conf, mode='t') as fp:
                 for line in fp:
                     m = re.match(r'^copyright\s*=\s*[\x27"](\d[-,\d\s]+\d) \w+', line)
                     if m:
@@ -336,7 +336,7 @@ class Project:
     def end_initial_dev(self):  # Idempotent
         # Set repostatus to "Active":
         self.log('Advancing repostatus ...')
-        with InPlaceText(os.path.join(self.directory, 'README.rst')) as fp:
+        with InPlace(os.path.join(self.directory, 'README.rst'), mode='t') as fp:
             for para in read_paragraphs(fp):
                 if para.splitlines()[0] == '.. image:: http://www.repostatus.org/badges/latest/wip.svg':
                     print(ACTIVE_BADGE, file=fp)
@@ -344,7 +344,7 @@ class Project:
                     print(para, file=fp, end='')
         # Set "Development Status" classifier to "Beta" or higher:
         self.log('Advancing Development Status classifier ...')
-        with InPlaceText(os.path.join(self.directory, 'setup.cfg')) as fp:
+        with InPlace(os.path.join(self.directory, 'setup.cfg'), mode='t') as fp:
             matched = False
             for line in fp:
                 if re.match(r'^\s*#?\s*Development Status :: [123] ', line):
