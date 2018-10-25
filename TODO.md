@@ -21,7 +21,7 @@
 
 - Write scripts for adding new repositories to Read the Docs, Travis, and
   Codecov.io via their APIs
-    - Readthedocs: not possible
+    - Read the Docs: not possible
     - Travis: <https://developer.travis-ci.org/resource/repository#activate>
     - Codecov.io: done automatically when test results are submitted
 - Add templates for:
@@ -37,5 +37,5 @@
 - Write a "RATIONALE.md" (or "BIKESHED.md"?) file for reminding me why I did
   certain things / why #2EFFFC is the correct color to paint a bikeshed
     - cf. <https://blog.ionelmc.ro/2014/05/25/python-packaging/>
-- Standardize Readthedocs settings
+- Standardize Read the Docs settings
 - Standardize Travis settings?
