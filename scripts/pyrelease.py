@@ -469,8 +469,15 @@ def readcmd(*args, **kwargs):
         sys.exit(e.returncode)
 
 def next_version(v):
+    """
+    >>> next_version('0.5.0')
+    '0.6.0'
+    >>> next_version('0.5.1')
+    '0.6.0'
+    """
     vs = list(map(int, v.split('.')))
     vs[1] += 1
+    vs[2:] = [0] * len(vs[2:])
     return '.'.join(map(str, vs))
 
 def today():
