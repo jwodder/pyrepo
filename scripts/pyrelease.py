@@ -17,7 +17,8 @@ __requires__ = [
 # - git (including push access to repository)
 # - $GPG (including a key usable for signing)
 # - twine (including PyPI credentials)
-# - GitHub credentials stored in ~/.netrc
+# - GitHub credentials for both api.github.com and uploads.github.com stored in
+#   ~/.netrc
 
 # Notable assumptions made by this code:
 # - There is no CHANGELOG file until after the initial release has been made.
