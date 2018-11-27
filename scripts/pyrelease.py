@@ -2,6 +2,7 @@
 # TODO:
 # - Try to give this some level of idempotence
 # - Add options/individual commands for doing each release step separately
+# - Use `twine check` instead of `setup.py check -rms`
 
 __python_requires__ = '~= 3.5'
 __requires__ = [
@@ -61,13 +62,14 @@ ACTIVE_BADGE = '''\
 
 @attr.s
 class Project:
-    directory = attr.ib()
-    name      = attr.ib()
-    _version  = attr.ib()
-    python    = attr.ib()
-    gh_owner  = attr.ib()
-    gh_repo   = attr.ib()
-    assets    = attr.ib(factory=list)
+    directory  = attr.ib()
+    name       = attr.ib()
+    _version   = attr.ib()
+    python     = attr.ib()
+    gh_owner   = attr.ib()
+    gh_repo    = attr.ib()
+    assets     = attr.ib(factory=list)
+    assets_asc = attr.ib(factory=list)
 
     @classmethod
     def from_directory(cls, directory=os.curdir):
@@ -235,7 +237,7 @@ class Project:
             self.assets.append(distfile)
             if SIGN_ASSETS:
                 runcmd(GPG, '--detach-sign', '-a', distfile)
-                self.assets.append(distfile + '.asc')
+                self.assets_asc.append(distfile + '.asc')
 
     def upload(self):
         self.log('Uploading artifacts ...')
@@ -246,14 +248,19 @@ class Project:
 
     def upload_pypi(self):  # Idempotent
         self.log('Uploading artifacts to PyPI ...')
-        runcmd('twine', 'upload', '--skip-existing', *self.assets)
+        runcmd(
+            'twine',
+            'upload',
+            '--skip-existing',
+            *(self.assets + self.assets_asc),
+        )
 
     def upload_dropbox(self):  # Idempotent
         self.log('Uploading artifacts to Dropbox ...')
         runcmd(
             'dropbox_uploader',
             'upload',
-            *self.assets,
+            *(self.assets + self.assets_asc),
             DROPBOX_UPLOAD_DIR.format(name=self.name),
         )
 
@@ -262,8 +269,6 @@ class Project:
         assert getattr(self, 'release_upload_url', None) is not None, \
             "Cannot upload to GitHub before creating release"
         for asset in self.assets:
-            if asset.endswith('.asc'):
-                continue
             name = os.path.basename(asset)
             with open(asset, 'rb') as fp:
                 requests.post(
