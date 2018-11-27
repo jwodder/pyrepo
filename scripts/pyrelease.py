@@ -156,12 +156,19 @@ class Project:
     def log(self, s):
         click.secho(s, bold=True)
 
-    def check(self):  # Idempotent
-        self.log('Running checks ...')
-        if CHECK_TOX and \
-                os.path.exists(os.path.join(self.directory), 'tox.ini'):
-            runcmd('tox', cwd=self.directory)
+    def setup_check(self):  # Idempotent
+        self.log('Running setup.py check ...')
         runcmd(self.python, 'setup.py', 'check', '-rms', cwd=self.directory)
+
+    def tox_check(self):  # Idempotent
+        if os.path.exists(os.path.join(self.directory), 'tox.ini'):
+            self.log('Running tox ...')
+            runcmd('tox', cwd=self.directory)
+
+    def twine_check(self):  # Idempotent
+        self.log('Running twine check ...')
+        assert self.assets, 'Nothing to check'
+        runcmd('twine', 'check', *self.assets)
 
     def commit_version(self):  ### Not idempotent
         self.log('Commiting & tagging ...')
@@ -230,6 +237,8 @@ class Project:
         self.log('Building artifacts ...')
         distdir = os.path.join(self.directory, 'dist')
         rmtree(distdir, ignore_errors=True)  # To keep things simple
+        self.assets = []
+        self.assets_asc = []
         runcmd(self.python, 'setup.py', '-q', 'sdist', 'bdist_wheel',
                cwd=self.directory)
         for distfile in os.listdir(distdir):
@@ -453,8 +462,15 @@ def main():
     add_type('application/zip', '.whl', False)
     proj = Project.from_directory()
     proj.end_dev()
-    proj.check()
+
+    proj.setup_check()
+    if CHECK_TOX:
+        proj.tox_check()
+
     ### TODO: Build assets at this point?
+    #proj.build()
+    #proj.twine_check()
+
     proj.commit_version()
     proj.mkghrelease()
     proj.build()
