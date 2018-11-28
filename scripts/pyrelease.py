@@ -2,7 +2,6 @@
 # TODO:
 # - Try to give this some level of idempotence
 # - Add options/individual commands for doing each release step separately
-# - Use `twine check` instead of `setup.py check -rms`
 
 __python_requires__ = '~= 3.5'
 __requires__ = [
@@ -462,18 +461,13 @@ def main():
     add_type('application/zip', '.whl', False)
     proj = Project.from_directory()
     proj.end_dev()
-
-    proj.setup_check()
+    #proj.setup_check()
     if CHECK_TOX:
         proj.tox_check()
-
-    ### TODO: Build assets at this point?
-    #proj.build()
-    #proj.twine_check()
-
+    proj.build()
+    proj.twine_check()
     proj.commit_version()
     proj.mkghrelease()
-    proj.build()
     proj.upload()
     proj.begin_dev()
     ### Make the version docs "active" on Readthedocs
