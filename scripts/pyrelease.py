@@ -3,7 +3,7 @@
 # - Try to give this some level of idempotence
 # - Add options/individual commands for doing each release step separately
 
-__python_requires__ = '~= 3.5'
+__python_requires__ = '~= 3.6'
 __requires__ = [
     'attrs ~= 18.1',
     'click ~= 7.0',
@@ -28,6 +28,7 @@ __requires__ = [
 from   mimetypes   import add_type, guess_type
 import os
 import os.path
+from   pathlib     import Path
 import re
 from   shutil      import rmtree
 import subprocess
@@ -92,7 +93,7 @@ class Project:
                              + repr(origin_url))
         owner, repo = m.groups()
         return cls(
-            directory = directory,
+            directory = Path(directory),
             python    = python,
             name      = readcmd(python,'setup.py','--name', cwd=directory),
             # attrs strips leading underscores from variable names for __init__
@@ -110,9 +111,9 @@ class Project:
     def version(self, version):
         self.log('Updating __version__ string ...')
         import_name = self.name.replace('-', '_').replace('.', '_')
-        initfile = os.path.join(self.directory, import_name + '.py')
-        if not os.path.exists(initfile):
-            initfile = os.path.join(self.directory, import_name, '__init__.py')
+        initfile = self.directory / (import_name + '.py')
+        if not initfile.exists():
+            initfile = self.directory / import_name / '__init__.py'
         with InPlace(initfile, mode='t') as fp:
             for line in fp:
                 m = re.match(r'^__version__\s*=', line)
@@ -125,7 +126,7 @@ class Project:
     def changelog(self):
         for fname in CHANGELOG_NAMES:
             try:
-                with open(os.path.join(self.directory, fname)) as fp:
+                with open(self.directory / fname) as fp:
                     return Changelog.load(fp)
             except FileNotFoundError:
                 continue
@@ -134,23 +135,22 @@ class Project:
     @changelog.setter
     def changelog(self, value):
         for fname in CHANGELOG_NAMES:
-            fpath = os.path.join(self.directory, fname)
-            if os.path.exists(fpath):
+            fpath = self.directory / fname
+            if fpath.exists():
                 if value is None:
-                    os.remove(fpath)
+                    fpath.unlink()
                 else:
                     with open(fpath, 'w') as fp:
                         print(value, file=fp)
                 return
         if value is not None:
-            fpath = os.path.join(self.directory, CHANGELOG_NAMES[0])
+            fpath = self.directory / CHANGELOG_NAMES[0]
             with open(fpath, 'w') as fp:
                 print(value, file=fp)
 
     @property
     def ghapi_url(self):
-        return 'https://api.github.com/repos/{0.gh_owner}/{0.gh_repo}'\
-               .format(self)
+        return f'https://api.github.com/repos/{self.gh_owner}/{self.gh_repo}'
 
     def log(self, s):
         click.secho(s, bold=True)
@@ -160,7 +160,7 @@ class Project:
         runcmd(self.python, 'setup.py', 'check', '-rms', cwd=self.directory)
 
     def tox_check(self):  # Idempotent
-        if os.path.exists(os.path.join(self.directory), 'tox.ini'):
+        if (self.directory / 'tox.ini').exists():
             self.log('Running tox ...')
             runcmd('tox', cwd=self.directory)
 
@@ -182,7 +182,7 @@ class Project:
             print(file=tmplate)
             chlog = self.changelog
             if chlog:
-                print('v{} — INSERT SHORT DESCRIPTION HERE'.format(self.version),
+                print(f'v{self.version} — INSERT SHORT DESCRIPTION HERE',
                       file=tmplate)
                 print(file=tmplate)
                 print('INSERT LONG DESCRIPTION HERE (optional)', file=tmplate)
@@ -191,8 +191,7 @@ class Project:
                 print(file=tmplate)
                 print(chlog.sections[0].content, file=tmplate)
             else:
-                print('v{} — Initial release'.format(self.version),
-                      file=tmplate)
+                print(f'v{self.version} — Initial release', file=tmplate)
             print(file=tmplate)
             print('# Write in Markdown.', file=tmplate)
             print('# The first line will be used as the release name.',
@@ -234,18 +233,17 @@ class Project:
 
     def build(self):  ### Not idempotent
         self.log('Building artifacts ...')
-        distdir = os.path.join(self.directory, 'dist')
+        distdir = self.directory / 'dist'
         rmtree(distdir, ignore_errors=True)  # To keep things simple
         self.assets = []
         self.assets_asc = []
         runcmd(self.python, 'setup.py', '-q', 'sdist', 'bdist_wheel',
                cwd=self.directory)
-        for distfile in os.listdir(distdir):
-            distfile = os.path.join(distdir, distfile)
-            self.assets.append(distfile)
+        for distfile in distdir.iterdir():
+            self.assets.append(str(distfile))
             if SIGN_ASSETS:
-                runcmd(GPG, '--detach-sign', '-a', distfile)
-                self.assets_asc.append(distfile + '.asc')
+                runcmd(GPG, '--detach-sign', '-a', str(distfile))
+                self.assets_asc.append(str(distfile) + '.asc')
 
     def upload(self):
         self.log('Uploading artifacts ...')
@@ -325,7 +323,7 @@ class Project:
             self.changelog = chlog
         # Update year ranges in LICENSE
         self.log('Ensuring LICENSE copyright line is up to date ...')
-        with InPlace(os.path.join(self.directory, 'LICENSE'), mode='t') as fp:
+        with InPlace(self.directory / 'LICENSE', mode='t') as fp:
             for line in fp:
                 m = re.match(r'^Copyright \(c\) (\d[-,\d\s]+\d) \w+', line)
                 if m:
@@ -333,8 +331,8 @@ class Project:
                          + line[m.end(1):]
                 print(line, file=fp, end='')
         # Update year ranges in docs/conf.py
-        docs_conf = os.path.join(self.directory, 'docs', 'conf.py')
-        if os.path.exists(docs_conf):
+        docs_conf = self.directory / 'docs' / 'conf.py'
+        if docs_conf.exists():
             self.log('Ensuring docs/conf.py copyright is up to date ...')
             with InPlace(docs_conf, mode='t') as fp:
                 for line in fp:
@@ -350,7 +348,7 @@ class Project:
     def end_initial_dev(self):  # Idempotent
         # Set repostatus to "Active":
         self.log('Advancing repostatus ...')
-        with InPlace(os.path.join(self.directory, 'README.rst'), mode='t') as fp:
+        with InPlace(self.directory / 'README.rst', mode='t') as fp:
             for para in read_paragraphs(fp):
                 if para.splitlines()[0] == '.. image:: http://www.repostatus.org/badges/latest/wip.svg':
                     print(ACTIVE_BADGE, file=fp)
@@ -358,7 +356,7 @@ class Project:
                     print(para, file=fp, end='')
         # Set "Development Status" classifier to "Beta" or higher:
         self.log('Advancing Development Status classifier ...')
-        with InPlace(os.path.join(self.directory, 'setup.cfg'), mode='t') as fp:
+        with InPlace(self.directory / 'setup.cfg', mode='t') as fp:
             matched = False
             for line in fp:
                 if re.match(r'^\s*#?\s*Development Status :: [123] ', line):
@@ -447,7 +445,7 @@ class ChangelogSection:
     def __str__(self):
         s = self.version
         if self.date is not None:
-            s += ' ({})'.format(self.date)
+            s += f' ({self.date})'
         return s + '\n' + '-' * len(s) \
                  + ('\n' + self.content if self.content else '')
 
@@ -556,9 +554,9 @@ def ensure_year(year_str, year=None):
             if m.group(1).startswith('-'):
                 year_str = year_str[:m.end(1)] + str(year)
             else:
-                year_str += '-{}'.format(year)
+                year_str += f'-{year}'
         else:
-            year_str += ', {}'.format(year)
+            year_str += f', {year}'
     return year_str
 
 if __name__ == '__main__':
