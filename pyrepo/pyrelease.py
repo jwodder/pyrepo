@@ -66,6 +66,8 @@ class Project:
 
     @classmethod
     def from_directory(cls, directory=os.curdir):
+        ### TODO: Eliminate this check and just always use either python3 or
+        ### sys.executable
         # Use `sys.executable` (Python 3) for the initial check because it
         # should be able to handle anything remotely sensible
         if 'Programming Language :: Python :: 3' in readcmd(

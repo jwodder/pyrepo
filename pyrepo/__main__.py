@@ -39,6 +39,8 @@ def main(project_name, min_pyver, import_name, repo_name, author, author_email,
     if import_name is None:
         import_name = project_name.replace('-', '_').replace('.', '_')
     if repo_name is None:
+        ### TODO: If the repository has a GitHub remote, use that to set
+        ### `repo_name`
         repo_name = project_name
     if rtfd_name is None:
         rtfd_name = project_name
@@ -62,7 +64,8 @@ def main(project_name, min_pyver, import_name, repo_name, author, author_email,
         with open('requirements.txt') as fp:
             install_requires = list(yield_lines(fp))
     except FileNotFoundError:
-        ### TODO: Check source file for __requires__ attribute
+        ### TODO: Check source file for __requires__ attribute (and then remove
+        ### it)
         install_requires = []
 
     ### TODO: Support setting the entry point function name to something other
