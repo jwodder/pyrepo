@@ -1,12 +1,13 @@
 #!/usr/bin/python3
-from   pathlib       import Path
+from   pathlib          import Path
 import re
 import time
 import click
-from   in_place      import InPlace
-from   jinja2        import Environment, PackageLoader
-from   pkg_resources import yield_lines
-from   .util         import ensure_license_years, readcmd, runcmd, years2str
+from   in_place         import InPlace
+from   jinja2           import Environment, PackageLoader
+from   pkg_resources    import yield_lines
+from   .inspect_project import is_flat
+from   .util            import ensure_license_years, readcmd, runcmd, years2str
 
 AUTHOR = 'John Thorvald Wodder II'
 EMAIL_HOSTNAME = 'varonathe.org'
@@ -47,18 +48,7 @@ def init(project_name, min_pyver, import_name, repo_name, author, author_email,
     if author_email is None:
         author_email = project_name.replace('_', '-') + '@' + EMAIL_HOSTNAME
 
-    flat_src = Path(import_name + '.py')
-    pkg_init_src = Path(import_name) / '__init__.py'
-    if flat_src.exists() and pkg_init_src.exists():
-        raise click.UsageError(f'Both {flat_src} and {pkg_init_src} found in'
-                                ' repository')
-    elif flat_src.exists():
-        is_flat_module = True
-    elif pkg_init_src.exists():
-        is_flat_module = False
-    else:
-        raise click.UsageError(f'Neither {flat_src} nor {pkg_init_src} found'
-                                ' in repository')
+    is_flat_module = is_flat(Path(), import_name)
 
     try:
         with open('requirements.txt') as fp:
@@ -153,7 +143,7 @@ def init_packaging(env):
 
 
 ###def init_tests(env):
-    ### test/, tox.ini, travis.yml(?)
+    ### test/, tox.ini, .travis.yml(?)
     ### badges in README
 
 ###def init_docs(env):

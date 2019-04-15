@@ -29,6 +29,8 @@
             - whether to upload to GitHub
             - GitHub API credentials?
             - whether to run tox
+            - whether to start a shell to examine the assets after building but
+              before uploading?
     - Add a `--chdir` option?
     - If `--min-pyver` is not given on the command line, try to determine it by
       looking in the Python source for a `__python_requires__` assignment and
@@ -39,6 +41,7 @@
 - Move `pyrepo/templates/variables.md` somewhere else
 - When a package has a command, include "Run ``{{command}} --help``" in the
   "see also" paragraph in the module docstring
+- Give `release` an option for setting the version number from the command line
 
 - Prior art to investigate and compare against:
     - https://pypi.python.org/pypi/octopusapi
