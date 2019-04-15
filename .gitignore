@@ -4,10 +4,12 @@
 .cache/
 .coverage
 .eggs/
+.nox/
 .pytest_cache/
 .tox/
 __pycache__/
 build/
 dist/
+docs/.doctrees/
 docs/_build/
 venv/

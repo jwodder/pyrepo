@@ -3,15 +3,6 @@
 # - Try to give this some level of idempotence
 # - Add options/individual commands for doing each release step separately
 
-__python_requires__ = '~= 3.6'
-__requires__ = [
-    'attrs ~= 18.1',
-    'click ~= 7.0',
-    'in_place ~= 0.4.0',
-    'requests ~= 2.5',
-    'uritemplate ~= 3.0',
-]
-
 # External dependencies:
 # - dropbox_uploader (including OAuth configuration)
 # - git (including push access to repository)
@@ -31,7 +22,6 @@ import os.path
 from   pathlib     import Path
 import re
 from   shutil      import rmtree
-import subprocess
 import sys
 import time
 from   tempfile    import NamedTemporaryFile
@@ -40,6 +30,9 @@ import click
 from   in_place    import InPlace
 import requests
 from   uritemplate import expand
+from   .changelog  import Changelog, ChangelogSection
+from   .util       import ensure_license_years, readcmd, runcmd, \
+                            update_years2str
 
 GPG = 'gpg2'
 # gpg2 automatically & implicitly uses gpg-agent to obviate the need to keep
@@ -323,22 +316,20 @@ class Project:
             self.changelog = chlog
         # Update year ranges in LICENSE
         self.log('Ensuring LICENSE copyright line is up to date ...')
-        with InPlace(self.directory / 'LICENSE', mode='t') as fp:
-            for line in fp:
-                m = re.match(r'^Copyright \(c\) (\d[-,\d\s]+\d) \w+', line)
-                if m:
-                    line = line[:m.start(1)] + ensure_year(m.group(1)) \
-                         + line[m.end(1):]
-                print(line, file=fp, end='')
+        ensure_license_years(
+            self.directory / 'LICENSE',
+            [time.localtime().tm_year],
+        )
         # Update year ranges in docs/conf.py
         docs_conf = self.directory / 'docs' / 'conf.py'
         if docs_conf.exists():
             self.log('Ensuring docs/conf.py copyright is up to date ...')
             with InPlace(docs_conf, mode='t') as fp:
                 for line in fp:
-                    m = re.match(r'^copyright\s*=\s*[\x27"](\d[-,\d\s]+\d) \w+', line)
+                    m = re.match(r'^copyright\s*=\s*[\x27"](\d[-,\d\s]+\d) \w+',
+                                 line)
                     if m:
-                        line = line[:m.start(1)] + ensure_year(m.group(1)) \
+                        line = line[:m.start(1)]+update_years2str(m.group(1)) \
                              + line[m.end(1):]
                     print(line, file=fp, end='')
         if not chlog:
@@ -389,70 +380,6 @@ class Project:
             ).raise_for_status()
 
 
-class Changelog:
-    def __init__(self, sections):
-        self.sections = list(sections)
-
-    @classmethod
-    def load(cls, fp):
-        prev = None
-        sections = []
-        for line in fp:
-            if re.match(r'^---+$', line):
-                if sections:
-                    sections[-1]._end()
-                if prev is None:
-                    raise ValueError('File begins with hrule')
-                m = re.match(r'^(?P<version>\S+)\s+\((?P<date>.+)\)$', prev)
-                if not m:
-                    raise ValueError('Section header not in "version (date)"'
-                                     ' format: ' + repr(prev))
-                sections.append(ChangelogSection(
-                    version = m.group('version'),
-                    date    = m.group('date'),
-                    content = '',
-                ))
-                prev = None
-            else:
-                if prev is not None and sections:
-                    sections[-1].content += prev
-                prev = line
-        if prev is not None:
-            if not sections:
-                raise ValueError('Changelog is nonempty but lacks headers')
-            sections[-1].content += prev
-        if sections:
-            sections[-1]._end()
-        return cls(sections)
-
-    def __str__(self):
-        if any('\n\n' in sect.content for sect in self.sections):
-            sep = '\n\n\n'
-        else:
-            sep = '\n\n'
-        return sep.join(map(str, self.sections))
-
-    def __bool__(self):
-        return bool(self.sections)
-
-
-@attr.s
-class ChangelogSection:
-    version = attr.ib()
-    date    = attr.ib()
-    content = attr.ib()  # has trailing newlines stripped
-
-    def __str__(self):
-        s = self.version
-        if self.date is not None:
-            s += f' ({self.date})'
-        return s + '\n' + '-' * len(s) \
-                 + ('\n' + self.content if self.content else '')
-
-    def _end(self):
-        self.content = self.content.rstrip('\r\n')
-
-
 def main():
     # GPG_TTY has to be set so that GPG can be run through Git.
     os.environ['GPG_TTY'] = os.ttyname(0)
@@ -469,18 +396,6 @@ def main():
     proj.upload()
     proj.begin_dev()
     ### Make the version docs "active" on Readthedocs
-
-def runcmd(*args, **kwargs):
-    r = subprocess.run(args, **kwargs)
-    if r.returncode != 0:
-        sys.exit(r.returncode)
-
-def readcmd(*args, **kwargs):
-    try:
-        return subprocess.check_output(args, universal_newlines=True, **kwargs)\
-                         .strip()
-    except subprocess.CalledProcessError as e:
-        sys.exit(e.returncode)
 
 def next_version(v):
     """
@@ -527,37 +442,6 @@ def read_paragraphs(fp):
             para.append(line)
     if para:
         yield ''.join(para)
-
-def ensure_year(year_str, year=None):
-    """
-    Given a string of years of the form ``"2014, 2016-2017"``, update the
-    string if necessary to include the given year (default: the current year).
-    The years in the string must be ascending order and must not include any
-    future years.
-
-    >>> ensure_year('2015', 2015)
-    '2015'
-    >>> ensure_year('2015', 2016)
-    '2015-2016'
-    >>> ensure_year('2015', 2017)
-    '2015, 2017'
-    >>> ensure_year('2014-2015', 2016)
-    '2014-2016'
-    >>> ensure_year('2013, 2015', 2016)
-    '2013, 2015-2016'
-    """
-    if year is None:
-        year = time.localtime().tm_year
-    if not re.search(r'(^|[-,]\s*){}$'.format(year), year_str):
-        m = re.search(r'(^|[-,]\s*){}$'.format(year-1), year_str)
-        if m:
-            if m.group(1).startswith('-'):
-                year_str = year_str[:m.end(1)] + str(year)
-            else:
-                year_str += f'-{year}'
-        else:
-            year_str += f', {year}'
-    return year_str
 
 if __name__ == '__main__':
     main()

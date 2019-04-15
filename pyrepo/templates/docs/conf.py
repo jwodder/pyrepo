@@ -2,7 +2,7 @@ from {{import_name}} import __version__
 
 project   = {{project_name|repr}}
 author    = {{author|repr}}
-copyright = {{(copyright_year + ' ' + author)|repr}}
+copyright = {{((copyright_years|years2str) + ' ' + author)|repr}}
 
 extensions = [
     'sphinx.ext.autodoc',

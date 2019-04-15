@@ -2,6 +2,9 @@
   the various project files for it in the current directory
     - Include scripts for incrementally adding features (tests, docs, doctests,
       Travis, etc.) to an already-templated repository
+    - Include a script that regenerates/outputs specified templated files
+        - The script should take command line options for overriding the
+          various Jinja env vars
     - Prior art to investigate and compare against:
         - https://pypi.python.org/pypi/octopusapi
         - https://github.com/dghubble/pypkg

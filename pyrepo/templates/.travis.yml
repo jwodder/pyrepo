@@ -9,9 +9,6 @@ jobs:
           sudo: true
         {% endif %}
         {% endfor %}
-        {% if py2 %}
-        - python: pypy
-        {% endif %}
         - python: pypy3
 install:
     - pip install codecov tox
