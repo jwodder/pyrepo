@@ -13,14 +13,6 @@
         - https://github.com/pypa/sampleproject
         - https://github.com/jaraco/skeleton
         - https://github.com/ionelmc/cookiecutter-pylibrary
-    - When creating `setup.py`/`setup.cfg`, if a `requirements.txt` file
-      already exists in the project directory, use its contents for
-      `install_requires`
-    - Determine the year used in the LICENSE and `docs/conf.py` copyright by
-      taking the year of every Git commit in the project
-        - `git log --format=%ad --date=format:%Y`
-    - Properly word-wrap the installation instructions in `README.rst` (and the
-      "see also" message in the `__init__.py` docstring?) when templating
 
 - Write scripts for adding new repositories to Read the Docs, Travis, and
   Codecov.io via their APIs
