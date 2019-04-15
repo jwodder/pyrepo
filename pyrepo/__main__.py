@@ -118,7 +118,7 @@ def init_packaging(env):
         '.gitignore', 'MANIFEST.in', 'README.rst', 'setup.cfg', 'setup.py',
     ]:
         if not Path(filename).exists():
-            add_templated_file(filename)
+            add_templated_file(filename, env)
         ### TODO: If .gitignore already exists, merge together with template?
 
     if Path('LICENSE').exists():
@@ -140,6 +140,7 @@ def init_packaging(env):
                 pass
             elif not started:
                 print(jinja_env().get_template('init.j2').render(env), file=fp)
+                print(file=fp)
                 started = True
             print(line, file=fp, end='')
     runcmd('git', 'add', str(init_src))
@@ -157,7 +158,7 @@ def init_packaging(env):
 
 def add_templated_file(filename, env):
     Path(filename).write_text(
-        jinja_env().get_template(filename).render(env),
+        jinja_env().get_template(filename).render(env).rstrip() + '\n',
         encoding='utf-8',
     )
     runcmd('git', 'add', filename)
