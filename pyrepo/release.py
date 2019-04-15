@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 # TODO:
 # - Try to give this some level of idempotence
 # - Add options/individual commands for doing each release step separately
@@ -382,7 +381,8 @@ class Project:
             ).raise_for_status()
 
 
-def main():
+@click.command()
+def release():
     # GPG_TTY has to be set so that GPG can be run through Git.
     os.environ['GPG_TTY'] = os.ttyname(0)
     add_type('application/zip', '.whl', False)
@@ -444,6 +444,3 @@ def read_paragraphs(fp):
             para.append(line)
     if para:
         yield ''.join(para)
-
-if __name__ == '__main__':
-    main()
