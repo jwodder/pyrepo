@@ -112,7 +112,6 @@ def init_packaging(env):
     ]:
         if not Path(filename).exists():
             add_templated_file(filename, env)
-        ### TODO: If .gitignore already exists, merge together with template?
 
     if Path('LICENSE').exists():
         ensure_license_years('LICENSE', env["copyright_years"])

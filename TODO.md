@@ -31,7 +31,6 @@
             - whether to run tox
             - whether to start a shell to examine the assets after building but
               before uploading?
-    - Add a `--chdir` option?
     - If `--min-pyver` is not given on the command line, try to determine it by
       looking in the Python source for a `__python_requires__` assignment and
       by looking in `requirements.txt` for a `# Python ~= 3.X` comment
