@@ -6,8 +6,8 @@ import click
 from   in_place         import InPlace
 from   jinja2           import Environment, PackageLoader
 from   pkg_resources    import yield_lines
+from   .                import util  # Import module to keep mocking easy
 from   .inspect_project import is_flat
-from   .util            import ensure_license_years, readcmd, runcmd, years2str
 
 AUTHOR = 'John Thorvald Wodder II'
 EMAIL_HOSTNAME = 'varonathe.org'
@@ -33,7 +33,7 @@ def pyver_range(min_subver):
 )
 @click.option('--repo-name')
 @click.option('--rtfd-name')
-@click.option('--tests/--no-tests', default=True)
+@click.option('--tests/--no-tests', default=False)
 @click.argument('project_name')
 def init(project_name, min_pyver, import_name, repo_name, author, author_email,
          description, tests, docs, rtfd_name, importable, command):
@@ -94,7 +94,7 @@ def init(project_name, min_pyver, import_name, repo_name, author, author_email,
         "copyright_years": sorted(set(get_commit_years() + [time.localtime().tm_year])),
         "has_travis": tests,
         "has_docs": docs,
-        "has_pypi": True,
+        "has_pypi": False,
         "has_doctests": False,
     }
 
@@ -114,8 +114,8 @@ def init_packaging(env):
             add_templated_file(filename, env)
 
     if Path('LICENSE').exists():
-        ensure_license_years('LICENSE', env["copyright_years"])
-        runcmd('git', 'add', 'LICENSE')
+        util.ensure_license_years('LICENSE', env["copyright_years"])
+        util.runcmd('git', 'add', 'LICENSE')
     else:
         add_templated_file('LICENSE', env)
 
@@ -135,10 +135,10 @@ def init_packaging(env):
                 print(file=fp)
                 started = True
             print(line, file=fp, end='')
-    runcmd('git', 'add', str(init_src))
+    util.runcmd('git', 'add', str(init_src))
 
     if Path('requirements.txt').exists():
-        runcmd('git', 'rm', '-f', 'requirements.txt')
+        util.runcmd('git', 'rm', '-f', 'requirements.txt')
 
 
 ###def init_tests(env):
@@ -153,12 +153,13 @@ def add_templated_file(filename, env):
         jinja_env().get_template(filename).render(env).rstrip() + '\n',
         encoding='utf-8',
     )
-    runcmd('git', 'add', filename)
+    util.runcmd('git', 'add', filename)
 
 def get_commit_years():
     return sorted(set(map(
         int,
-        readcmd('git', 'log', '--format=%ad', '--date=format:%Y').splitlines(),
+        util.readcmd('git', 'log', '--format=%ad', '--date=format:%Y')
+            .splitlines(),
     )))
 
 _jinja_env = None
@@ -171,5 +172,5 @@ def jinja_env():
             lstrip_blocks=True,
         )
         _jinja_env.filters['repr'] = repr
-        _jinja_env.filters['years2str'] = years2str
+        _jinja_env.filters['years2str'] = util.years2str
     return _jinja_env

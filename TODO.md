@@ -41,6 +41,7 @@
 - When a package has a command, include "Run ``{{command}} --help``" in the
   "see also" paragraph in the module docstring
 - Give `release` an option for setting the version number from the command line
+- The saythanks.io URL should be configurable along with the author name
 
 - Prior art to investigate and compare against:
     - https://pypi.python.org/pypi/octopusapi
