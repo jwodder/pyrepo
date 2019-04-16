@@ -1,13 +1,11 @@
 #!/usr/bin/python3
 from   pathlib          import Path
 import re
-import time
 import click
 from   in_place         import InPlace
 from   jinja2           import Environment, PackageLoader
 from   pkg_resources    import yield_lines
-from   .                import util  # Import module to keep mocking easy
-from   .inspect_project import is_flat
+from   .                import inspect_project, util
 
 AUTHOR = 'John Thorvald Wodder II'
 EMAIL_HOSTNAME = 'varonathe.org'
@@ -48,7 +46,7 @@ def init(project_name, min_pyver, import_name, repo_name, author, author_email,
     if author_email is None:
         author_email = project_name.replace('_', '-') + '@' + EMAIL_HOSTNAME
 
-    is_flat_module = is_flat(Path(), import_name)
+    is_flat_module = inspect_project.is_flat(Path(), import_name)
 
     try:
         with open('requirements.txt') as fp:
@@ -91,7 +89,7 @@ def init(project_name, min_pyver, import_name, repo_name, author, author_email,
         "importable": importable,
         "install_requires": install_requires,
         "commands": commands,
-        "copyright_years": sorted(set(get_commit_years() + [time.localtime().tm_year])),
+        "copyright_years": inspect_project.get_commit_years(Path()),
         "has_travis": tests,
         "has_docs": docs,
         "has_pypi": False,
@@ -154,13 +152,6 @@ def add_templated_file(filename, env):
         encoding='utf-8',
     )
     util.runcmd('git', 'add', filename)
-
-def get_commit_years():
-    return sorted(set(map(
-        int,
-        util.readcmd('git', 'log', '--format=%ad', '--date=format:%Y')
-            .splitlines(),
-    )))
 
 _jinja_env = None
 def jinja_env():

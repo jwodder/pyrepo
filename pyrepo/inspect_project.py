@@ -1,4 +1,6 @@
-from pathlib import Path
+import time
+from   pathlib import Path
+from   .       import util  # Import module to keep mocking easy
 
 def is_flat(dirpath, import_name):
     flat_src = Path(dirpath, import_name + '.py')
@@ -13,3 +15,14 @@ def is_flat(dirpath, import_name):
     else:
         raise ValueError(f'Neither {import_name}.py nor'
                          f' {import_name}/__init__.py present in repository')
+
+def get_commit_years(dirpath, include_now=True):
+    years = set(map(
+        int,
+        util.readcmd(
+            'git', '-C', str(dirpath), 'log', '--format=%ad', '--date=format:%Y'
+        ).splitlines(),
+    ))
+    if include_now:
+        years.add(time.localtime().tm_year)
+    return sorted(years)

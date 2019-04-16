@@ -2,10 +2,9 @@ from   operator        import attrgetter
 import os
 from   pathlib         import Path
 from   shutil          import copytree
-import time
 from   click.testing   import CliRunner
 import pytest
-from   pyrepo          import util
+from   pyrepo          import inspect_project
 from   pyrepo.__main__ import main
 
 DATA_DIR = Path(__file__).with_name('data')
@@ -34,18 +33,16 @@ def test_pyrepo_init(dirpath, mocker, tmp_path):
     tmp_path /= 'tmp'  # copytree() can't copy to a dir that already exists
     copytree(dirpath / 'before', tmp_path)
     options = (dirpath / 'options.txt').read_text().splitlines()
+    mocker.patch(
+        'pyrepo.inspect_project.get_commit_years',
+        return_value=[2016, 2018, 2019],
+    )
     mocker.patch('pyrepo.util.runcmd', new=patched_runcmd)
-    mocker.patch('pyrepo.util.readcmd', return_value='2019\n2019\n2018\n2016')
-    # Set current time to 2019-04-16T18:17:14Z:
-    mocker.patch('time.localtime', return_value=time.localtime(1555438634))
     r = CliRunner().invoke(
         main,
         ['-C', str(tmp_path), 'init'] + options + ['foobar'],
     )
     assert r.exit_code == 0, r.output
     ### TODO: Assert about how runcmd() was called?
-    util.readcmd.assert_called_once_with(
-        'git', 'log', '--format=%ad', '--date=format:%Y'
-    )
-    time.localtime.assert_called_once_with()
+    inspect_project.get_commit_years.assert_called_once_with(Path())
     assert_dirtrees_eq(tmp_path, dirpath / 'after')
