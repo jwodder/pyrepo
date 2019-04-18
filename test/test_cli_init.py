@@ -38,10 +38,7 @@ def test_pyrepo_init(dirpath, mocker, tmp_path):
         return_value=[2016, 2018, 2019],
     )
     mocker.patch('pyrepo.util.runcmd', new=patched_runcmd)
-    r = CliRunner().invoke(
-        main,
-        ['-C', str(tmp_path), 'init'] + options + ['foobar'],
-    )
+    r = CliRunner().invoke(main, ['-C', str(tmp_path), 'init'] + options)
     assert r.exit_code == 0, r.output
     ### TODO: Assert about how runcmd() was called?
     inspect_project.get_commit_years.assert_called_once_with(Path())

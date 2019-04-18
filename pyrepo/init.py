@@ -22,79 +22,88 @@ def pyver_range(min_subver):
 @click.option('-c', '--command')
 @click.option('-d', '--description', prompt=True)
 @click.option('--docs/--no-docs', default=False)
-@click.option('--import-name')
+@click.option('-i', '--import-name')
 @click.option('--importable/--no-importable', default=None)
 @click.option(
     '-P', '--min-pyver',
     type=click.Choice(pyver_range(MIN_PY3_SUBVER)),
     default=f'3.{MIN_PY3_SUBVER}',
 )
+@click.option('-p', '--project-name')
 @click.option('--repo-name')
 @click.option('--rtfd-name')
 @click.option('--tests/--no-tests', default=False)
-@click.argument('project_name')
 def init(project_name, min_pyver, import_name, repo_name, author, author_email,
          description, tests, docs, rtfd_name, importable, command):
-    if import_name is None:
-        import_name = project_name.replace('-', '_').replace('.', '_')
-    if repo_name is None:
-        ### TODO: If the repository has a GitHub remote, use that to set
-        ### `repo_name`
-        repo_name = project_name
-    if rtfd_name is None:
-        rtfd_name = project_name
-    if author_email is None:
-        author_email = project_name.replace('_', '-') + '@' + EMAIL_HOSTNAME
-
-    is_flat_module = inspect_project.is_flat(Path(), import_name)
-
-    try:
-        with open('requirements.txt') as fp:
-            install_requires = list(yield_lines(fp))
-    except FileNotFoundError:
-        ### TODO: Check source file for __requires__ attribute (and then remove
-        ### it)
-        install_requires = []
-
-    ### TODO: Support setting the entry point function name to something other
-    ### than "main" on the command line
-    ### TODO: Autodetect `if __name__ == '__main__':` lines in import_name.py /
-    ### import_name/__main__.py and set `commands` accordingly
-    if command is None:
-        commands = {}
-    elif is_flat_module:
-        commands = {command: f'{import_name}:main'}
-    else:
-        commands = {command: f'{import_name}.__main__:main'}
-
-    if importable is None:
-        if not install_requires:
-            importable = True
-        elif (Path(import_name) / '__main__.py').exists():
-            importable = True
-        else:
-            importable = False
-
     env = {
-        "project_name": project_name,
-        "import_name": import_name,
-        "repo_name": repo_name,
-        "rtfd_name": rtfd_name,
         "author": author,
-        "author_email": author_email,
         "short_description": description,
         "python_versions": pyver_range(int(min_pyver.partition('.')[2])),
         "python_requires": "~=" + min_pyver,
-        "is_flat_module": is_flat_module,
-        "importable": importable,
-        "install_requires": install_requires,
-        "commands": commands,
         "copyright_years": inspect_project.get_commit_years(Path()),
         "has_travis": tests,
         "has_docs": docs,
         "has_pypi": False,
         "has_doctests": False,
     }
+
+    if import_name is not None:
+        env["import_name"] = import_name
+        env["is_flat_module"] = inspect_project.is_flat(Path(), import_name)
+    else:
+        env.update(inspect_project.find_module(Path()))
+
+    if project_name is not None:
+        env["project_name"] = project_name
+    else:
+        env["project_name"] = env["import_name"]
+
+    if repo_name is not None:
+        env["repo_name"] = repo_name
+    else:
+        ### TODO: If the repository has a GitHub remote, use that to set
+        ### `repo_name`
+        env["repo_name"] = env["project_name"]
+
+    if rtfd_name is not None:
+        env["rtfd_name"] = rtfd_name
+    else:
+        env["rtfd_name"] = project_name
+
+    if author_email is not None:
+        env["author_email"] = author_email
+    else:
+        env["author_email"] = env["project_name"].replace('_', '-') + '@' \
+                            + EMAIL_HOSTNAME
+
+    try:
+        with open('requirements.txt') as fp:
+            env["install_requires"] = list(yield_lines(fp))
+    except FileNotFoundError:
+        ### TODO: Check source file for __requires__ attribute (and then remove
+        ### it)
+        env["install_requires"] = []
+
+    ### TODO: Support setting the entry point function name to something other
+    ### than "main" on the command line
+    ### TODO: Autodetect `if __name__ == '__main__':` lines in import_name.py /
+    ### import_name/__main__.py and set `commands` accordingly
+    if command is None:
+        env["commands"] = {}
+    elif env["is_flat_module"]:
+        env["commands"] = {command: f'{env["import_name"]}:main'}
+    else:
+        env["commands"] = {command: f'{env["import_name"]}.__main__:main'}
+
+    if importable is not None:
+        env["importable"] = importable
+    elif not env["install_requires"]:
+        env["importable"] = True
+    elif not env["is_flat_module"] \
+            and (Path(env["import_name"]) / '__main__.py').exists():
+        env["importable"] = True
+    else:
+        env["importable"] = False
 
     init_packaging(env)
     ###if tests:

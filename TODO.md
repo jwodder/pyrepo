@@ -42,10 +42,8 @@
 - When a package has a command, include "Run ``{{command}} --help``" in the
   "see also" paragraph in the module docstring
 - Give `release` an option for setting the version number from the command line
-- `pyrepo init`: Determine the import name by scanning for
-  `{*.py,*/__init__.py}` files in the repo, and use the import name as the
-  default project name (with an option to override the latter)
 - Rename `inspect_project.py` to something shorter
+- Fill in `--help` strings and command docstrings
 
 - Prior art to investigate and compare against:
     - https://pypi.python.org/pypi/octopusapi
