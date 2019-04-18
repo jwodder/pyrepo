@@ -1,0 +1,4 @@
+-d
+A project
+--travis
+--doctests
