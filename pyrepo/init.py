@@ -133,6 +133,8 @@ def init_packaging(env):
                 print(file=fp)
                 started = True
             print(line, file=fp, end='')
+        if not started:  # if init_src is empty
+            print(jinja_env().get_template('init.j2').render(env), file=fp)
     util.runcmd('git', 'add', str(init_src))
 
     if Path('requirements.txt').exists():
