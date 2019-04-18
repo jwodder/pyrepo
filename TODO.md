@@ -42,6 +42,10 @@
   "see also" paragraph in the module docstring
 - Give `release` an option for setting the version number from the command line
 - The saythanks.io URL should be configurable along with the author name
+- `pyrepo init`: Determine the import name by scanning for
+  `{*.py,*/__init__.py}` files in the repo, and use the import name as the
+  default project name (with an option to override the latter)
+- Rename `inspect_project.py` to something shorter
 
 - Prior art to investigate and compare against:
     - https://pypi.python.org/pypi/octopusapi
@@ -54,7 +58,8 @@
 - Write scripts for adding new repositories to Read the Docs, Travis, and
   Codecov.io via their APIs
     - Read the Docs: not possible
-    - Travis: <https://developer.travis-ci.org/resource/repository#activate>
+        - Write a module with `mechanicalsoup` to do this?
+    - Travis: <https://developer.travis-ci.org/resource/repository#activate>?
     - Codecov.io: done automatically when test results are submitted
 - Add templates for:
     - `docs/index.rst` (and other `docs/*.rst` files?)
