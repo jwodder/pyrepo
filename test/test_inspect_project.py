@@ -3,7 +3,7 @@ from   pathlib                import Path
 import time
 import pytest
 from   pyrepo                 import util
-from   pyrepo.inspect_project import get_commit_years, is_flat
+from   pyrepo.inspect_project import find_module, get_commit_years, is_flat
 
 DATA_DIR = Path(__file__).with_name('data')
 
@@ -78,3 +78,34 @@ def test_get_commit_years_no_include_now(gitoutput, result, mocker):
         'git', '-C', '.', 'log', '--format=%ad', '--date=format:%Y',
     )
     time.localtime.assert_not_called()
+
+@pytest.mark.parametrize(
+    'dirpath',
+    (DATA_DIR / 'find_module' / 'valid').iterdir(),
+    ids=attrgetter("name"),
+)
+def test_find_module(dirpath):
+    assert find_module(dirpath) == {
+        "import_name": "foobar",
+        "is_flat_module": dirpath.name.endswith("flat"),
+    }
+
+@pytest.mark.parametrize(
+    'dirpath',
+    (DATA_DIR / 'find_module' / 'extra').iterdir(),
+    ids=attrgetter("name"),
+)
+def test_find_module_extra(dirpath):
+    with pytest.raises(ValueError) as excinfo:
+        find_module(dirpath)
+    assert str(excinfo.value) == 'Multiple Python modules in repository'
+
+@pytest.mark.parametrize(
+    'dirpath',
+    (DATA_DIR / 'find_module' / 'none').iterdir(),
+    ids=attrgetter("name"),
+)
+def test_find_module_none(dirpath):
+    with pytest.raises(ValueError) as excinfo:
+        find_module(dirpath)
+    assert str(excinfo.value) == 'No Python modules in repository'

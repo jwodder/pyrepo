@@ -26,3 +26,26 @@ def get_commit_years(dirpath, include_now=True):
     if include_now:
         years.add(time.localtime().tm_year)
     return sorted(years)
+
+def find_module(dirpath: Path):
+    results = []
+    for flat in dirpath.glob('*.py'):
+        name = flat.stem
+        if name.isidentifier():
+            results.append({
+                "import_name": name,
+                "is_flat_module": True,
+            })
+    for pkg in dirpath.glob('*/__init__.py'):
+        name = pkg.parent.name
+        if name.isidentifier():
+            results.append({
+                "import_name": name,
+                "is_flat_module": False,
+            })
+    if len(results) > 1:
+        raise ValueError('Multiple Python modules in repository')
+    elif not results:
+        raise ValueError('No Python modules in repository')
+    else:
+        return results[0]

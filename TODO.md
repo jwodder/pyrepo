@@ -20,6 +20,7 @@
     - Add support for a config file for configuring:
         - `author`
         - `author_email` (as a Jinja2 template)
+        - saythanks.io URL (including unsetting)
         - Releasing:
             - whether to sign the version tag
             - whether to sign assets
@@ -41,7 +42,6 @@
 - When a package has a command, include "Run ``{{command}} --help``" in the
   "see also" paragraph in the module docstring
 - Give `release` an option for setting the version number from the command line
-- The saythanks.io URL should be configurable along with the author name
 - `pyrepo init`: Determine the import name by scanning for
   `{*.py,*/__init__.py}` files in the repo, and use the import name as the
   default project name (with an option to override the latter)
