@@ -22,6 +22,7 @@ PYVER_TEMPLATE = '"3.X"'
 
 def configure(ctx, filename):
     cfg = ConfigParser(interpolation=None)
+    cfg.optionxform = lambda s: s.lower().replace('-', '_')
     cfg.read_dict(DEFAULTS)
     if filename is not None:
         cfg.read(filename)
