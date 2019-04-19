@@ -18,7 +18,7 @@ def readcmd(*args, **kwargs):
         sys.exit(e.returncode)
 
 def ensure_license_years(filepath, years: 'list[int]'):
-    with InPlace(filepath, mode='t') as fp:
+    with InPlace(filepath, mode='t', encoding='utf-8') as fp:
         for line in fp:
             m = re.match(r'^Copyright \(c\) (\d[-,\d\s]+\d) \w+', line)
             if m:

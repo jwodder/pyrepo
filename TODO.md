@@ -21,6 +21,7 @@
         - `author`
         - `author_email` (as a Jinja2 template)
         - saythanks.io URL (including unsetting)
+        - min & max Python 3 subversions
         - Releasing:
             - whether to sign the version tag
             - whether to sign assets

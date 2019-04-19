@@ -77,7 +77,7 @@ def init(project_name, min_pyver, import_name, repo_name, author, author_email,
                             + EMAIL_HOSTNAME
 
     try:
-        with open('requirements.txt') as fp:
+        with open('requirements.txt', encoding='utf-8') as fp:
             env["install_requires"] = list(yield_lines(fp))
     except FileNotFoundError:
         ### TODO: Check source file for __requires__ attribute (and then remove
@@ -130,7 +130,7 @@ def init_packaging(env):
         init_src = Path(env["import_name"] + '.py')
     else:
         init_src = Path(env["import_name"]) / '__init__.py'
-    with InPlace(init_src, mode='t') as fp:
+    with InPlace(init_src, mode='t', encoding='utf-8') as fp:
         started = False
         for line in fp:
             if line.startswith('#!') \
@@ -151,8 +151,11 @@ def init_packaging(env):
 
 
 ###def init_tests(env):
-    ### test/, tox.ini, .travis.yml(?)
-    ### badges in README
+    ### tox.ini
+
+###def init_travis(env):
+    ### init_tests(env)
+    ### .travis.yml, badges in README
 
 ###def init_docs(env):
     ### docs/*, tox.ini block, documentation URL in setup.cfg and README

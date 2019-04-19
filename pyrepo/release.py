@@ -108,7 +108,7 @@ class Project:
         initfile = self.directory / (import_name + '.py')
         if not initfile.exists():
             initfile = self.directory / import_name / '__init__.py'
-        with InPlace(initfile, mode='t') as fp:
+        with InPlace(initfile, mode='t', encoding='utf-8') as fp:
             for line in fp:
                 m = re.match(r'^__version__\s*=', line)
                 if m:
@@ -120,7 +120,7 @@ class Project:
     def changelog(self):
         for fname in CHANGELOG_NAMES:
             try:
-                with open(self.directory / fname) as fp:
+                with open(self.directory / fname, encoding='utf-8') as fp:
                     return Changelog.load(fp)
             except FileNotFoundError:
                 continue
@@ -134,12 +134,12 @@ class Project:
                 if value is None:
                     fpath.unlink()
                 else:
-                    with open(fpath, 'w') as fp:
+                    with open(fpath, 'w', encoding='utf-8') as fp:
                         print(value, file=fp)
                 return
         if value is not None:
             fpath = self.directory / CHANGELOG_NAMES[0]
-            with open(fpath, 'w') as fp:
+            with open(fpath, 'w', encoding='utf-8') as fp:
                 print(value, file=fp)
 
     @property
@@ -168,7 +168,7 @@ class Project:
         # We need to create a temporary file instead of just passing the commit
         # message on stdin because `git commit`'s `--template` option doesn't
         # support reading from stdin.
-        with NamedTemporaryFile(mode='w+') as tmplate:
+        with NamedTemporaryFile(mode='w+', encoding='utf-8') as tmplate:
             # When using `--template`, Git requires the user to make *some*
             # change to the commit message or it'll abort the commit, so add in
             # a line to delete:
@@ -325,7 +325,7 @@ class Project:
         docs_conf = self.directory / 'docs' / 'conf.py'
         if docs_conf.exists():
             self.log('Ensuring docs/conf.py copyright is up to date ...')
-            with InPlace(docs_conf, mode='t') as fp:
+            with InPlace(docs_conf, mode='t', encoding='utf-8') as fp:
                 for line in fp:
                     m = re.match(r'^copyright\s*=\s*[\x27"](\d[-,\d\s]+\d) \w+',
                                  line)
@@ -340,7 +340,8 @@ class Project:
     def end_initial_dev(self):  # Idempotent
         # Set repostatus to "Active":
         self.log('Advancing repostatus ...')
-        with InPlace(self.directory / 'README.rst', mode='t') as fp:
+        with InPlace(self.directory / 'README.rst', mode='t', encoding='utf-8')\
+                as fp:
             for para in read_paragraphs(fp):
                 if para.splitlines()[0] == '.. image:: http://www.repostatus.org/badges/latest/wip.svg':
                     print(ACTIVE_BADGE, file=fp)
@@ -348,7 +349,8 @@ class Project:
                     print(para, file=fp, end='')
         # Set "Development Status" classifier to "Beta" or higher:
         self.log('Advancing Development Status classifier ...')
-        with InPlace(self.directory / 'setup.cfg', mode='t') as fp:
+        with InPlace(self.directory / 'setup.cfg', mode='t', encoding='utf-8') \
+                as fp:
             matched = False
             for line in fp:
                 if re.match(r'^\s*#?\s*Development Status :: [123] ', line):
