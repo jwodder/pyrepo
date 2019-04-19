@@ -4,6 +4,8 @@
 - `rtfd_name: str`
 - `author: str`
 - `author_email: str`
+- `saythanks_to: str` — username in saythanks.io URL to include in README and
+  `project_urls`
 
 - `short_description: str`
 

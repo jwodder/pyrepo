@@ -1,45 +1,35 @@
 #!/usr/bin/python3
-from   pathlib          import Path
+from   pathlib              import Path
 import re
 import click
-from   in_place         import InPlace
-from   jinja2           import Environment, PackageLoader
-from   pkg_resources    import yield_lines
-from   .                import inspect_project, util
-
-AUTHOR = 'John Thorvald Wodder II'
-EMAIL_HOSTNAME = 'varonathe.org'
-
-MIN_PY3_SUBVER = 4
-MAX_PY3_SUBVER = 7
-
-def pyver_range(min_subver):
-    return list(map('3.{}'.format, range(min_subver, MAX_PY3_SUBVER+1)))
+from   in_place             import InPlace
+from   jinja2               import Environment, PackageLoader
+from   packaging.specifiers import SpecifierSet
+from   pkg_resources        import yield_lines
+from   .                    import inspect_project, util
 
 @click.command()
-@click.option('--author', default=AUTHOR)
+@click.option('--author')
 @click.option('--author-email')
 @click.option('-c', '--command')
 @click.option('-d', '--description', prompt=True)
 @click.option('--docs/--no-docs', default=False)
 @click.option('-i', '--import-name')
 @click.option('--importable/--no-importable', default=None)
-@click.option(
-    '-P', '--min-pyver',
-    type=click.Choice(pyver_range(MIN_PY3_SUBVER)),
-    default=f'3.{MIN_PY3_SUBVER}',
-)
 @click.option('-p', '--project-name')
+@click.option('-P', '--python-requires')
 @click.option('--repo-name')
 @click.option('--rtfd-name')
+@click.option('--saythanks-to', metavar='USER')
 @click.option('--tests/--no-tests', default=False)
-def init(project_name, min_pyver, import_name, repo_name, author, author_email,
-         description, tests, docs, rtfd_name, importable, command):
+@click.pass_obj
+def init(obj, project_name, python_requires, import_name, repo_name, author,
+         author_email, description, tests, docs, rtfd_name, importable,
+         command, saythanks_to):
     env = {
         "author": author,
         "short_description": description,
-        "python_versions": pyver_range(int(min_pyver.partition('.')[2])),
-        "python_requires": "~=" + min_pyver,
+        "saythanks_to": saythanks_to,
         "copyright_years": inspect_project.get_commit_years(Path()),
         "has_travis": tests,
         "has_docs": docs,
@@ -70,11 +60,8 @@ def init(project_name, min_pyver, import_name, repo_name, author, author_email,
     else:
         env["rtfd_name"] = project_name
 
-    if author_email is not None:
-        env["author_email"] = author_email
-    else:
-        env["author_email"] = env["project_name"].replace('_', '-') + '@' \
-                            + EMAIL_HOSTNAME
+    env["author_email"] = jinja_env().from_string(author_email)\
+                                     .render(project_name=env["project_name"])
 
     try:
         with open('requirements.txt', encoding='utf-8') as fp:
@@ -83,6 +70,17 @@ def init(project_name, min_pyver, import_name, repo_name, author, author_email,
         ### TODO: Check source file for __requires__ attribute (and then remove
         ### it)
         env["install_requires"] = []
+
+    if re.fullmatch(r'\d+\.\d+', python_requires):
+        python_requires = '~=' + python_requires
+    env["python_requires"] = python_requires
+    try:
+        pyspec = SpecifierSet(python_requires)
+    except ValueError:
+        raise click.UsageError(
+            f'Invalid specifier for --python-requires: {python_requires!r}'
+        )
+    env["python_versions"] = list(pyspec.filter(obj.pyversions))
 
     ### TODO: Support setting the entry point function name to something other
     ### than "main" on the command line

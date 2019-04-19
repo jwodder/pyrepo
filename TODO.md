@@ -17,26 +17,9 @@
     - Convert `mypyrepo.sh` to a subcommand
     - Add a subcommand for updating GitHub description & tags based on the
       project's short description and keywords?
-    - Add support for a config file for configuring:
-        - `author`
-        - `author_email` (as a Jinja2 template)
-        - saythanks.io URL (including unsetting)
-        - min & max Python 3 subversions
-        - Releasing:
-            - whether to sign the version tag
-            - whether to sign assets
-            - program to use for signing
-            - where & whether to upload on Dropbox
-            - whether to create a GitHub release
-            - whether to upload to GitHub
-            - GitHub API credentials?
-            - whether to run tox
-            - whether to start a shell to examine the assets after building but
-              before uploading?
-            - Python executable to use to run `setup.py`?
-    - If `--min-pyver` is not given on the command line, try to determine it by
-      looking in the Python source for a `__python_requires__` assignment and
-      by looking in `requirements.txt` for a `# Python ~= 3.X` comment
+    - If `--python-requires` is not given on the command line, try to determine
+      it by looking in the Python source for a `__python_requires__` assignment
+      and by looking in `requirements.txt` for a `# Python ~= 3.X` comment
         - Handle both `>= 3.X` and `~= 3.X` requirements
 - Adjust the templates to always include package data, even if there is none?
 - Write tests
@@ -47,6 +30,20 @@
 - Rename `inspect_project.py` to something shorter
 - Fill in `--help` strings and command docstrings
 - Make `twine` a dependency?
+- `pyrepo release`: Support configuring the following via the config file:
+    - whether to sign the version tag
+    - whether to sign assets
+    - program to use for signing
+    - where & whether to upload on Dropbox
+    - whether to create a GitHub release
+    - whether to upload to GitHub
+    - GitHub API credentials?
+    - whether to run tox
+    - whether to start a shell to examine the assets after building but before
+      uploading?
+    - Python executable to use to run `setup.py`?
+- Give the config file an `[options.COMMAND]` section for each command that
+  takes its defaults from `[options]`
 
 - Prior art to investigate and compare against:
     - https://pypi.python.org/pypi/octopusapi

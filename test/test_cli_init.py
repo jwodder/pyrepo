@@ -8,6 +8,7 @@ from   pyrepo          import inspect_project
 from   pyrepo.__main__ import main
 
 DATA_DIR = Path(__file__).with_name('data')
+CONFIG = DATA_DIR / 'config.cfg'
 
 def assert_dirtrees_eq(tree1, tree2):
     assert sorted(map(attrgetter("name"), tree1.iterdir())) \
@@ -38,7 +39,10 @@ def test_pyrepo_init(dirpath, mocker, tmp_path):
         return_value=[2016, 2018, 2019],
     )
     mocker.patch('pyrepo.util.runcmd', new=patched_runcmd)
-    r = CliRunner().invoke(main, ['-C', str(tmp_path), 'init'] + options)
+    r = CliRunner().invoke(
+        main,
+        ['-c', str(CONFIG), '-C', str(tmp_path), 'init'] + options,
+    )
     assert r.exit_code == 0, r.output
     ### TODO: Assert about how runcmd() was called?
     inspect_project.get_commit_years.assert_called_once_with(Path())
