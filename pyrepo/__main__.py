@@ -23,7 +23,7 @@ from   .release import release
     metavar = 'DIR',
 )
 @click.version_option(
-    __version__, '-V', '--version', message='%(prog)s %(version)s',
+    __version__, '-V', '--version', message='jwodder-pyrepo %(version)s',
 )
 @click.pass_context
 def main(ctx, chdir, config):
