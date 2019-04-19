@@ -33,6 +33,7 @@
             - whether to run tox
             - whether to start a shell to examine the assets after building but
               before uploading?
+            - Python executable to use to run `setup.py`?
     - If `--min-pyver` is not given on the command line, try to determine it by
       looking in the Python source for a `__python_requires__` assignment and
       by looking in `requirements.txt` for a `# Python ~= 3.X` comment
@@ -45,6 +46,7 @@
 - Give `release` an option for setting the version number from the command line
 - Rename `inspect_project.py` to something shorter
 - Fill in `--help` strings and command docstrings
+- Make `twine` a dependency?
 
 - Prior art to investigate and compare against:
     - https://pypi.python.org/pypi/octopusapi

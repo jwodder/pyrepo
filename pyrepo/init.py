@@ -162,7 +162,7 @@ def init_packaging(env):
 
 def add_templated_file(filename, env):
     Path(filename).write_text(
-        jinja_env().get_template(filename).render(env).rstrip() + '\n',
+        jinja_env().get_template(filename+'.j2').render(env).rstrip() + '\n',
         encoding='utf-8',
     )
     util.runcmd('git', 'add', filename)
