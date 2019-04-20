@@ -6,7 +6,7 @@ from   .init    import init
 from   .release import release
 
 @click.group(context_settings={
-    "default_map": {"init": {}},
+    "default_map": {},
     "help_option_names": ["-h", "--help"],
 })
 @click.option(

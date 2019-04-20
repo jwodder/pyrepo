@@ -52,9 +52,22 @@ def configure(ctx, filename):
     )
     if not cfg.has_option("options", "python_requires"):
         cfg["options"]["python_requires"] = '{}.{}'.format(*min_pyversion)
-    ### TODO: Limit this to known options only:
-    ### TODO: Cast flag options to booleans:
-    ctx.default_map["init"].update(cfg["options"])
+    from .__main__ import main
+    for cmdname, cmdobj in main.commands.items():
+        defaults = dict(cfg["options"])
+        if cfg.has_section("options." + cmdname):
+            defaults.update(cfg["options." + cmdname])
+        for p in cmdobj.params:
+            if isinstance(p, click.Option) and p.is_flag and p.name in defaults:
+                try:
+                    defaults[p.name] \
+                        = cfg.BOOLEAN_STATES[defaults[p.name].lower()]
+                except KeyError:
+                    raise click.UsageError(
+                        f'Invalid boolean value for config option {p.name}:'
+                        f' {defaults[p.name]!r}'
+                    )
+        ctx.default_map.setdefault(cmdname, {}).update(defaults)
 
 def parse_pyversion(s):
     major, _, minor = s.partition('.')
