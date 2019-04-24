@@ -68,9 +68,14 @@ def init(obj, project_name, python_requires, import_name, repo_name, author,
         with open('requirements.txt', encoding='utf-8') as fp:
             env["install_requires"] = list(yield_lines(fp))
     except FileNotFoundError:
-        ### TODO: Check source file for __requires__ attribute (and then remove
-        ### it)
-        env["install_requires"] = []
+        if env["is_flat_module"]:
+            init_src = Path(env["import_name"] + '.py')
+        else:
+            init_src = Path(env["import_name"]) / '__init__.py'
+        req_vars = inspect_project.extract_requires(init_src)
+        env["install_requires"] = req_vars["__requires__"] or []
+        if req_vars["__python_requires__"] is not None:
+            python_requires = req_vars["__python_requires__"]
 
     if re.fullmatch(r'\d+\.\d+', python_requires):
         python_requires = '~=' + python_requires
