@@ -1,7 +1,8 @@
-from   configparser import ConfigParser
-from   pathlib      import Path
-from   types        import SimpleNamespace
+from   configparser   import ConfigParser
+from   pathlib        import Path
+from   types          import SimpleNamespace
 import click
+from   pyversion_info import get_pyversion_info
 
 DEFAULT_CFG = str(Path.home() / '.config' / 'pyrepo.cfg')
 
@@ -11,10 +12,6 @@ DEFAULTS = {
         'author_email': 'USER@HOST',
        #'saythanks_to': None,
     },
-    "pyversions": {
-        'minimum': '3.4',
-        'maximum': '3.7',
-    }
 }
 
 MAJOR_PYTHON_VERSIONS = [3]
@@ -26,8 +23,14 @@ def configure(ctx, filename):
     cfg.read_dict(DEFAULTS)
     if filename is not None:
         cfg.read(filename)
+    supported_series = [
+        v for v in get_pyversion_info().supported_series()
+          if not v.startswith('2.')
+    ]
     try:
         min_pyversion = parse_pyversion(cfg["pyversions"]["minimum"])
+    except KeyError:
+        min_pyversion = parse_pyversion(supported_series[0])
     except ValueError:
         raise click.UsageError(
             f'Invalid setting for pyversions.minimum config option:'
@@ -36,6 +39,8 @@ def configure(ctx, filename):
         )
     try:
         max_pyversion = parse_pyversion(cfg["pyversions"]["maximum"])
+    except KeyError:
+        max_pyversion = parse_pyversion(supported_series[-1])
     except ValueError:
         raise click.UsageError(
             f'Invalid setting for pyversions.maximum config option:'

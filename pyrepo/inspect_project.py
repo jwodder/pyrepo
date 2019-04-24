@@ -52,6 +52,8 @@ def find_module(dirpath: Path):
         return results[0]
 
 def extract_requires(filename):
+    ### TODO: Split off the destructive functionality so that this can be run
+    ### idempotently/in a read-only manner
     variables = {
         "__python_requires__": None,
         "__requires__": None,

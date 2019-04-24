@@ -2,6 +2,7 @@ from   operator        import attrgetter
 import os
 from   pathlib         import Path
 from   shutil          import copytree
+from   traceback       import format_exception
 from   click.testing   import CliRunner
 import pytest
 from   pyrepo          import inspect_project
@@ -20,6 +21,12 @@ def assert_dirtrees_eq(tree1, tree2):
             assert_dirtrees_eq(p1, p2)
         else:
             assert p1.read_text() == p2.read_text()
+
+def show_result(r):
+    if r.exception is not None:
+        return ''.join(format_exception(*r.exc_info))
+    else:
+        return r.output
 
 def patched_runcmd(*args, **kwargs):
     if args[:-1] == ('git', 'rm', '-f'):
@@ -43,7 +50,7 @@ def test_pyrepo_init(dirpath, mocker, tmp_path):
         main,
         ['-c', str(CONFIG), '-C', str(tmp_path), 'init'] + options,
     )
-    assert r.exit_code == 0, r.output
+    assert r.exit_code == 0, show_result(r)
     ### TODO: Assert about how runcmd() was called?
     inspect_project.get_commit_years.assert_called_once_with(Path())
     assert_dirtrees_eq(tmp_path, dirpath / 'after')
