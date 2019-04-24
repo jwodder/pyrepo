@@ -10,9 +10,11 @@ from   .                    import inspect_project, util
 @click.command()
 @click.option('--author', metavar='NAME')
 @click.option('--author-email', metavar='EMAIL')
+@click.option('--codecov-user', metavar='NAME')
 @click.option('-c', '--command', metavar='NAME')
 @click.option('-d', '--description', prompt=True)
 @click.option('--docs/--no-docs', default=False)
+@click.option('--github-user', metavar='NAME')
 @click.option('-i', '--import-name', metavar='NAME')
 @click.option('--importable/--no-importable', default=None)
 @click.option('-p', '--project-name', metavar='NAME')
@@ -21,10 +23,15 @@ from   .                    import inspect_project, util
 @click.option('--rtfd-name', metavar='NAME')
 @click.option('--saythanks-to', metavar='USER')
 @click.option('--tests/--no-tests', default=False)
+@click.option('--travis-user', metavar='NAME')
 @click.pass_obj
 def init(obj, project_name, python_requires, import_name, repo_name, author,
          author_email, description, tests, docs, rtfd_name, importable,
-         command, saythanks_to):
+         command, saythanks_to, github_user, travis_user, codecov_user):
+    if travis_user is None:
+        travis_user = github_user
+    if codecov_user is None:
+        codecov_user = github_user
     env = {
         "author": author,
         "short_description": description,
@@ -34,6 +41,9 @@ def init(obj, project_name, python_requires, import_name, repo_name, author,
         "has_docs": docs,
         "has_pypi": False,
         "has_doctests": False,
+        "github_user": github_user,
+        "travis_user": travis_user,
+        "codecov_user": codecov_user,
     }
 
     if import_name is not None:

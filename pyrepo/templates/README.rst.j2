@@ -4,11 +4,11 @@
           has not yet been a stable, usable release suitable for the public.
 
 {% if has_travis %}
-.. image:: https://travis-ci.org/jwodder/{{repo_name}}.svg?branch=master
-    :target: https://travis-ci.org/jwodder/{{repo_name}}
+.. image:: https://travis-ci.org/{{travis_user}}/{{repo_name}}.svg?branch=master
+    :target: https://travis-ci.org/{{travis_user}}/{{repo_name}}
 
-.. image:: https://codecov.io/gh/jwodder/{{repo_name}}/branch/master/graph/badge.svg
-    :target: https://codecov.io/gh/jwodder/{{repo_name}}
+.. image:: https://codecov.io/gh/{{codecov_user}}/{{repo_name}}/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/{{codecov_user}}/{{repo_name}}
 
 {% endif %}
 {% if has_pypi %}
@@ -16,7 +16,7 @@
     :target: https://pypi.org/project/{{project_name}}/
 
 {% endif %}
-.. image:: https://img.shields.io/github/license/jwodder/{{repo_name}}.svg
+.. image:: https://img.shields.io/github/license/{{github_user}}/{{repo_name}}.svg
     :target: https://opensource.org/licenses/MIT
     :alt: MIT License
 
@@ -25,14 +25,14 @@
     :target: https://saythanks.io/to/{{saythanks_to}}
 
 {% endif %}
-`GitHub <https://github.com/jwodder/{{repo_name}}>`_
+`GitHub <https://github.com/{{github_user}}/{{repo_name}}>`_
 {% if has_pypi %}
 | `PyPI <https://pypi.org/project/{{project_name}}/>`_
 {% endif %}
 {% if has_docs %}
 | `Documentation <https://{{rtfd_name}}.readthedocs.io>`_
 {% endif %}
-| `Issues <https://github.com/jwodder/{{repo_name}}/issues>`_
+| `Issues <https://github.com/{{github_user}}/{{repo_name}}/issues>`_
 
 INSERT LONG DESCRIPTION HERE
 

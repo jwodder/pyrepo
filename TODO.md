@@ -1,7 +1,3 @@
-- Add config options for the GitHub, Travis, and Codecov usernames
-    - The GitHub username in generated `__url__`s can be determined by querying
-      GitHub for `/user["login"]`
-
 - `pyrepo init`:
     - If `--python-requires` is not given on the command line, try to determine
       it by looking in the Python source for a `__python_requires__` assignment
@@ -10,6 +6,7 @@
     - Support `project_name`, `repo_name`, and `rtfd_name` as Jinja2 templates
       with access to `import_name` and (except for `project_name` itself)
       `project_name`
+    - When `--github-user` is not set, query `/user["login"]` in the GitHub API
 
 - `pyrepo release`:
     - Add an option for setting the new version number from the command line

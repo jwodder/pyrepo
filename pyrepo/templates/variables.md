@@ -7,6 +7,10 @@
 - `saythanks_to: str` — username in saythanks.io URL to include in README and
   `project_urls`
 
+- `github_user: str`
+- `travis_user: str`
+- `codecov_user: str`
+
 - `short_description: str`
 
 - `python_versions` — list of `"X.Y"` strings in ascending order
