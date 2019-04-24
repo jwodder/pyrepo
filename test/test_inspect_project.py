@@ -1,9 +1,12 @@
+import json
 from   operator               import attrgetter
 from   pathlib                import Path
+from   shutil                 import copyfile
 import time
 import pytest
 from   pyrepo                 import util
-from   pyrepo.inspect_project import find_module, get_commit_years, is_flat
+from   pyrepo.inspect_project import extract_requires, find_module, \
+                                        get_commit_years, is_flat
 
 DATA_DIR = Path(__file__).with_name('data')
 
@@ -109,3 +112,16 @@ def test_find_module_none(dirpath):
     with pytest.raises(ValueError) as excinfo:
         find_module(dirpath)
     assert str(excinfo.value) == 'No Python modules in repository'
+
+@pytest.mark.parametrize(
+    'dirpath',
+    (DATA_DIR / 'extract_requires').iterdir(),
+    ids=attrgetter("name"),
+)
+def test_extract_requires(dirpath, tmp_path):
+    dest = tmp_path / 'foobar.py'
+    copyfile(dirpath / 'before.py', dest)
+    variables = extract_requires(dest)
+    with (dirpath / 'variables.json').open() as fp:
+        assert variables == json.load(fp)
+    assert (dirpath / 'after.py').read_text() == dest.read_text()

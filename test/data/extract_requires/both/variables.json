@@ -1,0 +1,7 @@
+{
+    "__python_requires__": "~= 3.5",
+    "__requires__": [
+        "attrs ~= 19.1",
+        "click ~= 7.0"
+    ]
+}

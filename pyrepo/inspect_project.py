@@ -1,3 +1,4 @@
+import ast
 import time
 from   pathlib import Path
 from   .       import util  # Import module to keep mocking easy
@@ -49,3 +50,29 @@ def find_module(dirpath: Path):
         raise ValueError('No Python modules in repository')
     else:
         return results[0]
+
+def extract_requires(filename):
+    variables = {
+        "__python_requires__": None,
+        "__requires__": None,
+    }
+    with open(filename, 'rb') as fp:
+        src = fp.read()
+    lines = src.splitlines(keepends=True)
+    dellines = []
+    tree = ast.parse(src)
+    for i, node in enumerate(tree.body):
+        if isinstance(node, ast.Assign) \
+                and len(node.targets) == 1 \
+                and isinstance(node.targets[0], ast.Name) \
+                and node.targets[0].id in variables:
+            variables[node.targets[0].id] = ast.literal_eval(node.value)
+            if i+1 < len(tree.body):
+                dellines.append(slice(node.lineno-1, tree.body[i+1].lineno-1))
+            else:
+                dellines.append(slice(node.lineno-1))
+    for sl in reversed(dellines):
+        del lines[sl]
+    with open(filename, 'wb') as fp:
+        fp.writelines(lines)
+    return variables
