@@ -1,9 +1,11 @@
 import re
 import subprocess
 import sys
+from   textwrap import wrap
 import time
 from   in_place import InPlace
 from   intspan  import intspan
+from   jinja2   import Environment, PackageLoader
 
 def runcmd(*args, **kwargs):
     r = subprocess.run(args, **kwargs)
@@ -52,3 +54,28 @@ def update_years2str(year_str, years=None):
     yearspan = intspan(year_str)
     yearspan.update(years)
     return years2str(yearspan)
+
+_jinja_env = None
+def jinja_env():
+    global _jinja_env
+    if _jinja_env is None:
+        _jinja_env = Environment(
+            loader=PackageLoader('pyrepo', 'templates'),
+            trim_blocks=True,
+            lstrip_blocks=True,
+        )
+        _jinja_env.filters['repr'] = repr
+        _jinja_env.filters['rewrap'] = rewrap
+        _jinja_env.filters['years2str'] = years2str
+    return _jinja_env
+
+def rewrap(s):
+    return '\n'.join(wrap(
+        s.replace('\n', ' '),
+        break_long_words     = False,
+        break_on_hyphens     = False,
+        expand_tabs          = False,
+        fix_sentence_endings = True,
+        replace_whitespace   = False,
+        width                = 79,
+    ))

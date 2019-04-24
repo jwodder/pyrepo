@@ -3,23 +3,22 @@ from   pathlib              import Path
 import re
 import click
 from   in_place             import InPlace
-from   jinja2               import Environment, PackageLoader
 from   packaging.specifiers import SpecifierSet
 from   pkg_resources        import yield_lines
 from   .                    import inspect_project, util
 
 @click.command()
-@click.option('--author')
-@click.option('--author-email')
-@click.option('-c', '--command')
+@click.option('--author', metavar='NAME')
+@click.option('--author-email', metavar='EMAIL')
+@click.option('-c', '--command', metavar='NAME')
 @click.option('-d', '--description', prompt=True)
 @click.option('--docs/--no-docs', default=False)
-@click.option('-i', '--import-name')
+@click.option('-i', '--import-name', metavar='NAME')
 @click.option('--importable/--no-importable', default=None)
-@click.option('-p', '--project-name')
-@click.option('-P', '--python-requires')
-@click.option('--repo-name')
-@click.option('--rtfd-name')
+@click.option('-p', '--project-name', metavar='NAME')
+@click.option('-P', '--python-requires', metavar='SPEC')
+@click.option('--repo-name', metavar='NAME')
+@click.option('--rtfd-name', metavar='NAME')
 @click.option('--saythanks-to', metavar='USER')
 @click.option('--tests/--no-tests', default=False)
 @click.pass_obj
@@ -60,8 +59,10 @@ def init(obj, project_name, python_requires, import_name, repo_name, author,
     else:
         env["rtfd_name"] = project_name
 
-    env["author_email"] = jinja_env().from_string(author_email)\
-                                     .render(project_name=env["project_name"])
+    env["author_email"] = util.jinja_env().from_string(author_email)\
+                                          .render(
+                                            project_name=env["project_name"]
+                                          )
 
     try:
         with open('requirements.txt', encoding='utf-8') as fp:
@@ -136,12 +137,15 @@ def init_packaging(env):
                     and re.search(r'coding[=:]\s*([-\w.]+)', line)):
                 pass
             elif not started:
-                print(jinja_env().get_template('init.j2').render(env), file=fp)
+                print(
+                    util.jinja_env().get_template('init.j2').render(env),
+                    file=fp,
+                )
                 print(file=fp)
                 started = True
             print(line, file=fp, end='')
         if not started:  # if init_src is empty
-            print(jinja_env().get_template('init.j2').render(env), file=fp)
+            print(util.jinja_env().get_template('init.j2').render(env), file=fp)
     util.runcmd('git', 'add', str(init_src))
 
     if Path('requirements.txt').exists():
@@ -160,20 +164,8 @@ def init_packaging(env):
 
 def add_templated_file(filename, env):
     Path(filename).write_text(
-        jinja_env().get_template(filename+'.j2').render(env).rstrip() + '\n',
+        util.jinja_env().get_template(filename+'.j2').render(env).rstrip()
+            + '\n',
         encoding='utf-8',
     )
     util.runcmd('git', 'add', filename)
-
-_jinja_env = None
-def jinja_env():
-    global _jinja_env
-    if _jinja_env is None:
-        _jinja_env = Environment(
-            loader=PackageLoader('pyrepo', 'templates'),
-            trim_blocks=True,
-            lstrip_blocks=True,
-        )
-        _jinja_env.filters['repr'] = repr
-        _jinja_env.filters['years2str'] = util.years2str
-    return _jinja_env

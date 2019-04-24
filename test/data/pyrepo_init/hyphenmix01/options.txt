@@ -1,0 +1,4 @@
+-d
+A project
+--project-name
+foo-bar
