@@ -105,9 +105,12 @@ class Project:
     def version(self, version):
         self.log('Updating __version__ string ...')
         import_name = self.name.replace('-', '_').replace('.', '_')
-        initfile = self.directory / (import_name + '.py')
+        srcdir = self.directory
+        if (srcdir / 'src').exists():
+            srcdir /= 'src'
+        initfile = srcdir / (import_name + '.py')
         if not initfile.exists():
-            initfile = self.directory / import_name / '__init__.py'
+            initfile = srcdir / import_name / '__init__.py'
         with InPlace(initfile, mode='t', encoding='utf-8') as fp:
             for line in fp:
                 m = re.match(r'^__version__\s*=', line)
