@@ -1,6 +1,11 @@
 """
 Python repository packager & releaser
 
+``jwodder-pyrepo`` is my personal project for managing my Python package
+repositories, including generating packaging boilerplate and performing
+releases.  It is heavily dependent upon the conventions I use in building &
+structuring Python projects, and so it is not suitable for general use.
+
 Visit <https://github.com/jwodder/pyrepo> for more information.
 """
 

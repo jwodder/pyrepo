@@ -50,6 +50,7 @@
       already been made for the project
     - `setup.cfg.j2`: Set the "Development Status" classifier to "4 - Beta"
       when a release has already been made for the project
+    - `tox.ini.j2`: Always set `--doctest-modules`?
 
 - Write tests
 - Move `pyrepo/templates/variables.md` somewhere else
