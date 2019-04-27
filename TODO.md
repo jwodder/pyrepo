@@ -7,6 +7,12 @@
       with access to `import_name` and (except for `project_name` itself)
       `project_name`
     - When `--github-user` is not set, query `/user["login"]` in the GitHub API
+    - If the repository already has a GitHub remote, use that to set the
+      default `repo_name` (and `github_user`?)
+    - `--command`: Support setting the entry point function name to something
+      other than "main" on the command line
+    - Autodetect `if __name__ == '__main__':` lines in `import_name.py` /
+      `import_name/__main__.py` and set `commands` accordingly
 
 - `pyrepo release`:
     - Add an option for setting the new version number from the command line
@@ -35,8 +41,8 @@
       project name?
     - Automatically run this command on first release?
 - Add a subcommand that regenerates/outputs specified templated files
-    - The script should take command line options for overriding the
-      various Jinja env vars
+    - The script should take command line options for overriding the various
+      Jinja env vars
 - Convert `mypyrepo.sh` to a subcommand
 - Add a subcommand for updating GitHub description & tags based on the
   project's short description and keywords?

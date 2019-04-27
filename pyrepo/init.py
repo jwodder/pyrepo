@@ -61,8 +61,6 @@ def init(obj, project_name, python_requires, import_name, repo_name, author,
     if repo_name is not None:
         env["repo_name"] = repo_name
     else:
-        ### TODO: If the repository has a GitHub remote, use that to set
-        ### `repo_name`
         env["repo_name"] = env["project_name"]
 
     if rtfd_name is not None:
@@ -99,10 +97,6 @@ def init(obj, project_name, python_requires, import_name, repo_name, author,
         )
     env["python_versions"] = list(pyspec.filter(obj.pyversions))
 
-    ### TODO: Support setting the entry point function name to something other
-    ### than "main" on the command line
-    ### TODO: Autodetect `if __name__ == '__main__':` lines in import_name.py /
-    ### import_name/__main__.py and set `commands` accordingly
     if command is None:
         env["commands"] = {}
     elif env["is_flat_module"]:
