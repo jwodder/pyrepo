@@ -346,7 +346,9 @@ class Project:
         with InPlace(self.directory / 'README.rst', mode='t', encoding='utf-8')\
                 as fp:
             for para in read_paragraphs(fp):
-                if para.splitlines()[0] == '.. image:: http://www.repostatus.org/badges/latest/wip.svg':
+                if para.splitlines()[0] == (
+                    '.. image:: http://www.repostatus.org/badges/latest/wip.svg'
+                ):
                     print(ACTIVE_BADGE, file=fp)
                 else:
                     print(para, file=fp, end='')
