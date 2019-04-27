@@ -6,7 +6,8 @@ import time
 import pytest
 from   pyrepo                 import util
 from   pyrepo.inspect_project import extract_requires, find_module, \
-                                        get_commit_years, is_flat
+                                        get_commit_years, is_flat, \
+                                        parse_requirements
 
 DATA_DIR = Path(__file__).with_name('data')
 
@@ -125,3 +126,11 @@ def test_extract_requires(dirpath, tmp_path):
     with (dirpath / 'variables.json').open() as fp:
         assert variables == json.load(fp)
     assert (dirpath / 'after.py').read_text() == dest.read_text()
+
+@pytest.mark.parametrize('reqfile', [
+    p for p in (DATA_DIR / 'parse_requirements').iterdir()
+      if p.suffix == '.txt'
+], ids=attrgetter("name"))
+def test_parse_requirements(reqfile):
+    variables = parse_requirements(reqfile)
+    assert variables == json.loads(reqfile.with_suffix('.json').read_text())

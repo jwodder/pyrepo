@@ -1,7 +1,9 @@
 import ast
 import time
-from   pathlib import Path
-from   .       import util  # Import module to keep mocking easy
+from   pathlib       import Path
+import re
+from   pkg_resources import yield_lines
+from   .             import util  # Import module to keep mocking easy
 
 def is_flat(dirpath, import_name):
     flat_src = Path(dirpath, import_name + '.py')
@@ -77,4 +79,26 @@ def extract_requires(filename):
         del lines[sl]
     with open(filename, 'wb') as fp:
         fp.writelines(lines)
+    return variables
+
+def parse_requirements(filepath):
+    variables = {
+        "__python_requires__": None,
+        "__requires__": None,
+    }
+    try:
+        with open(filepath, encoding='utf-8') as fp:
+            for line in fp:
+                m = re.fullmatch(
+                    r'\s*#\s*python\s*((?:[=<>!~]=|[<>]|===)\s*\S(?:.*\S)?)\s*',
+                    line,
+                    flags=re.I,
+                )
+                if m:
+                    variables["__python_requires__"] = m.group(1)
+                    break
+            fp.seek(0)
+            variables["__requires__"] = list(yield_lines(fp))
+    except FileNotFoundError:
+        pass
     return variables
