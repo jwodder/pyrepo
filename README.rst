@@ -172,9 +172,10 @@ Options
   ``python_requires`` value.  ``<spec>`` may be either a PEP 440 version
   specifier (e.g., ``>= 3.3, != 3.4.0``) or a bare ``X.Y`` version (to which
   ``~=`` will be prepended).  When not specified on the command line, this
-  value is instead extracted from a ``__python_requires__`` assignment in the
-  main source file, defaulting to ``pyversions.minimum`` if no such assignment
-  is found.
+  value is instead extracted from either a "``# Python <spec>``" comment in
+  ``requirements.txt`` or a ``__python_requires__`` assignment in the main
+  source file, defaulting to ``pyversions.minimum`` if neither of these is
+  found.
 
   - Besides setting ``python_requires``, the value of this option will also be
     applied as a filter to all ``X.Y`` versions from ``pyversions.minimum``
