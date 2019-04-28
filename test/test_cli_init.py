@@ -53,8 +53,16 @@ def test_pyrepo_init(dirpath, mocker, tmp_path):
     r = CliRunner().invoke(
         main,
         ['-c', str(cfg), '-C', str(tmp_path), 'init'] + options,
+        # Standalone mode needs to be disabled so that `ClickException`s (e.g.,
+        # `UsageError`) will be returned in `r.exception` instead of a
+        # `SystemExit`
+        standalone_mode=False,
     )
-    assert r.exit_code == 0, show_result(r)
-    ### TODO: Assert about how runcmd() was called?
-    inspect_project.get_commit_years.assert_called_once_with(Path())
-    assert_dirtrees_eq(tmp_path, dirpath / 'after')
+    if not (dirpath / 'errmsg.txt').exists():
+        assert r.exit_code == 0, show_result(r)
+        ### TODO: Assert about how runcmd() was called?
+        inspect_project.get_commit_years.assert_called_once_with(Path())
+        assert_dirtrees_eq(tmp_path, dirpath / 'after')
+    else:
+        assert r.exit_code != 0 and r.exception is not None, show_result(r)
+        assert str(r.exception) == (dirpath / 'errmsg.txt').read_text().strip()

@@ -34,7 +34,7 @@ def find_module(dirpath: Path):
     results = []
     for flat in dirpath.glob('*.py'):
         name = flat.stem
-        if name.isidentifier():
+        if name.isidentifier() and name != 'setup':
             results.append({
                 "import_name": name,
                 "is_flat_module": True,
