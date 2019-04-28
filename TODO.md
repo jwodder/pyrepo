@@ -77,6 +77,7 @@
     - Read the Docs: not possible
         - Write a module with `mechanicalsoup` to do this?
     - Travis: <https://developer.travis-ci.org/resource/repository#activate>?
+        - Is this step unnecessary on travis-ci.com?
     - Codecov.io: done automatically when test results are submitted
 - Add templates for:
     - `docs/index.rst` (and other `docs/*.rst` files?)
