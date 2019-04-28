@@ -57,6 +57,11 @@ def configure(ctx, filename):
     )
     if not cfg.has_option("options", "python_requires"):
         cfg["options"]["python_requires"] = '{}.{}'.format(*min_pyversion)
+    # Because `default_map` is copied by reference from the `dict` passed to
+    # the `main` `click.group`'s `context_settings`, `ctx.default_map`
+    # accumulates data across test runs, and so we need to reset it on each
+    # run:
+    ctx.default_map = {}
     from .__main__ import main
     for cmdname, cmdobj in main.commands.items():
         defaults = dict(cfg["options"])

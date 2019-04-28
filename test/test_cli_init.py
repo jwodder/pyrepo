@@ -41,6 +41,10 @@ def test_pyrepo_init(dirpath, mocker, tmp_path):
     tmp_path /= 'tmp'  # copytree() can't copy to a dir that already exists
     copytree(dirpath / 'before', tmp_path)
     options = (dirpath / 'options.txt').read_text().splitlines()
+    if (dirpath / 'config.cfg').exists():
+        cfg = dirpath / 'config.cfg'
+    else:
+        cfg = CONFIG
     mocker.patch(
         'pyrepo.inspect_project.get_commit_years',
         return_value=[2016, 2018, 2019],
@@ -48,7 +52,7 @@ def test_pyrepo_init(dirpath, mocker, tmp_path):
     mocker.patch('pyrepo.util.runcmd', new=patched_runcmd)
     r = CliRunner().invoke(
         main,
-        ['-c', str(CONFIG), '-C', str(tmp_path), 'init'] + options,
+        ['-c', str(cfg), '-C', str(tmp_path), 'init'] + options,
     )
     assert r.exit_code == 0, show_result(r)
     ### TODO: Assert about how runcmd() was called?
