@@ -32,9 +32,11 @@
 
 - Add subcommands for incrementally adding features (tests, docs, doctests,
   Travis, etc.) to an already-templated repository
-    - The docs command should also add documentation links to the README and
-      `project_urls`
-    - The Travis command should also add the appropriate badges to the README
+    - `add-tests`: Create `tox.ini`
+    - `add-travis`: Do `add-tests`, create `.travis.yml`, add the appropriate
+      badges to the README
+    - `add-docs`: Create `docs/*`, add block to `tox.ini`, add documentation
+      links to the README and `project_urls`
 - Add a subcommand for updating the README for `has_pypi` being true
     - When generating a README with `has_pypi = False`, use the GitHub URL in
       the installation instructions, with this command replacing that with the

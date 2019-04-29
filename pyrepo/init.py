@@ -14,6 +14,7 @@ from   .                      import inspect_project, util
 @util.optional('--codecov-user', metavar='USER')
 @util.optional('-c', '--command', metavar='NAME')
 @click.option('-d', '--description', prompt=True)
+@util.optional('--doctests/--no-doctests')
 @util.optional('--docs/--no-docs')
 @util.optional('--github-user', metavar='USER')
 @util.optional('-i', '--import-name', metavar='NAME')
@@ -28,6 +29,9 @@ from   .                      import inspect_project, util
 @util.optional('--travis-user', metavar='USER')
 @click.pass_obj
 def init(obj, **options):
+    if Path('setup.py').exists():
+        raise click.UsageError('setup.py already exists')
+
     defaults = obj.defaults['init']
     pyreq_cfg = defaults.pop("python_requires")
     options = dict(defaults, **options)
@@ -37,10 +41,10 @@ def init(obj, **options):
         "short_description": options["description"],
         "saythanks_to": options.get("saythanks_to"),
         "copyright_years": inspect_project.get_commit_years(Path()),
-        "has_travis": options["tests"],
+        "has_travis": options["travis"],
         "has_docs": options["docs"],
         "has_pypi": False,
-        "has_doctests": False,
+        "has_doctests": options["doctests"],
         "github_user": options["github_user"],
         "travis_user": options.get("travis_user", options["github_user"]),
         "codecov_user": options.get("codecov_user", options["github_user"]),
@@ -136,20 +140,17 @@ def init(obj, **options):
     else:
         env["importable"] = False
 
-    init_packaging(env)
-    ###if options["tests"]:
-    ###    init_tests(env)
-    ###if options["travis"]:
-    ###    init_travis(env)
-    ###if options["docs"]:
-    ###    init_docs(env)
-
-def init_packaging(env):
-    if Path('setup.py').exists():
-        raise click.UsageError('setup.py already exists')
-    for filename in [
+    templated = [
         '.gitignore', 'MANIFEST.in', 'README.rst', 'setup.cfg', 'setup.py',
-    ]:
+    ]
+    if options["tests"] or options["travis"]:
+        templated.append('tox.ini')
+    if options["travis"]:
+        templated.append('.travis.yml')
+    ###if options["docs"]:
+    ###    docs/*
+
+    for filename in templated:
         if not Path(filename).exists():
             add_templated_file(filename, env)
 
@@ -159,10 +160,6 @@ def init_packaging(env):
     else:
         add_templated_file('LICENSE', env)
 
-    if env["is_flat_module"]:
-        init_src = Path(env["import_name"] + '.py')
-    else:
-        init_src = Path(env["import_name"]) / '__init__.py'
     with InPlace(init_src, mode='t', encoding='utf-8') as fp:
         started = False
         for line in fp:
@@ -185,16 +182,6 @@ def init_packaging(env):
     if Path('requirements.txt').exists():
         util.runcmd('git', 'rm', '-f', 'requirements.txt')
 
-
-###def init_tests(env):
-    ### tox.ini
-
-###def init_travis(env):
-    ### init_tests(env)
-    ### .travis.yml, badges in README
-
-###def init_docs(env):
-    ### docs/*, tox.ini block, documentation URL in setup.cfg and README
 
 def add_templated_file(filename, env):
     Path(filename).write_text(
