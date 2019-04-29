@@ -1,8 +1,4 @@
 - `pyrepo init`:
-    - If `--python-requires` is not given on the command line, try to determine
-      it by looking in the Python source for a `__python_requires__` assignment
-      and by looking in `requirements.txt` for a `# Python ~= 3.X` comment
-        - Handle both `>= 3.X` and `~= 3.X` requirements
     - Support `project_name`, `repo_name`, and `rtfd_name` as Jinja2 templates
       with access to `import_name` and (except for `project_name` itself)
       `project_name`
