@@ -1,7 +1,7 @@
 """
 A project
 
-Visit <https://github.com/jwodder/foobar> or <http://foobar.rtfd.io> for more
+Visit <https://github.com/jwodder/foobar> or <https://foobar.rtfd.io> for more
 information.
 """
 
