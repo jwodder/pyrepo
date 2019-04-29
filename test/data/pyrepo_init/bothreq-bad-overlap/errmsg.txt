@@ -1,0 +1,1 @@
+Two different requirements for attrs found: 'attrs ~= 19.1' and 'attrs >= 19.1'
