@@ -117,9 +117,11 @@ A boilerplate docstring and project data variables (``__author__``,
 also added to the main source file (i.e., the only file if the project
 is a flat module, or the ``{{import_name}}/__init__.py`` file otherwise).
 
-If there is a ``requirements.txt`` file or a ``__requires__ =
+If there is a ``requirements.txt`` file and/or a ``__requires__ =
 list_of_requirements`` assignment in the main source file, it is used to set
-the project's ``install_requires`` in the ``setup.cfg`` and then deleted.
+the project's ``install_requires`` in the ``setup.cfg`` and then deleted.  If
+both sources of requirements are present, the two lists are combined, erroring
+if the same package is given two different requirement specifications.
 
 
 Options
@@ -177,9 +179,11 @@ Options
   specifier (e.g., ``>= 3.3, != 3.4.0``) or a bare ``X.Y`` version (to which
   ``~=`` will be prepended).  When not specified on the command line, this
   value is instead extracted from either a "``# Python <spec>``" comment in
-  ``requirements.txt`` or a ``__python_requires__`` assignment in the main
-  source file, defaulting to ``pyversions.minimum`` if neither of these is
-  found.
+  ``requirements.txt`` or a ``__python_requires__ = '<spec>'`` assignment in
+  the main source file; it is an error if these sources have different values.
+  If none of these sources are present, ``pyrepo init`` falls back to the value
+  of ``python_requires`` in the ``[options.init]`` section of the configuration
+  file, which in turn defaults to ``~= pyversions.minimum``.
 
   - Besides setting ``python_requires``, the value of this option will also be
     applied as a filter to all ``X.Y`` versions from ``pyversions.minimum``
