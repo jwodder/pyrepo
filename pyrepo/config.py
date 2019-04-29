@@ -11,11 +11,6 @@ DEFAULTS = {
         'author': 'Anonymous',
         'author_email': 'USER@HOST',
     },
-    'options.init': {
-        'docs': 'false',
-        'tests': 'false',
-        'travis': 'false',
-    },
 }
 
 MAJOR_PYTHON_VERSIONS = [3]
