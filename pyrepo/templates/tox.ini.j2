@@ -15,9 +15,7 @@ addopts =
     --cache-clear
     --cov={{import_name}}
     --no-cov-on-fail
-    {% if has_doctests %}
     --doctest-modules
-    {% endif %}
     --flakes
 filterwarnings = error
 

@@ -30,8 +30,8 @@
         - Python executable to use to run `setup.py`?
     - Move the signing of the build assets to after committing & tagging?
 
-- Add subcommands for incrementally adding features (tests, docs, doctests,
-  Travis, etc.) to an already-templated repository
+- Add subcommands for incrementally adding features (tests, docs, Travis, etc.)
+  to an already-templated repository
     - `add-tests`: Create `tox.ini`
     - `add-travis`: Do `add-tests`, create `.travis.yml`, add the appropriate
       badges to the README
@@ -58,7 +58,6 @@
       already been made for the project
     - `setup.cfg.j2`: Set the "Development Status" classifier to "4 - Beta"
       when a release has already been made for the project
-    - `tox.ini.j2`: Always set `--doctest-modules`?
 
 - Write tests
 - Move `pyrepo/templates/variables.md` somewhere else

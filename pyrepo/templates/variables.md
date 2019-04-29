@@ -26,7 +26,6 @@
 - `has_travis: bool`
 - `has_docs: bool`
 - `has_pypi: bool`
-- `has_doctests: bool`
 
 - `copyright_years: list[int]`
 

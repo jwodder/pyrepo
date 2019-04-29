@@ -13,7 +13,6 @@ DEFAULTS = {
     },
     'options.init': {
         'docs': 'false',
-        'doctests': 'false',
         'tests': 'false',
         'travis': 'false',
     },

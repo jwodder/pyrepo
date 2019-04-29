@@ -14,7 +14,6 @@ from   .                      import inspect_project, util
 @util.optional('--codecov-user', metavar='USER')
 @util.optional('-c', '--command', metavar='NAME')
 @click.option('-d', '--description', prompt=True)
-@util.optional('--doctests/--no-doctests')
 @util.optional('--docs/--no-docs')
 @util.optional('--github-user', metavar='USER')
 @util.optional('-i', '--import-name', metavar='NAME')
@@ -44,7 +43,6 @@ def init(obj, **options):
         "has_travis": options["travis"],
         "has_docs": options["docs"],
         "has_pypi": False,
-        "has_doctests": options["doctests"],
         "github_user": options["github_user"],
         "travis_user": options.get("travis_user", options["github_user"]),
         "codecov_user": options.get("codecov_user", options["github_user"]),
