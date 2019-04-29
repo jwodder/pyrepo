@@ -203,11 +203,10 @@ Options
   ``https://saythanks.io/to/{{saythanks_to}}``
 
 - ``--tests``, ``--no-tests`` — Whether to generate templates for testing with
-  pytest and tox; default: ``--no-tests`` **Not Yet Implemented**
+  pytest and tox; default: ``--no-tests``
 
 - ``--travis``, ``--no-travis`` — Whether to generate templates for testing
-  with Travis; implies ``--tests``; default: ``--no-travis`` **Not Yet
-  Implemented**
+  with Travis; implies ``--tests``; default: ``--no-travis``
 
 - ``--travis-user <user>`` — Set the username to use in the Travis URL added to
   the README when ``--travis`` is given; defaults to the GitHub username
