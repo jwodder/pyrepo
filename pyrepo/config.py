@@ -10,7 +10,11 @@ DEFAULTS = {
     'options': {
         'author': 'Anonymous',
         'author_email': 'USER@HOST',
-       #'saythanks_to': None,
+    },
+    'options.init': {
+        'docs': 'false',
+        'tests': 'false',
+        'travis': 'false',
     },
 }
 
@@ -53,15 +57,11 @@ def configure(ctx, filename):
             ' pyversions.maximum'
         )
     ctx.obj = SimpleNamespace(
-        pyversions=pyver_range(min_pyversion, max_pyversion)
+        defaults   = {},
+        pyversions = pyver_range(min_pyversion, max_pyversion),
     )
     if not cfg.has_option("options", "python_requires"):
-        cfg["options"]["python_requires"] = '{}.{}'.format(*min_pyversion)
-    # Because `default_map` is copied by reference from the `dict` passed to
-    # the `main` `click.group`'s `context_settings`, `ctx.default_map`
-    # accumulates data across test runs, and so we need to reset it on each
-    # run:
-    ctx.default_map = {}
+        cfg["options"]["python_requires"] = '~={}.{}'.format(*min_pyversion)
     from .__main__ import main
     for cmdname, cmdobj in main.commands.items():
         defaults = dict(cfg["options"])
@@ -77,7 +77,7 @@ def configure(ctx, filename):
                         f'Invalid boolean value for config option {p.name}:'
                         f' {defaults[p.name]!r}'
                     )
-        ctx.default_map.setdefault(cmdname, {}).update(defaults)
+        ctx.obj.defaults[cmdname] = defaults
 
 def parse_pyversion(s):
     major, _, minor = s.partition('.')

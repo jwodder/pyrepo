@@ -5,10 +5,7 @@ from   .config  import DEFAULT_CFG, configure
 from   .init    import init
 from   .release import release
 
-@click.group(context_settings={
-    "default_map": {},
-    "help_option_names": ["-h", "--help"],
-})
+@click.group(context_settings={"help_option_names": ["-h", "--help"]})
 @click.option(
     '-c', '--config',
     type         = click.Path(dir_okay=False),

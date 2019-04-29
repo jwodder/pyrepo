@@ -143,6 +143,8 @@ Options
   description.  If no description is specified on the command line, the user
   will be prompted for one.
 
+  This option cannot be set via the configuration file.
+
 - ``--docs``, ``--no-docs`` — Whether to generate templates for Sphinx
   documentation; default: ``--no-docs`` **Not Yet Implemented**
 
@@ -164,6 +166,8 @@ Options
   ``__main__.py`` file (in which case it is assumed that the project is a
   command rather than a library and that ``__init__.py`` imports nothing); use
   these options to explicitly override the assumed importability.
+
+  This option cannot be set via the configuration file.
 
 - ``-p <name>``, ``--project-name <name>`` — Set the name of the project as it
   will be known on PyPI; defaults to the import name

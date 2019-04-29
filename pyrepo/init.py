@@ -2,108 +2,132 @@
 from   pathlib              import Path
 import re
 import click
-from   in_place             import InPlace
-from   packaging.specifiers import SpecifierSet
-from   .                    import inspect_project, util
+from   in_place               import InPlace
+from   packaging.requirements import Requirement
+from   packaging.specifiers   import SpecifierSet
+from   packaging.utils        import canonicalize_name as normalize
+from   .                      import inspect_project, util
 
 @click.command()
-@click.option('--author', metavar='NAME')
-@click.option('--author-email', metavar='EMAIL')
-@click.option('--codecov-user', metavar='USER')
-@click.option('-c', '--command', metavar='NAME')
+@util.optional('--author', metavar='NAME')
+@util.optional('--author-email', metavar='EMAIL')
+@util.optional('--codecov-user', metavar='USER')
+@util.optional('-c', '--command', metavar='NAME')
 @click.option('-d', '--description', prompt=True)
-@click.option('--docs/--no-docs', default=False)
-@click.option('--github-user', metavar='USER')
-@click.option('-i', '--import-name', metavar='NAME')
+@util.optional('--docs/--no-docs')
+@util.optional('--github-user', metavar='USER')
+@util.optional('-i', '--import-name', metavar='NAME')
 @click.option('--importable/--no-importable', default=None)
-@click.option('-p', '--project-name', metavar='NAME')
-@click.option('-P', '--python-requires', metavar='SPEC')
-@click.option('--repo-name', metavar='NAME')
-@click.option('--rtfd-name', metavar='NAME')
-@click.option('--saythanks-to', metavar='USER')
-@click.option('--tests/--no-tests', default=False)
-@click.option('--travis/--no-travis', default=False)
-@click.option('--travis-user', metavar='USER')
+@util.optional('-p', '--project-name', metavar='NAME')
+@util.optional('-P', '--python-requires', metavar='SPEC')
+@util.optional('--repo-name', metavar='NAME')
+@util.optional('--rtfd-name', metavar='NAME')
+@util.optional('--saythanks-to', metavar='USER')
+@util.optional('--tests/--no-tests')
+@util.optional('--travis/--no-travis')
+@util.optional('--travis-user', metavar='USER')
 @click.pass_obj
-def init(obj, project_name, python_requires, import_name, repo_name, author,
-         author_email, description, tests, travis, docs, rtfd_name, importable,
-         command, saythanks_to, github_user, travis_user, codecov_user):
-    if travis_user is None:
-        travis_user = github_user
-    if codecov_user is None:
-        codecov_user = github_user
+def init(obj, **options):
+    defaults = obj.defaults['init']
+    pyreq_cfg = defaults.pop("python_requires")
+    options = dict(defaults, **options)
+
     env = {
-        "author": author,
-        "short_description": description,
-        "saythanks_to": saythanks_to,
+        "author": options["author"],
+        "short_description": options["description"],
+        "saythanks_to": options.get("saythanks_to"),
         "copyright_years": inspect_project.get_commit_years(Path()),
-        "has_travis": tests,
-        "has_docs": docs,
+        "has_travis": options["tests"],
+        "has_docs": options["docs"],
         "has_pypi": False,
         "has_doctests": False,
-        "github_user": github_user,
-        "travis_user": travis_user,
-        "codecov_user": codecov_user,
+        "github_user": options["github_user"],
+        "travis_user": options.get("travis_user", options["github_user"]),
+        "codecov_user": options.get("codecov_user", options["github_user"]),
     }
 
-    if import_name is not None:
-        env["import_name"] = import_name
-        env["is_flat_module"] = inspect_project.is_flat(Path(), import_name)
+    if options.get("import_name") is not None:
+        env["import_name"] = options["import_name"]
+        env["is_flat_module"] \
+            = inspect_project.is_flat(Path(), options["import_name"])
     else:
         env.update(inspect_project.find_module(Path()))
 
-    if project_name is not None:
-        env["project_name"] = project_name
-    else:
-        env["project_name"] = env["import_name"]
+    env["project_name"] = options.get("project_name", env["import_name"])
+    env["repo_name"] = options.get("repo_name", env["project_name"])
+    env["rtfd_name"] = options.get("rtfd_name", env["project_name"])
 
-    if repo_name is not None:
-        env["repo_name"] = repo_name
-    else:
-        env["repo_name"] = env["project_name"]
-
-    if rtfd_name is not None:
-        env["rtfd_name"] = rtfd_name
-    else:
-        env["rtfd_name"] = project_name
-
-    env["author_email"] = util.jinja_env().from_string(author_email)\
+    env["author_email"] = util.jinja_env().from_string(options["author_email"])\
                                           .render(
                                             project_name=env["project_name"]
                                           )
 
-    if Path('requirements.txt').exists():
-        req_vars = inspect_project.parse_requirements('requirements.txt')
-    else:
-        if env["is_flat_module"]:
-            init_src = Path(env["import_name"] + '.py')
-        else:
-            init_src = Path(env["import_name"]) / '__init__.py'
-        req_vars = inspect_project.extract_requires(init_src)
-    env["install_requires"] = req_vars["__requires__"] or []
-    if req_vars["__python_requires__"] is not None:
-        python_requires = req_vars["__python_requires__"]
+    req_vars = inspect_project.parse_requirements('requirements.txt')
 
-    if re.fullmatch(r'\d+\.\d+', python_requires):
-        python_requires = '~=' + python_requires
+    if env["is_flat_module"]:
+        init_src = Path(env["import_name"] + '.py')
+    else:
+        init_src = Path(env["import_name"]) / '__init__.py'
+    src_vars = inspect_project.extract_requires(init_src)
+
+    requirements = {}
+    for r in (req_vars["__requires__"] or []) \
+            + (src_vars["__requires__"] or []):
+        req = Requirement(r)
+        name = normalize(req.name)
+        # `Requirement` objects don't have an `__eq__`, so we need to convert
+        # them to `str` in order to compare them.
+        req = str(req)
+        if name not in requirements:
+            requirements[name] = (r, req)
+        elif req != requirements[name][1]:
+            raise click.UsageError(
+                f'Two different requirements for {name} found:'
+                f' {requirements[name][0]!r} and {r!r}'
+            )
+    env["install_requires"] = [r for _,(r,_) in sorted(requirements.items())]
+
+    python_requires = options.get("python_requires")
+    if python_requires is not None:
+        if re.fullmatch(r'\d+\.\d+', python_requires):
+            python_requires = '~=' + python_requires
+    else:
+        pyreq_req = req_vars["__python_requires__"]
+        pyreq_src = src_vars["__python_requires__"]
+        if pyreq_req is not None and pyreq_src is not None:
+            if SpecifierSet(pyreq_req) != SpecifierSet(pyreq_src):
+                raise click.UsageError(
+                    f'Two different Python requirements found:'
+                    f' {pyreq_req!r} and {pyreq_src!r}'
+                )
+            python_requires = pyreq_req
+        elif pyreq_req is not None:
+            python_requires = pyreq_req
+        elif pyreq_src is not None:
+            python_requires = pyreq_src
+        else:
+            python_requires = pyreq_cfg
+
     env["python_requires"] = python_requires
     try:
         pyspec = SpecifierSet(python_requires)
     except ValueError:
         raise click.UsageError(
-            f'Invalid specifier for --python-requires: {python_requires!r}'
+            f'Invalid specifier for python_requires: {python_requires!r}'
         )
     env["python_versions"] = list(pyspec.filter(obj.pyversions))
 
-    if command is None:
+    if "command" not in options:
         env["commands"] = {}
     elif env["is_flat_module"]:
-        env["commands"] = {command: f'{env["import_name"]}:main'}
+        env["commands"] = {options["command"]: f'{env["import_name"]}:main'}
     else:
-        env["commands"] = {command: f'{env["import_name"]}.__main__:main'}
+        env["commands"] = {
+            options["command"]: f'{env["import_name"]}.__main__:main'
+        }
 
-    if importable is not None:
-        env["importable"] = importable
+    if options["importable"] is not None:
+        env["importable"] = options["importable"]
     elif not env["install_requires"]:
         env["importable"] = True
     elif not env["is_flat_module"] \
@@ -113,11 +137,11 @@ def init(obj, project_name, python_requires, import_name, repo_name, author,
         env["importable"] = False
 
     init_packaging(env)
-    ###if tests:
+    ###if options["tests"]:
     ###    init_tests(env)
-    ###if travis:
+    ###if options["travis"]:
     ###    init_travis(env)
-    ###if docs:
+    ###if options["docs"]:
     ###    init_docs(env)
 
 def init_packaging(env):
