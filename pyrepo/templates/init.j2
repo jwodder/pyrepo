@@ -1,8 +1,11 @@
 """
 {{short_description}}
 
+{% set seealso %}
 Visit <https://github.com/{{github_user}}/{{repo_name}}>{% if has_docs %} or
 <http://{{rtfd_name}}.rtfd.io>{% endif %} for more information.
+{% endset %}
+{{seealso|rewrap}}
 """
 
 __version__      = '0.1.0.dev1'

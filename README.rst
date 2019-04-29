@@ -148,7 +148,7 @@ Options
   This option cannot be set via the configuration file.
 
 - ``--docs``, ``--no-docs`` — Whether to generate templates for Sphinx
-  documentation; default: ``--no-docs`` **Not Yet Implemented**
+  documentation; default: ``--no-docs``
 
 - ``--github-user <user>`` — Set the username to use in the project's GitHub
   URL

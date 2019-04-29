@@ -23,6 +23,7 @@
 - `commands` — mapping from command (`console_scripts`) names to entry point
   specifications
 
+- `has_tests: bool`
 - `has_travis: bool`
 - `has_docs: bool`
 - `has_pypi: bool`

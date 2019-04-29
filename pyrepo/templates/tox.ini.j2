@@ -1,3 +1,4 @@
+{% if has_tests %}
 [tox]
 envlist = {% set c = joiner(',') %}{% for v in python_versions %}{{c()}}py{{v|replace('.', '')}}{% endfor %},pypy3
 skip_missing_interpreters = True
@@ -25,8 +26,11 @@ branch = True
 [coverage:report]
 precision = 2
 show_missing = True
-{% if has_docs %}
+{% endif %}
+{% if has_tests and has_docs %}
 
+{% endif %}
+{% if has_docs %}
 [testenv:docs]
 basepython = python3
 deps = -rdocs/requirements.txt

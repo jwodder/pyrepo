@@ -40,6 +40,7 @@ def init(obj, **options):
         "short_description": options["description"],
         "saythanks_to": options.get("saythanks_to"),
         "copyright_years": inspect_project.get_commit_years(Path()),
+        "has_tests": options["tests"] or options["travis"],
         "has_travis": options["travis"],
         "has_docs": options["docs"],
         "has_pypi": False,
@@ -141,12 +142,17 @@ def init(obj, **options):
     templated = [
         '.gitignore', 'MANIFEST.in', 'README.rst', 'setup.cfg', 'setup.py',
     ]
-    if options["tests"] or options["travis"]:
+    if env["has_tests"] or env["has_docs"]:
         templated.append('tox.ini')
-    if options["travis"]:
+    if env["has_travis"]:
         templated.append('.travis.yml')
-    ###if options["docs"]:
-    ###    docs/*
+    if env["has_docs"]:
+        Path('docs').mkdir(exist_ok=True)
+        templated.extend([
+            'docs/index.rst',
+            'docs/conf.py',
+            'docs/requirements.txt',
+        ])
 
     for filename in templated:
         if not Path(filename).exists():
