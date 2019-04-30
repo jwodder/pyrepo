@@ -97,7 +97,9 @@ Option names are case insensitive and treat hyphens & underscores as equal.
 Create packaging boilerplate for a new project (i.e., one that does not already
 have a ``setup.py`` file).  The project must be in a Git repository and already
 contain Python source code (either one flat module or else a package containing
-an ``__init__.py`` file).
+an ``__init__.py`` file).  It is recommended to run this command in a clean Git
+repository (i.e., one without any pending changes) so that ``git reset`` can
+easily be used to revert the command's effects if anything goes wrong.
 
 ``pyrepo init`` creates and ``git add``\ s the following files if they do not already exist:
 
