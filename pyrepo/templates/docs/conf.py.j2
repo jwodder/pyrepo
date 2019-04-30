@@ -12,8 +12,8 @@ extensions = [
 ]
 
 autodoc_default_options = {
-    'members': None,
-    'undoc-members': None,
+    'members': True,
+    'undoc-members': True,
 }
 
 intersphinx_mapping = {
