@@ -222,6 +222,24 @@ Options
   the README when ``--travis`` is given; defaults to the GitHub username
 
 
+``pyrepo mkgithub``
+-------------------
+
+::
+
+    pyrepo [<global-options>] mkgithub [<options>]
+
+Create a new GitHub repository for the project and push the ``master`` branch
+to it.
+
+
+Options
+^^^^^^^
+
+- ``--repo-name <name>`` — The name of the new repository; defaults to the
+  project name
+
+
 ``pyrepo release``
 ------------------
 
