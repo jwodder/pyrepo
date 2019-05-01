@@ -26,6 +26,13 @@
         - Python executable to use to run `setup.py`?
     - Move the signing of the build assets to after committing & tagging?
 
+- `pyrepo mkgithub`:
+    - If `--repo-name` is not specified, read it from the project's `url`
+    - Update the project's `url` et alii if necessary
+    - Also set GitHub topics based on project keywords?
+    - Push all branches, not just master?
+    - Add an option for the Python executable to use to run `setup.py`
+
 - Add subcommands for incrementally adding features (tests, docs, Travis, etc.)
   to an already-templated repository
     - `add-tests`: Create `tox.ini`
@@ -41,7 +48,6 @@
 - Add a subcommand that regenerates/outputs specified templated files
     - The script should take command line options for overriding the various
       Jinja env vars
-- Convert `mypyrepo.sh` to a subcommand
 - Add a subcommand for updating GitHub description & tags based on the
   project's short description and keywords?
 

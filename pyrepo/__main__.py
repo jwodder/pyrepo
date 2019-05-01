@@ -1,9 +1,10 @@
 import os
 import click
-from   .        import __version__
-from   .config  import DEFAULT_CFG, configure
-from   .init    import init
-from   .release import release
+from   .         import __version__
+from   .config   import DEFAULT_CFG, configure
+from   .init     import init
+from   .mkgithub import mkgithub
+from   .release  import release
 
 @click.group(context_settings={"help_option_names": ["-h", "--help"]})
 @click.option(
@@ -29,6 +30,7 @@ def main(ctx, chdir, config):
         os.chdir(chdir)
 
 main.add_command(init, 'init')
+main.add_command(mkgithub, 'mkgithub')
 main.add_command(release, 'release')
 
 if __name__ == '__main__':
