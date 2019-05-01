@@ -7,8 +7,6 @@
 # - git (including push access to repository)
 # - $GPG (including a key usable for signing)
 # - twine (including PyPI credentials)
-# - GitHub credentials for both api.github.com and uploads.github.com stored in
-#   ~/.netrc
 
 # Notable assumptions made by this code:
 # - There is no CHANGELOG file until after the initial release has been made.
@@ -27,9 +25,9 @@ from   tempfile    import NamedTemporaryFile
 import attr
 import click
 from   in_place    import InPlace
-import requests
 from   uritemplate import expand
 from   .changelog  import Changelog, ChangelogSection
+from   .gh         import ACCEPT, GitHub
 from   .util       import ensure_license_years, readcmd, runcmd, \
                             update_years2str
 
@@ -52,19 +50,20 @@ ACTIVE_BADGE = '''\
           state and is being actively developed.
 '''
 
+TOPICS_ACCEPT = f'application/vnd.github.mercy-preview,{ACCEPT}'
+
 @attr.s
 class Project:
     directory  = attr.ib()
     name       = attr.ib()
     _version   = attr.ib()
     python     = attr.ib()
-    gh_owner   = attr.ib()
-    gh_repo    = attr.ib()
+    ghrepo     = attr.ib()
     assets     = attr.ib(factory=list)
     assets_asc = attr.ib(factory=list)
 
     @classmethod
-    def from_directory(cls, directory=os.curdir):
+    def from_directory(cls, directory=os.curdir, gh=None):
         ### TODO: Eliminate this check and just always use either python3 or
         ### sys.executable
         # Use `sys.executable` (Python 3) for the initial check because it
@@ -86,6 +85,8 @@ class Project:
             raise ValueError('Could not parse remote Git URL: '
                              + repr(origin_url))
         owner, repo = m.groups()
+        if gh is None:
+            gh = GitHub()
         return cls(
             directory = Path(directory),
             python    = python,
@@ -93,8 +94,7 @@ class Project:
             # attrs strips leading underscores from variable names for __init__
             # arguments:
             version   = readcmd(python,'setup.py','--version', cwd=directory),
-            gh_owner  = owner,
-            gh_repo   = repo,
+            ghrepo    = gh.repos[owner][repo],
         )
 
     @property
@@ -144,10 +144,6 @@ class Project:
             fpath = self.directory / CHANGELOG_NAMES[0]
             with open(fpath, 'w', encoding='utf-8') as fp:
                 print(value, file=fp)
-
-    @property
-    def ghapi_url(self):
-        return f'https://api.github.com/repos/{self.gh_owner}/{self.gh_repo}'
 
     def log(self, s):
         click.secho(s, bold=True)
@@ -215,18 +211,13 @@ class Project:
             'v' + self.version + '^{commit}',
             cwd=self.directory,
         ).split('\0', 1)
-        r = requests.post(
-            # Authenticate via ~/.netrc
-            self.ghapi_url + '/releases',
-            json={
-                "tag_name": 'v' + self.version,
-                "name": subject,
-                "body": body.strip(),  ### TODO: Remove line wrapping?
-                "draft": False,
-            },
-        )
-        r.raise_for_status()
-        self.release_upload_url = r.json()["upload_url"]
+        reldata = self.ghrepo.releases.post(json={
+            "tag_name": 'v' + self.version,
+            "name": subject,
+            "body": body.strip(),  ### TODO: Remove line wrapping?
+            "draft": False,
+        })
+        self.release_upload_url = reldata["upload_url"]
 
     def build(self):  ### Not idempotent
         self.log('Building artifacts ...')
@@ -273,13 +264,12 @@ class Project:
             "Cannot upload to GitHub before creating release"
         for asset in self.assets:
             name = os.path.basename(asset)
+            url = expand(self.release_upload_url, name=name, label=None)
             with open(asset, 'rb') as fp:
-                requests.post(
-                    # Authenticate via ~/.netrc
-                    expand(self.release_upload_url, name=name, label=None),
+                self.ghrepo[url].post(
                     headers={"Content-Type": mime_type(name)},
                     data=fp.read(),
-                ).raise_for_status()
+                )
 
     def begin_dev(self):  # Not idempotent
         self.log('Preparing for work on next version ...')
@@ -373,27 +363,23 @@ class Project:
         )
 
     def update_gh_topics(self, add=(), remove=()):
-        r = requests.get(
-            self.ghapi_url,
-            headers={"Accept": 'application/vnd.github.mercy-preview'},
-        )
-        r.raise_for_status()
-        topics = set(r.json()["topics"])
+        topics \
+            = set(self.ghrepo.get(headers={"Accept": TOPICS_ACCEPT})["topics"])
         new_topics = topics.union(add).difference(remove)
         if new_topics != topics:
-            requests.put(
-                self.ghapi_url + '/topics',
-                headers={"Accept": 'application/vnd.github.mercy-preview'},
+            self.ghrepo.topics.put(
+                headers={"Accept": TOPICS_ACCEPT},
                 json={"names": list(new_topics)},
-            ).raise_for_status()
+            )
 
 
 @click.command()
-def release():
+@click.pass_obj
+def release(obj):
     # GPG_TTY has to be set so that GPG can be run through Git.
     os.environ['GPG_TTY'] = os.ttyname(0)
     add_type('application/zip', '.whl', False)
-    proj = Project.from_directory()
+    proj = Project.from_directory(gh=obj.gh)
     proj.end_dev()
     #proj.setup_check()
     if CHECK_TOX:

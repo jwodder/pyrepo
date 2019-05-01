@@ -35,6 +35,9 @@ def init(obj, **options):
     pyreq_cfg = defaults.pop("python_requires")
     options = dict(defaults, **options)
 
+    if "github_user" not in options:
+        options["github_user"] = obj.gh.user.get()["login"]
+
     env = {
         "author": options["author"],
         "short_description": options["description"],

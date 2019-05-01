@@ -1,8 +1,12 @@
 from   configparser   import ConfigParser
 from   pathlib        import Path
+import platform
 from   types          import SimpleNamespace
 import click
 from   pyversion_info import get_pyversion_info
+import requests
+from   pyrepo         import __url__, __version__
+from   .gh            import ACCEPT, GitHub
 
 DEFAULT_CFG = str(Path.home() / '.config' / 'pyrepo.cfg')
 
@@ -12,6 +16,14 @@ DEFAULTS = {
         'author_email': 'USER@HOST',
     },
 }
+
+USER_AGENT = 'pyrepo/{} ({}) requests/{} {}/{}'.format(
+    __version__,
+    __url__,
+    requests.__version__,
+    platform.python_implementation(),
+    platform.python_version(),
+)
 
 MAJOR_PYTHON_VERSIONS = [3]
 PYVER_TEMPLATE = '"3.X"'
@@ -55,6 +67,25 @@ def configure(ctx, filename):
         defaults   = {},
         pyversions = pyver_range(min_pyversion, max_pyversion),
     )
+
+    s = requests.Session()
+    s.headers["Accept"] = ACCEPT
+    s.headers["User-Agent"] = USER_AGENT
+    try:
+        auth_gh = cfg['auth.github']
+    except KeyError:
+        auth_gh = {}
+    if 'token' in auth_gh:
+        s.headers["Authorization"] = "token " + auth_gh['token']
+    elif 'username' in auth_gh and 'password' in auth_gh:
+        s.auth = (auth_gh['username'], auth_gh['password'])
+    elif 'username' in auth_gh:
+        raise click.UsageError('Config file contains username but no password')
+    elif 'password' in auth_gh:
+        raise click.UsageError('Config file contains password but no username')
+    #else: Authenticate via ~/.netrc
+    ctx.obj.gh = GitHub(session=s)
+
     if not cfg.has_option("options", "python_requires"):
         cfg["options"]["python_requires"] = '~={}.{}'.format(*min_pyversion)
     from .__main__ import main

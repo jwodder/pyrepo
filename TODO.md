@@ -2,13 +2,13 @@
     - Support `project_name`, `repo_name`, and `rtfd_name` as Jinja2 templates
       with access to `import_name` and (except for `project_name` itself)
       `project_name`
-    - When `--github-user` is not set, query `/user["login"]` in the GitHub API
     - If the repository already has a GitHub remote, use that to set the
       default `repo_name` (and `github_user`?)
     - `--command`: Support setting the entry point function name to something
       other than "main" on the command line
     - Autodetect `if __name__ == '__main__':` lines in `import_name.py` /
       `import_name/__main__.py` and set `commands` accordingly
+    - Add a `--pypi/--no-pypi` option for controlling the `has_pypi` variable
 
 - `pyrepo release`:
     - Add an option for setting the new version number from the command line

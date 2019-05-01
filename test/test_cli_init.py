@@ -5,6 +5,7 @@ from   shutil          import copytree
 from   traceback       import format_exception
 from   click.testing   import CliRunner
 import pytest
+import responses
 from   pyrepo          import inspect_project
 from   pyrepo.__main__ import main
 
@@ -50,14 +51,25 @@ def test_pyrepo_init(dirpath, mocker, tmp_path):
         return_value=[2016, 2018, 2019],
     )
     mocker.patch('pyrepo.util.runcmd', new=patched_runcmd)
-    r = CliRunner().invoke(
-        main,
-        ['-c', str(cfg), '-C', str(tmp_path), 'init'] + options,
-        # Standalone mode needs to be disabled so that `ClickException`s (e.g.,
-        # `UsageError`) will be returned in `r.exception` instead of a
-        # `SystemExit`
-        standalone_mode=False,
-    )
+    with responses.RequestsMock() as rsps:
+        # Don't step on pyversion-info:
+        rsps.add_passthru('https://raw.githubusercontent.com')
+        if (dirpath / 'github_user.txt').exists():
+            rsps.add(
+                responses.GET,
+                'https://api.github.com/user',
+                json={
+                    "login": (dirpath / 'github_user.txt').read_text().strip()
+                },
+            )
+        r = CliRunner().invoke(
+            main,
+            ['-c', str(cfg), '-C', str(tmp_path), 'init'] + options,
+            # Standalone mode needs to be disabled so that `ClickException`s
+            # (e.g., `UsageError`) will be returned in `r.exception` instead of
+            # a `SystemExit`
+            standalone_mode=False,
+        )
     if not (dirpath / 'errmsg.txt').exists():
         assert r.exit_code == 0, show_result(r)
         ### TODO: Assert about how runcmd() was called?
