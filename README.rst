@@ -70,6 +70,14 @@ Configuration File
 The configuration file (located at ``~/.config/pyrepo.cfg`` by default) is an
 INI file with the following sections:
 
+``[auth.github]``
+   Contains credentials for interacting with GitHub over v3 of its API.  This
+   section may contain either a ``token`` option, giving an OAuth2 token to
+   use, or ``username`` and ``password`` options.  If none of these are
+   present, the user's credentials for ``api.github.com`` (and
+   ``uploads.github.com``, for attaching assets to releases) are expected to be
+   set in their ``~/.netrc`` file.
+
 ``[options]``
    Sets default values for the options in the ``[options.COMMAND]`` sections
 
@@ -153,7 +161,7 @@ Options
   documentation; default: ``--no-docs``
 
 - ``--github-user <user>`` — Set the username to use in the project's GitHub
-  URL
+  URL; when not set, the user's GitHub login is retrieved using the GitHub API
 
 - ``-i <name>``, ``--import-name <name>`` — Specify the import name of the
   Python module or package that the project is built around.  If not specified,
