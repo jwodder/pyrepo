@@ -1,12 +1,93 @@
 import ast
+from   configparser      import ConfigParser
 import time
-from   pathlib       import Path
+from   pathlib           import Path
 import re
-from   pkg_resources import yield_lines
-from   .             import util  # Import module to keep mocking easy
+from   pkg_resources     import yield_lines
+from   setuptools.config import read_configuration
+from   .                 import util  # Import module to keep mocking easy
 
 def inspect_project(dirpath):
-    raise NotImplementedError
+    if not (dirpath / 'setup.py').exists():
+        raise ValueError('No setup.py in project root')
+    if not (dirpath / 'setup.cfg').exists():
+        raise ValueError('No setup.cfg in project root')
+    cfg = read_configuration(str(dirpath / 'setup.cfg'))
+    env = {
+        "project_name": cfg["metadata"]["name"],
+        "short_description": cfg["metadata"]["description"],
+        "author": cfg["metadata"]["author"],
+        "author_email": cfg["metadata"]["author_email"],
+        "python_requires": cfg["options"]["python_requires"],
+        "install_requires": cfg["options"].get("install_requires", []),
+        "importable": "version" in cfg["metadata"],
+    }
+
+    if cfg["options"].get("packages"):
+        env["is_flat_module"] = False
+        env["import_name"] = cfg["options"]["packages"][0]
+    else:
+        env["is_flat_module"] = True
+        env["import_name"] = cfg["options"]["py_modules"][0]
+
+    env["python_versions"] = []
+    for clsfr in cfg["metadata"]["classifiers"]:
+        m = re.fullmatch(r'Programming Language :: Python :: (\d+\.\d+)', clsfr)
+        if m:
+            env["python_versions"].append(m.group(1))
+
+    env["commands"] = {}
+    try:
+        commands = cfg["options"]["entry_points"]["console_scripts"]
+    except KeyError:
+        pass
+    else:
+        for cmd in commands:
+            k, v = re.split(r'\s*=\s*', cmd, maxsplit=1)
+            env["commands"][k] = v
+
+    m = re.fullmatch(
+        r'https://github.com/([^/]+)/([^/]+)',
+        cfg["metadata"]["url"],
+    )
+    assert m, 'Project URL is not a GitHub URL'
+    env["github_user"] = m.group(1)
+    env["repo_name"] = m.group(2)
+
+    if "Documentation" in cfg["metadata"]["project_urls"]:
+        m = re.fullmatch(
+            r'https?://([-a-zA-Z0-9]+)\.(?:readthedocs|rtfd)\.io',
+            cfg["metadata"]["project_urls"]["Documentation"],
+        )
+        assert m, 'Documentation URL is not a Read the Docs URL'
+        env["rtfd_name"] = m.group(1)
+    else:
+        env["rtfd_name"] = env["project_name"]
+
+    if "Say Thanks!" in cfg["metadata"]["project_urls"]:
+        m = re.fullmatch(
+            r'https://saythanks\.io/to/([^/]+)',
+            cfg["metadata"]["project_urls"]["Say Thanks!"],
+        )
+        assert m, 'Invalid Say Thanks! URL'
+        env["saythanks_to"] = m.group(1)
+    else:
+        env["saythanks_to"] = None
+
+    if (dirpath / 'tox.ini').exists():
+        toxcfg = ConfigParser(interpolation=None)
+        toxcfg.read(str(dirpath / 'tox.ini'))
+        env["has_tests"] = toxcfg.has_section("testenv")
+
+    env["has_travis"] = (dirpath / '.travis.yml').exists()
+    env["has_docs"] = (dirpath / 'docs' / 'index.rst').exists()
+
+    env["travis_user"] = NotImplemented
+    env["codecov_user"] = NotImplemented
+    env["has_pypi"] = NotImplemented
+    env["copyright_years"] = NotImplemented
+
+    return env
 
 def is_flat(dirpath, import_name):
     flat_src = Path(dirpath, import_name + '.py')
