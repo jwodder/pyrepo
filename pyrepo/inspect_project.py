@@ -5,6 +5,9 @@ import re
 from   pkg_resources import yield_lines
 from   .             import util  # Import module to keep mocking easy
 
+def inspect_project(dirpath):
+    raise NotImplementedError
+
 def is_flat(dirpath, import_name):
     flat_src = Path(dirpath, import_name + '.py')
     pkg_init_src = Path(dirpath, import_name) / '__init__.py'
