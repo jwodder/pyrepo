@@ -9,7 +9,9 @@ from   setuptools.config import read_configuration
 from   .                 import util  # Import module to keep mocking easy
 from   .readme           import Readme
 
-def inspect_project(dirpath):
+def inspect_project(dirpath=None):
+    if dirpath is None:
+        dirpath = Path()
     if not (dirpath / 'setup.py').exists():
         raise ValueError('No setup.py in project root')
     if not (dirpath / 'setup.cfg').exists():

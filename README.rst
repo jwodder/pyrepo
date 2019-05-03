@@ -252,7 +252,7 @@ Options
 ^^^^^^^
 
 - ``--repo-name <name>`` — The name of the new repository; defaults to the
-  project name
+  repository name used in the project's URL
 
 
 ``pyrepo release``

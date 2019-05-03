@@ -30,12 +30,10 @@
     - Move the signing of the build assets to after committing & tagging?
 
 - `pyrepo mkgithub`:
-    - If `--repo-name` is not specified, read it from the project's `url`
     - Update the project's `url` et alii if necessary
     - Also set GitHub topics based on project keywords?
     - Push all branches, not just master?
     - Push all tags
-    - Add an option for the Python executable to use to run `setup.py`
 
 - Add subcommands for incrementally adding features (tests, docs, Travis, etc.)
   to an already-templated repository
