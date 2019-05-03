@@ -34,6 +34,7 @@
     - Also set GitHub topics based on project keywords?
     - Push all branches, not just master?
     - Push all tags
+    - Support creating the repository in an organization?
 
 - Add subcommands for incrementally adding features (tests, docs, Travis, etc.)
   to an already-templated repository
@@ -58,15 +59,12 @@
       none?
     - When a package has a command, include "Run ``{{command}} --help``" in the
       "see also" paragraph in the module docstring
-    - `README.rst.j2`: Use the "Active" repostatus badge when a release has
-      already been made for the project
-    - `setup.cfg.j2`: Set the "Development Status" classifier to "4 - Beta"
-      when a release has already been made for the project
     - Is `codecov_user` ever not the same as `github_user`?  What about
       `travis_user`?
-    - Add `has_release` and `is_stable` variables (the latter defined by the
-      version number being at least 1.0) that are used to select the repostatus
-      badge in the README and the development status trove classifier
+    - Add `has_release` (equivalent to `has_pypi`?) and `is_stable` variables
+      (the latter defined by the version number being at least 1.0) that are
+      used to select the repostatus badge in the README and the development
+      status trove classifier
     - When `has_pypi` is false, the installation instructions in the README
       should refer to the GitHub URL, not the project name
 
@@ -74,7 +72,6 @@
 - Move `pyrepo/templates/variables.md` somewhere else
 - Rename `inspect_project.py` to something shorter
 - Fill in `--help` strings and command docstrings
-- Make `twine` a dependency?
 
 - Prior art to investigate and compare against:
     - https://pypi.python.org/pypi/octopusapi

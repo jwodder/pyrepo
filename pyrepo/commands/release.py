@@ -6,7 +6,7 @@
 # - dropbox_uploader (including OAuth configuration)
 # - git (including push access to repository)
 # - $GPG (including a key usable for signing)
-# - twine (including PyPI credentials)
+# - PyPI credentials for twine
 
 # Notable assumptions made by this code:
 # - There is no CHANGELOG file until after the initial release has been made.
@@ -160,7 +160,7 @@ class Project:
     def twine_check(self):  # Idempotent
         self.log('Running twine check ...')
         assert self.assets, 'Nothing to check'
-        runcmd('twine', 'check', *self.assets)
+        runcmd(sys.executable, '-m', 'twine', 'check', *self.assets)
 
     def commit_version(self):  ### Not idempotent
         self.log('Commiting & tagging ...')
@@ -243,6 +243,8 @@ class Project:
     def upload_pypi(self):  # Idempotent
         self.log('Uploading artifacts to PyPI ...')
         runcmd(
+            sys.executable,
+            '-m',
             'twine',
             'upload',
             '--skip-existing',
