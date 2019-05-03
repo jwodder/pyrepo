@@ -49,7 +49,9 @@ Usage
 
 All ``pyrepo`` commands must either be run from the root of a Python project
 directory or else specify the root of such a directory with the ``--chdir``
-global option.
+global option.  Moreover, all commands other than ``pyrepo init`` require that
+the project repository have already been set up by previously invoking ``pyrepo
+init``.
 
 
 Global Options
@@ -109,7 +111,8 @@ an ``__init__.py`` file).  It is recommended to run this command in a clean Git
 repository (i.e., one without any pending changes) so that ``git reset`` can
 easily be used to revert the command's effects if anything goes wrong.
 
-``pyrepo init`` creates and ``git add``\ s the following files if they do not already exist:
+``pyrepo init`` creates and ``git add``\ s the following files if they do not
+already exist:
 
 - ``.gitignore``
 - ``MANIFEST.in``
@@ -220,6 +223,17 @@ Options
 
 - ``--travis-user <user>`` — Set the username to use in the Travis URL added to
   the README when ``--travis`` is given; defaults to the GitHub username
+
+
+``pyrepo inspect``
+---------------
+
+::
+
+    pyrepo [<global-options>] inspect
+
+Examine a project repository and output its template variables as a JSON
+object.  This command is primarily intended for debugging purposes.
 
 
 ``pyrepo mkgithub``

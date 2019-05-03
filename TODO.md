@@ -1,3 +1,5 @@
+- Autodetect project root by looking for `.git` folder
+
 - `pyrepo init`:
     - Support `project_name`, `repo_name`, and `rtfd_name` as Jinja2 templates
       with access to `import_name` and (except for `project_name` itself)
@@ -9,6 +11,7 @@
     - Autodetect `if __name__ == '__main__':` lines in `import_name.py` /
       `import_name/__main__.py` and set `commands` accordingly
     - Add a `--pypi/--no-pypi` option for controlling the `has_pypi` variable
+    - Eliminate `--import-name`?
 
 - `pyrepo release`:
     - Add an option for setting the new version number from the command line
@@ -31,6 +34,7 @@
     - Update the project's `url` et alii if necessary
     - Also set GitHub topics based on project keywords?
     - Push all branches, not just master?
+    - Push all tags
     - Add an option for the Python executable to use to run `setup.py`
 
 - Add subcommands for incrementally adding features (tests, docs, Travis, etc.)
@@ -60,6 +64,13 @@
       already been made for the project
     - `setup.cfg.j2`: Set the "Development Status" classifier to "4 - Beta"
       when a release has already been made for the project
+    - Is `codecov_user` ever not the same as `github_user`?  What about
+      `travis_user`?
+    - Add `has_release` and `is_stable` variables (the latter defined by the
+      version number being at least 1.0) that are used to select the repostatus
+      badge in the README and the development status trove classifier
+    - When `has_pypi` is false, the installation instructions in the README
+      should refer to the GitHub URL, not the project name
 
 - Write tests
 - Move `pyrepo/templates/variables.md` somewhere else
