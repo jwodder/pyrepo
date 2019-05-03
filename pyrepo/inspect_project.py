@@ -3,9 +3,11 @@ from   configparser      import ConfigParser
 import time
 from   pathlib           import Path
 import re
+from   intspan           import intspan
 from   pkg_resources     import yield_lines
 from   setuptools.config import read_configuration
 from   .                 import util  # Import module to keep mocking easy
+from   .readme           import Readme
 
 def inspect_project(dirpath):
     if not (dirpath / 'setup.py').exists():
@@ -78,14 +80,34 @@ def inspect_project(dirpath):
         toxcfg = ConfigParser(interpolation=None)
         toxcfg.read(str(dirpath / 'tox.ini'))
         env["has_tests"] = toxcfg.has_section("testenv")
+    else:
+        env["has_tests"] = False
 
     env["has_travis"] = (dirpath / '.travis.yml').exists()
     env["has_docs"] = (dirpath / 'docs' / 'index.rst').exists()
 
-    env["travis_user"] = NotImplemented
-    env["codecov_user"] = NotImplemented
-    env["has_pypi"] = NotImplemented
-    env["copyright_years"] = NotImplemented
+    env["travis_user"] = env["codecov_user"] = env["github_user"]
+    with (dirpath / 'README.rst').open(encoding='utf-8') as fp:
+        rdme = Readme.parse(fp)
+    for badge in rdme.badges:
+        m = re.fullmatch(r'https://travis-ci\.(?:com|org)/([^/]+)/[^/]+\.svg'
+                         r'(?:\?branch=.+)?', badge.href)
+        if m:
+            env["travis_user"] = m.group(1)
+        m = re.fullmatch(r'https://codecov\.io/gh/([^/]+)/[^/]+/branch/.+'
+                         r'/graph/badge\.svg', badge.href)
+        if m:
+            env["codecov_user"] = m.group(1)
+    env["has_pypi"] = any(link["label"] == "PyPI" for link in rdme.header_links)
+
+    with (dirpath / 'LICENSE').open(encoding='utf-8') as fp:
+        for line in fp:
+            m = re.match(r'^Copyright \(c\) (\d[-,\d\s]+\d) \w+', line)
+            if m:
+                env["copyright_years"] = list(intspan(m.group(1)))
+                break
+        else:
+            raise ValueError('Copyright years not found in LICENSE')
 
     return env
 
