@@ -30,6 +30,8 @@ from   ..                     import inspect_project, util
 def cli(obj, **options):
     if Path('setup.py').exists():
         raise click.UsageError('setup.py already exists')
+    if Path('setup.cfg').exists():
+        raise click.UsageError('setup.cfg already exists')
 
     defaults = obj.defaults['init']
     pyreq_cfg = defaults.pop("python_requires")
