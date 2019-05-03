@@ -1,11 +1,11 @@
 import sys
 import click
-from   .util import readcmd, runcmd
+from   ..util import readcmd, runcmd
 
 @click.command()
 @click.option('--repo-name', metavar='NAME')
 @click.pass_obj
-def mkgithub(obj, repo_name):
+def cli(obj, repo_name):
     if repo_name is None:
         repo_name = readcmd(sys.executable, 'setup.py', '--name')
     description = readcmd(sys.executable, 'setup.py', '--description')

@@ -26,9 +26,9 @@ import attr
 import click
 from   in_place    import InPlace
 from   uritemplate import expand
-from   .changelog  import Changelog, ChangelogSection
-from   .gh         import ACCEPT, GitHub
-from   .util       import ensure_license_years, read_paragraphs, readcmd, \
+from   ..changelog import Changelog, ChangelogSection
+from   ..gh        import ACCEPT, GitHub
+from   ..util      import ensure_license_years, read_paragraphs, readcmd, \
                             runcmd, update_years2str
 
 GPG = 'gpg2'
@@ -375,7 +375,7 @@ class Project:
 
 @click.command()
 @click.pass_obj
-def release(obj):
+def cli(obj):
     # GPG_TTY has to be set so that GPG can be run through Git.
     os.environ['GPG_TTY'] = os.ttyname(0)
     add_type('application/zip', '.whl', False)

@@ -6,7 +6,7 @@ from   in_place               import InPlace
 from   packaging.requirements import Requirement
 from   packaging.specifiers   import SpecifierSet
 from   packaging.utils        import canonicalize_name as normalize
-from   .                      import inspect_project, util
+from   ..                     import inspect_project, util
 
 @click.command()
 @util.optional('--author', metavar='NAME')
@@ -27,7 +27,7 @@ from   .                      import inspect_project, util
 @util.optional('--travis/--no-travis')
 @util.optional('--travis-user', metavar='USER')
 @click.pass_obj
-def init(obj, **options):
+def cli(obj, **options):
     if Path('setup.py').exists():
         raise click.UsageError('setup.py already exists')
 

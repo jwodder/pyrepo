@@ -83,8 +83,7 @@
         - Is this step unnecessary on travis-ci.com?
     - Codecov.io: done automatically when test results are submitted
 - Add templates for:
-    - `docs/index.rst` (and other `docs/*.rst` files?)
-    - `CHANGELOG.md`
+    - `CHANGELOG.md`?
     - `CONTRIBUTORS.md`
 
 - Write a "RATIONALE.md" (or "BIKESHED.md"?) file for reminding me why I did

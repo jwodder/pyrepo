@@ -1,10 +1,9 @@
+from   importlib import import_module
 import os
+from   pathlib   import Path
 import click
 from   .         import __version__
 from   .config   import DEFAULT_CFG, configure
-from   .init     import init
-from   .mkgithub import mkgithub
-from   .release  import release
 
 @click.group(context_settings={"help_option_names": ["-h", "--help"]})
 @click.option(
@@ -29,9 +28,13 @@ def main(ctx, chdir, config):
     if chdir is not None:
         os.chdir(chdir)
 
-main.add_command(init, 'init')
-main.add_command(mkgithub, 'mkgithub')
-main.add_command(release, 'release')
+for fpath in Path(__file__).with_name('commands').iterdir():
+    modname = fpath.stem
+    if modname.isidentifier() and not modname.startswith('_') and \
+            (fpath.suffix == '' and (fpath / '__init__.py').exists()
+                or fpath.suffix == '.py'):
+        submod = import_module('.' + modname, 'pyrepo.commands')
+        main.add_command(submod.cli, modname.replace('_', '-'))
 
 if __name__ == '__main__':
     main()
