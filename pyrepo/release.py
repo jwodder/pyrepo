@@ -28,8 +28,8 @@ from   in_place    import InPlace
 from   uritemplate import expand
 from   .changelog  import Changelog, ChangelogSection
 from   .gh         import ACCEPT, GitHub
-from   .util       import ensure_license_years, readcmd, runcmd, \
-                            update_years2str
+from   .util       import ensure_license_years, read_paragraphs, readcmd, \
+                            runcmd, update_years2str
 
 GPG = 'gpg2'
 # gpg2 automatically & implicitly uses gpg-agent to obviate the need to keep
@@ -423,17 +423,3 @@ def mime_type(filename):
         #return mtype + '+gzip'
     else:
         return 'application/x-' + encoding
-
-def is_blank(line):
-    return line in ('\n', '\r\n')
-
-def read_paragraphs(fp):
-    para = []
-    for line in fp:
-        if not is_blank(line) and para and is_blank(para[-1]):
-            yield ''.join(para)
-            para = [line]
-        else:
-            para.append(line)
-    if para:
-        yield ''.join(para)

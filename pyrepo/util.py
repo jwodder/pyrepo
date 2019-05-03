@@ -102,3 +102,17 @@ def optional(*decls, nilstr=False, **attrs):
     if not attrs.get('multiple'):
         attrs['default'] = None
     return click.option(*decls, callback=callback, expose_value=False, **attrs)
+
+def is_blank(line):
+    return line in ('\n', '\r\n')
+
+def read_paragraphs(fp):
+    para = []
+    for line in fp:
+        if not is_blank(line) and para and is_blank(para[-1]):
+            yield ''.join(para)
+            para = [line]
+        else:
+            para.append(line)
+    if para:
+        yield ''.join(para)
