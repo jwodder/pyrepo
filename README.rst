@@ -167,11 +167,6 @@ Options
 - ``--github-user <user>`` — Set the username to use in the project's GitHub
   URL; when not set, the user's GitHub login is retrieved using the GitHub API
 
-- ``-i <name>``, ``--import-name <name>`` — Specify the import name of the
-  Python module or package that the project is built around.  If not specified,
-  the current directory is scanned for ``*.py`` and ``*/__init__.py`` files.  A
-  project may only contain exactly one module or package.
-
 - ``--importable``, ``--no-importable`` — A project is said to be *importable*
   iff ``from IMPORT_NAME import __version__`` succeeds even when none of the
   project's dependencies have been installed yet; this determines whether

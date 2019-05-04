@@ -16,7 +16,6 @@ from   ..                     import inspect_project, util
 @click.option('-d', '--description', prompt=True)
 @util.optional('--docs/--no-docs')
 @util.optional('--github-user', metavar='USER')
-@util.optional('-i', '--import-name', metavar='NAME')
 @click.option('--importable/--no-importable', default=None)
 @util.optional('-p', '--project-name', metavar='NAME')
 @util.optional('-P', '--python-requires', metavar='SPEC')
@@ -54,12 +53,8 @@ def cli(obj, **options):
         "codecov_user": options.get("codecov_user", options["github_user"]),
     }
 
-    if options.get("import_name") is not None:
-        env["import_name"] = options["import_name"]
-        env["is_flat_module"] \
-            = inspect_project.is_flat(Path(), options["import_name"])
-    else:
-        env.update(inspect_project.find_module(Path()))
+    # "import_name" and "is_flat_module"
+    env.update(inspect_project.find_module(Path()))
 
     env["project_name"] = options.get("project_name", env["import_name"])
     env["repo_name"] = options.get("repo_name", env["project_name"])

@@ -1,4 +1,8 @@
+- Write tests
+- Fill in `--help` strings and command docstrings
 - Autodetect project root by looking for `.git` folder
+- Move `pyrepo/templates/variables.md` somewhere else
+- Rename `inspect_project.py` to something shorter
 
 - `pyrepo init`:
     - Support `project_name`, `repo_name`, and `rtfd_name` as Jinja2 templates
@@ -11,7 +15,7 @@
     - Autodetect `if __name__ == '__main__':` lines in `import_name.py` /
       `import_name/__main__.py` and set `commands` accordingly
     - Add a `--pypi/--no-pypi` option for controlling the `has_pypi` variable
-    - Eliminate `--import-name`?
+    - Eliminate the `git add`ing (and replace `git rm` with just `os.unlink()`)?
 
 - `pyrepo release`:
     - Add an option for setting the new version number from the command line
@@ -68,11 +72,9 @@
       status trove classifier
     - When `has_pypi` is false, the installation instructions in the README
       should refer to the GitHub URL, not the project name
-
-- Write tests
-- Move `pyrepo/templates/variables.md` somewhere else
-- Rename `inspect_project.py` to something shorter
-- Fill in `--help` strings and command docstrings
+    - Add templates for:
+        - `CHANGELOG.md`?
+        - `CONTRIBUTORS.md`
 
 - Prior art to investigate and compare against:
     - https://pypi.python.org/pypi/octopusapi
@@ -89,9 +91,6 @@
     - Travis: <https://developer.travis-ci.org/resource/repository#activate>?
         - Is this step unnecessary on travis-ci.com?
     - Codecov.io: done automatically when test results are submitted
-- Add templates for:
-    - `CHANGELOG.md`?
-    - `CONTRIBUTORS.md`
 
 - Write a "RATIONALE.md" (or "BIKESHED.md"?) file for reminding me why I did
   certain things / why #2EFFFC is the correct color to paint a bikeshed
