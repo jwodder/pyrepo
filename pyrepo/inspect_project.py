@@ -89,18 +89,24 @@ def inspect_project(dirpath=None):
     env["has_docs"] = (dirpath / 'docs' / 'index.rst').exists()
 
     env["travis_user"] = env["codecov_user"] = env["github_user"]
-    with (dirpath / 'README.rst').open(encoding='utf-8') as fp:
-        rdme = Readme.parse(fp)
-    for badge in rdme.badges:
-        m = re.fullmatch(r'https://travis-ci\.(?:com|org)/([^/]+)/[^/]+\.svg'
-                         r'(?:\?branch=.+)?', badge.href)
-        if m:
-            env["travis_user"] = m.group(1)
-        m = re.fullmatch(r'https://codecov\.io/gh/([^/]+)/[^/]+/branch/.+'
-                         r'/graph/badge\.svg', badge.href)
-        if m:
-            env["codecov_user"] = m.group(1)
-    env["has_pypi"] = any(link["label"] == "PyPI" for link in rdme.header_links)
+    try:
+        with (dirpath / 'README.rst').open(encoding='utf-8') as fp:
+            rdme = Readme.parse(fp)
+    except FileNotFoundError:
+        env["has_pypi"] = False
+    else:
+        for badge in rdme.badges:
+            m = re.fullmatch(r'https://travis-ci\.(?:com|org)/([^/]+)/[^/]+\.svg'
+                             r'(?:\?branch=.+)?', badge.href)
+            if m:
+                env["travis_user"] = m.group(1)
+            m = re.fullmatch(r'https://codecov\.io/gh/([^/]+)/[^/]+/branch/.+'
+                             r'/graph/badge\.svg', badge.href)
+            if m:
+                env["codecov_user"] = m.group(1)
+        env["has_pypi"] = any(
+            link["label"] == "PyPI" for link in rdme.header_links
+        )
 
     with (dirpath / 'LICENSE').open(encoding='utf-8') as fp:
         for line in fp:
