@@ -36,6 +36,10 @@
     - Push all tags
     - Support creating the repository in an organization?
 
+- `pyrepo template`:
+    - Add command line options for overriding the various Jinja env vars
+    - Preserve keywords and classifiers when retemplating `setup.cfg`?
+
 - Add subcommands for incrementally adding features (tests, docs, Travis, etc.)
   to an already-templated repository
     - `add-tests`: Create `tox.ini`
@@ -48,9 +52,6 @@
       the installation instructions, with this command replacing that with the
       project name?
     - Automatically run this command on first release?
-- Add a subcommand that regenerates/outputs specified templated files
-    - The script should take command line options for overriding the various
-      Jinja env vars
 - Add a subcommand for updating GitHub description & tags based on the
   project's short description and keywords?
 

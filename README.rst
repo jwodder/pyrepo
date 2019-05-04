@@ -294,6 +294,24 @@ following operations in order:
   the CHANGELOG (creating a CHANGELOG if necessary)
 
 
+``pyrepo template``
+-------------------
+
+::
+
+    pyrepo [<global-options>] template [<options>] <templated-file> ...
+
+Replace the given files with their re-evaluated templates.
+
+
+Options
+^^^^^^^
+
+- ``-o <file>``, ``--outfile <file>`` — Write output to ``<file>`` instead of
+  overwriting the file given on the command line.  This option may only be
+  used when exactly one argument is given on the command line.
+
+
 Restrictions
 ============
 Besides the various assumptions about project layout and formatting,
