@@ -15,7 +15,6 @@
     - Autodetect `if __name__ == '__main__':` lines in `import_name.py` /
       `import_name/__main__.py` and set `commands` accordingly
     - Add a `--pypi/--no-pypi` option for controlling the `has_pypi` variable
-    - Eliminate the `git add`ing (and replace `git rm` with just `os.unlink()`)?
 
 - `pyrepo release`:
     - Add an option for setting the new version number from the command line
@@ -32,6 +31,7 @@
           before uploading?
         - Python executable to use to run `setup.py`?
     - Move the signing of the build assets to after committing & tagging?
+    - Also update & manage `docs/changelog.rst` when `docs/` exists
 
 - `pyrepo mkgithub`:
     - Update the project's `url` et alii if necessary
@@ -51,6 +51,10 @@
       badges to the README
     - `add-docs`: Create `docs/*`, add block to `tox.ini`, add documentation
       links to the README, `project_urls`, and main source file docstring
+        - The initial content of `docs/index.rst` should be taken from the
+          README
+        - Should the adding of documentation links be split into a separate
+          command?
 - Add a subcommand for updating the README for `has_pypi` being true
     - When generating a README with `has_pypi = False`, use the GitHub URL in
       the installation instructions, with this command replacing that with the
@@ -58,6 +62,7 @@
     - Automatically run this command on first release?
 - Add a subcommand for updating GitHub description & tags based on the
   project's short description and keywords?
+- Add a subcommand for converting a flat module to a non-flat package?
 
 - Templates:
     - Adjust the templates to always include package data, even if there is
@@ -75,6 +80,8 @@
     - Add templates for:
         - `CHANGELOG.md`?
         - `CONTRIBUTORS.md`
+    - Switch to travis-ci.com?
+    - Figure out how to get more recent PyPy on Travis
 
 - Prior art to investigate and compare against:
     - https://pypi.python.org/pypi/octopusapi

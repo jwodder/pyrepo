@@ -160,7 +160,6 @@ def cli(obj, **options):
 
     if Path('LICENSE').exists():
         util.ensure_license_years('LICENSE', env["copyright_years"])
-        util.runcmd('git', 'add', 'LICENSE')
     else:
         add_templated_file('LICENSE', env)
 
@@ -181,10 +180,11 @@ def cli(obj, **options):
             print(line, file=fp, end='')
         if not started:  # if init_src is empty
             print(util.jinja_env().get_template('init.j2').render(env), file=fp)
-    util.runcmd('git', 'add', str(init_src))
 
-    if Path('requirements.txt').exists():
-        util.runcmd('git', 'rm', '-f', 'requirements.txt')
+    try:
+        Path('requirements.txt').unlink()
+    except FileNotFoundError:
+        pass
 
 
 def add_templated_file(filename, env):
@@ -193,4 +193,3 @@ def add_templated_file(filename, env):
             + '\n',
         encoding='utf-8',
     )
-    util.runcmd('git', 'add', filename)

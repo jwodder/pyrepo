@@ -1,5 +1,4 @@
 from   operator        import attrgetter
-import os
 from   pathlib         import Path
 from   shutil          import copytree
 from   traceback       import format_exception
@@ -29,10 +28,6 @@ def show_result(r):
     else:
         return r.output
 
-def patched_runcmd(*args, **kwargs):
-    if args[:-1] == ('git', 'rm', '-f'):
-        os.unlink(args[-1])
-
 @pytest.mark.parametrize(
     'dirpath',
     (DATA_DIR / 'pyrepo_init').iterdir(),
@@ -50,7 +45,6 @@ def test_pyrepo_init(dirpath, mocker, tmp_path):
         'pyrepo.inspect_project.get_commit_years',
         return_value=[2016, 2018, 2019],
     )
-    mocker.patch('pyrepo.util.runcmd', new=patched_runcmd)
     with responses.RequestsMock() as rsps:
         # Don't step on pyversion-info:
         rsps.add_passthru('https://raw.githubusercontent.com')
@@ -72,7 +66,6 @@ def test_pyrepo_init(dirpath, mocker, tmp_path):
         )
     if not (dirpath / 'errmsg.txt').exists():
         assert r.exit_code == 0, show_result(r)
-        ### TODO: Assert about how runcmd() was called?
         inspect_project.get_commit_years.assert_called_once_with(Path())
         assert_dirtrees_eq(tmp_path, dirpath / 'after')
     else:
