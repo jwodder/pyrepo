@@ -1,15 +1,11 @@
 language: python
 cache: pip
-jobs:
-    include:
-        {% for v in python_versions %}
-        - python: {{v}}
-        {% if v > '3.6' %}
-          dist: xenial
-          sudo: true
-        {% endif %}
-        {% endfor %}
-        - python: pypy3
+dist: xenial
+python:
+    {% for v in python_versions %}
+    - '{{v}}'
+    {% endfor %}
+    - pypy3
 install:
     - pip install codecov tox
 script:
