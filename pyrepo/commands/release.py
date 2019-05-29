@@ -163,7 +163,7 @@ class Project:
         runcmd(sys.executable, '-m', 'twine', 'check', *self.assets)
 
     def commit_version(self):  ### Not idempotent
-        self.log('Commiting & tagging ...')
+        self.log('Committing & tagging ...')
         # We need to create a temporary file instead of just passing the commit
         # message on stdin because `git commit`'s `--template` option doesn't
         # support reading from stdin.
