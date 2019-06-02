@@ -160,13 +160,13 @@ Options
 
   This option cannot be set via the configuration file.
 
-- ``--docs``, ``--no-docs`` — Whether to generate templates for Sphinx
+- ``--docs/--no-docs`` — Whether to generate templates for Sphinx
   documentation; default: ``--no-docs``
 
 - ``--github-user <user>`` — Set the username to use in the project's GitHub
   URL; when not set, the user's GitHub login is retrieved using the GitHub API
 
-- ``--importable``, ``--no-importable`` — A project is said to be *importable*
+- ``--importable/--no-importable`` — A project is said to be *importable*
   iff ``from IMPORT_NAME import __version__`` succeeds even when none of the
   project's dependencies have been installed yet; this determines whether
   setuptools will be fetching the project version with a ``setup.cfg`` line of
@@ -210,11 +210,11 @@ Options
   included in the ``project_urls``, both pointing to
   ``https://saythanks.io/to/{{saythanks_to}}``
 
-- ``--tests``, ``--no-tests`` — Whether to generate templates for testing with
+- ``--tests/--no-tests`` — Whether to generate templates for testing with
   pytest and tox; default: ``--no-tests``
 
-- ``--travis``, ``--no-travis`` — Whether to generate templates for testing
-  with Travis; implies ``--tests``; default: ``--no-travis``
+- ``--travis/--no-travis`` — Whether to generate templates for testing with
+  Travis; implies ``--tests``; default: ``--no-travis``
 
 - ``--travis-user <user>`` — Set the username to use in the Travis URL added to
   the README when ``--travis`` is given; defaults to the GitHub username
