@@ -1,16 +1,30 @@
 import json
+from   pathlib import Path
 import requests
 
 ACCEPT = 'application/vnd.github.v3+json'
 
 API_ENDPOINT = 'https://api.github.com'
 
+DEFAULT_TOKEN_FILE = Path.home() / '.github'
+
 class GitHub:
-    def __init__(self, url=API_ENDPOINT, session=None, _method=None):
+    def __init__(
+        self,
+        url        = API_ENDPOINT,
+        token      = None,
+        token_file = DEFAULT_TOKEN_FILE,
+        session    = None,
+        _method    = None,
+    ):
         self._url = url
         if session is None:
             session = requests.Session()
             session.headers["Accept"] = ACCEPT
+            if token is None:
+                with open(token_file) as fp:
+                    token = fp.read().strip()
+            session.headers["Authorization"] = "token " + token
         self._session = session
         self._method = _method
 

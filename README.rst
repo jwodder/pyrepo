@@ -74,11 +74,8 @@ INI file with the following sections:
 
 ``[auth.github]``
    Contains credentials for interacting with GitHub over v3 of its API.  This
-   section may contain either a ``token`` option, giving an OAuth2 token to
-   use, or ``username`` and ``password`` options.  If none of these are
-   present, the user's credentials for ``api.github.com`` (and
-   ``uploads.github.com``, for attaching assets to releases) are expected to be
-   set in their ``~/.netrc`` file.
+   section should contain a ``token`` option, giving an OAuth2 token to use; if
+   not present, API calls to GitHub will fail.
 
 ``[options]``
    Sets default values for the options in the ``[options.COMMAND]`` sections

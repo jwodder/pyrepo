@@ -77,13 +77,6 @@ def configure(ctx, filename):
         auth_gh = {}
     if 'token' in auth_gh:
         s.headers["Authorization"] = "token " + auth_gh['token']
-    elif 'username' in auth_gh and 'password' in auth_gh:
-        s.auth = (auth_gh['username'], auth_gh['password'])
-    elif 'username' in auth_gh:
-        raise click.UsageError('Config file contains username but no password')
-    elif 'password' in auth_gh:
-        raise click.UsageError('Config file contains password but no username')
-    #else: Authenticate via ~/.netrc
     ctx.obj.gh = GitHub(session=s)
 
     if not cfg.has_option("options", "python_requires"):
