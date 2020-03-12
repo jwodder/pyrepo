@@ -116,3 +116,11 @@ def read_paragraphs(fp):
             para.append(line)
     if para:
         yield ''.join(para)
+
+def yield_lines(fp):
+    # Like pkg_resources.yield_lines(fp), but without the dependency on
+    # pkg_resources
+    for line in fp:
+        line = line.strip()
+        if line and not line.startswith('#'):
+            yield line

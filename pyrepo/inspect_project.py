@@ -4,7 +4,6 @@ import time
 from   pathlib           import Path
 import re
 from   intspan           import intspan
-from   pkg_resources     import yield_lines
 from   setuptools.config import read_configuration
 from   .                 import util  # Import module to keep mocking easy
 from   .readme           import Readme
@@ -198,7 +197,7 @@ def parse_requirements(filepath):
                     variables["__python_requires__"] = m.group(1)
                     break
             fp.seek(0)
-            variables["__requires__"] = list(yield_lines(fp))
+            variables["__requires__"] = list(util.yield_lines(fp))
     except FileNotFoundError:
         pass
     return variables
