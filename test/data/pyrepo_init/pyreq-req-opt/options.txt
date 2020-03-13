@@ -1,4 +1,4 @@
 -d
 A project
 --python-requires
-3.5
+3.6

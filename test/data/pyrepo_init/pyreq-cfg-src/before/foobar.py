@@ -1,4 +1,4 @@
-__python_requires__ = '~= 3.5'
+__python_requires__ = '~= 3.7'
 from collections import Counter
 
 def life(before):

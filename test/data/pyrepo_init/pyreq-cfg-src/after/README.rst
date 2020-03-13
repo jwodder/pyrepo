@@ -17,7 +17,7 @@ INSERT LONG DESCRIPTION HERE
 
 Installation
 ============
-``foobar`` requires Python 3.5 or higher.  Just use `pip
+``foobar`` requires Python 3.7 or higher.  Just use `pip
 <https://pip.pypa.io>`_ for Python 3 (You have pip, right?) to install
 ``foobar`` and its dependencies::
 
