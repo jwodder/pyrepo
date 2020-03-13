@@ -1,6 +1,7 @@
 - Write tests
 - Fill in `--help` strings and command docstrings
 - Autodetect project root by looking for `.git` folder
+    - Doable with `git rev-parse --show-toplevel`
 - Move `pyrepo/templates/variables.md` somewhere else
 - Rename `inspect_project.py` to something shorter
 

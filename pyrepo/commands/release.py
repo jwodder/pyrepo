@@ -26,6 +26,7 @@ import attr
 import click
 from   in_place    import InPlace
 from   uritemplate import expand
+from   .make       import make
 from   ..changelog import Changelog, ChangelogSection
 from   ..gh        import ACCEPT, GitHub
 from   ..util      import ensure_license_years, read_paragraphs, readcmd, \
@@ -225,8 +226,7 @@ class Project:
         rmtree(distdir, ignore_errors=True)  # To keep things simple
         self.assets = []
         self.assets_asc = []
-        runcmd(self.python, 'setup.py', '-q', 'sdist', 'bdist_wheel',
-               cwd=self.directory)
+        make(proj_dir=self.directory)
         for distfile in distdir.iterdir():
             self.assets.append(str(distfile))
             if SIGN_ASSETS:
