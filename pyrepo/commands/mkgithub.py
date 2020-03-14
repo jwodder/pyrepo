@@ -1,6 +1,6 @@
 import click
-from   ..inspect_project import inspect_project
-from   ..util            import readcmd, runcmd
+from   ..inspecting import inspect_project
+from   ..util       import readcmd, runcmd
 
 @click.command()
 @click.option('--repo-name', metavar='NAME')

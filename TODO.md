@@ -3,7 +3,6 @@
 - Autodetect project root by looking for `.git` folder
     - Doable with `git rev-parse --show-toplevel`
 - Move `pyrepo/templates/variables.md` somewhere else
-- Rename `inspect_project.py` to something shorter
 
 - `pyrepo init`:
     - Support `project_name`, `repo_name`, and `rtfd_name` as Jinja2 templates
@@ -21,6 +20,7 @@
           of versions to use in the classifiers, `tox.ini`, and `.travis.yml,
           but the `python_requires` string that includes the old versions is
           still used unmodified
+    - Support initializing a project with a `src` layout
 
 - `pyrepo release`:
     - Add an option for setting the new version number from the command line
@@ -69,6 +69,7 @@
 - Add a subcommand for updating GitHub description & tags based on the
   project's short description and keywords?
 - Add a subcommand for converting a flat module to a non-flat package?
+- Add a subcommand for converting to a `src` layout?
 
 - Templates:
     - Adjust the templates to always include package data, even if there is

@@ -6,7 +6,7 @@ from   in_place               import InPlace
 from   packaging.requirements import Requirement
 from   packaging.specifiers   import SpecifierSet
 from   packaging.utils        import canonicalize_name as normalize
-from   ..                     import inspect_project, util
+from   ..                     import inspecting, util
 
 @click.command()
 @util.optional('--author', metavar='NAME')
@@ -43,7 +43,7 @@ def cli(obj, **options):
         "author": options["author"],
         "short_description": options["description"],
         "saythanks_to": options.get("saythanks_to"),
-        "copyright_years": inspect_project.get_commit_years(Path()),
+        "copyright_years": inspecting.get_commit_years(Path()),
         "has_tests": options.get("tests",False) or options.get("travis",False),
         "has_travis": options.get("travis", False),
         "has_docs": options.get("docs", False),
@@ -54,7 +54,7 @@ def cli(obj, **options):
     }
 
     # "import_name" and "is_flat_module"
-    env.update(inspect_project.find_module(Path()))
+    env.update(inspecting.find_module(Path()))
 
     env["project_name"] = options.get("project_name", env["import_name"])
     env["repo_name"] = options.get("repo_name", env["project_name"])
@@ -65,13 +65,13 @@ def cli(obj, **options):
                                             project_name=env["project_name"]
                                           )
 
-    req_vars = inspect_project.parse_requirements('requirements.txt')
+    req_vars = inspecting.parse_requirements('requirements.txt')
 
     if env["is_flat_module"]:
         init_src = Path(env["import_name"] + '.py')
     else:
         init_src = Path(env["import_name"]) / '__init__.py'
-    src_vars = inspect_project.extract_requires(init_src)
+    src_vars = inspecting.extract_requires(init_src)
 
     requirements = {}
     for r in (req_vars["__requires__"] or []) \

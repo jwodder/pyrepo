@@ -1,7 +1,7 @@
-from   pathlib           import Path
+from   pathlib      import Path
 import click
-from   ..inspect_project import inspect_project
-from   ..util            import jinja_env
+from   ..inspecting import inspect_project
+from   ..util       import jinja_env
 
 @click.command()
 @click.option('-o', '--outfile', type=click.File('w', encoding='utf-8'))

@@ -1,8 +1,8 @@
 import json
-from   os.path           import exists
-from   pathlib           import Path
+from   os.path      import exists
+from   pathlib      import Path
 import click
-from   ..inspect_project import inspect_project
+from   ..inspecting import inspect_project
 
 @click.command()
 def cli():

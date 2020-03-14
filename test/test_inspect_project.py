@@ -1,13 +1,13 @@
 import json
-from   operator               import attrgetter
-from   pathlib                import Path
-from   shutil                 import copyfile
+from   operator          import attrgetter
+from   pathlib           import Path
+from   shutil            import copyfile
 import time
 import pytest
-from   pyrepo                 import util
-from   pyrepo.inspect_project import extract_requires, find_module, \
-                                        get_commit_years, inspect_project, \
-                                        parse_requirements
+from   pyrepo            import util
+from   pyrepo.inspecting import extract_requires, find_module, \
+                                    get_commit_years, inspect_project, \
+                                    parse_requirements
 
 DATA_DIR = Path(__file__).with_name('data')
 

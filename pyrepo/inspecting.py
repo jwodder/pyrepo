@@ -9,6 +9,7 @@ from   .                 import util  # Import module to keep mocking easy
 from   .readme           import Readme
 
 def inspect_project(dirpath=None):
+    """ Fetch various information about an already-initialized project """
     if dirpath is None:
         dirpath = Path()
     if not (dirpath / 'setup.py').exists():

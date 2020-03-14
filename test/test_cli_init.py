@@ -5,7 +5,7 @@ from   traceback       import format_exception
 from   click.testing   import CliRunner
 import pytest
 import responses
-from   pyrepo          import inspect_project
+from   pyrepo          import inspecting
 from   pyrepo.__main__ import main
 
 DATA_DIR = Path(__file__).with_name('data')
@@ -42,7 +42,7 @@ def test_pyrepo_init(dirpath, mocker, tmp_path):
     else:
         cfg = CONFIG
     mocker.patch(
-        'pyrepo.inspect_project.get_commit_years',
+        'pyrepo.inspecting.get_commit_years',
         return_value=[2016, 2018, 2019],
     )
     with responses.RequestsMock() as rsps:
@@ -66,7 +66,7 @@ def test_pyrepo_init(dirpath, mocker, tmp_path):
         )
     if not (dirpath / 'errmsg.txt').exists():
         assert r.exit_code == 0, show_result(r)
-        inspect_project.get_commit_years.assert_called_once_with(Path())
+        inspecting.get_commit_years.assert_called_once_with(Path())
         assert_dirtrees_eq(tmp_path, dirpath / 'after')
     else:
         assert r.exit_code != 0 and r.exception is not None, show_result(r)
