@@ -22,7 +22,7 @@ intersphinx_mapping = {
 
 exclude_patterns = ['_build']
 source_suffix = '.rst'
-source_encoding = 'utf-8-sig'
+source_encoding = 'utf-8'
 master_doc = 'index'
 version = __version__
 release = __version__
