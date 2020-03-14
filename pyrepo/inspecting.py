@@ -1,9 +1,12 @@
 import ast
 from   configparser      import ConfigParser
+import os.path
 import time
 from   pathlib           import Path
 import re
+import sys
 from   intspan           import intspan
+from   read_version      import read_version
 from   setuptools.config import read_configuration
 from   .                 import util  # Import module to keep mocking easy
 from   .readme           import Readme
@@ -12,8 +15,9 @@ def inspect_project(dirpath=None):
     """ Fetch various information about an already-initialized project """
     if dirpath is None:
         dirpath = Path()
-    if not (dirpath / 'setup.py').exists():
-        raise ValueError('No setup.py in project root')
+    if not (dirpath / 'setup.py').exists() \
+            and not (dirpath / 'pyproject.toml').exists():
+        raise ValueError('No setup.py or pyproject.toml in project root')
     if not (dirpath / 'setup.cfg').exists():
         raise ValueError('No setup.cfg in project root')
     cfg = read_configuration(str(dirpath / 'setup.cfg'))
@@ -28,6 +32,7 @@ def inspect_project(dirpath=None):
         "python_requires": str(cfg["options"]["python_requires"]),
         "install_requires": cfg["options"].get("install_requires", []),
         "importable": "version" in cfg["metadata"],
+        "version": cfg["metadata"].get("version"),
     }
 
     if cfg["options"].get("packages"):
@@ -119,6 +124,24 @@ def inspect_project(dirpath=None):
                 break
         else:
             raise ValueError('Copyright years not found in LICENSE')
+
+    env["pep517"] = (dirpath / 'pyproject.toml').exists()
+    env["src_layout"] = (dirpath / 'src').exists()
+    if env["is_flat_module"]:
+        initpath = [env["import_name"] + '.py']
+    else:
+        initpath = [env["import_name"], '__init__.py']
+    if env["src_layout"]:
+        initpath.insert(0, 'src')
+    env["initfile"] = os.path.join(*initpath)
+
+    if env["version"] is None:
+        env["version"] = read_version(dirpath / env["initfile"])
+    else:
+        # The version was read with `attr:`, which imports the module, so we
+        # need to un-import the module if we wish to later inspect another
+        # project with the same import_name (say, when testing).
+        del sys.modules[env["import_name"]]
 
     return env
 

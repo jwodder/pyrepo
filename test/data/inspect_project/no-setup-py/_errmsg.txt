@@ -1,1 +1,1 @@
-No setup.py in project root
+No setup.py or pyproject.toml in project root

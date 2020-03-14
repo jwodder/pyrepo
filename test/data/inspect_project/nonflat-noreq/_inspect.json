@@ -20,5 +20,9 @@
     "has_travis": false,
     "has_docs": false,
     "has_pypi": false,
-    "copyright_years": [2016, 2018, 2019]
+    "copyright_years": [2016, 2018, 2019],
+    "version": "0.1.0.dev1",
+    "initfile": "foobar/__init__.py",
+    "src_layout": false,
+    "pep517": false
 }

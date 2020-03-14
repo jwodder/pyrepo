@@ -91,6 +91,7 @@
     - Figure out how to get more recent PyPy on Travis
     - Set the pytest etc. version in `tox.ini` based on the smallest Python
       version supported by the project?
+    - Support `src` layouts (e.g., in the arguments to `pytest` in `tox.ini`)
 
 - Prior art to investigate and compare against:
     - https://pypi.python.org/pypi/octopusapi
