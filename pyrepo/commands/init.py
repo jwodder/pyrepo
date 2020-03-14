@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 from   pathlib              import Path
 import re
 import click
