@@ -1,15 +1,15 @@
 from   pathlib      import Path
 import click
 from   ..inspecting import inspect_project
-from   ..util       import jinja_env
 
 @click.command()
 @click.option('-o', '--outfile', type=click.File('w', encoding='utf-8'))
 @click.argument('template', nargs=-1)
-def cli(template, outfile):
+@click.pass_obj
+def cli(obj, template, outfile):
     """ Replace files with their re-evaluated templates """
     env = inspect_project()
-    jenv = jinja_env()
+    jenv = obj.jinja_env
     if outfile is not None:
         if len(template) != 1:
             raise click.UsageError(

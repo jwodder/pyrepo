@@ -37,4 +37,5 @@
 
 Custom filters in Jinja2 environment:
     - `repr`
+    - `rewrap`
     - `years2str`

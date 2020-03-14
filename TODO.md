@@ -1,6 +1,7 @@
 - Write tests
 - Fill in `--help` strings and command docstrings
-- Autodetect project root by looking for `.git` folder
+- Autodetect project root by looking for `.git` folder, thereby allowing
+  commands to be run from deeper in a project
     - Doable with `git rev-parse --show-toplevel`
 - Move `pyrepo/templates/variables.md` somewhere else
 

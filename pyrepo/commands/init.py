@@ -5,25 +5,26 @@ from   in_place               import InPlace
 from   packaging.requirements import Requirement
 from   packaging.specifiers   import SpecifierSet
 from   packaging.utils        import canonicalize_name as normalize
-from   ..                     import inspecting, util
+from   ..                     import inspecting
+from   ..util                 import ensure_license_years, optional
 
 @click.command()
-@util.optional('--author', metavar='NAME')
-@util.optional('--author-email', metavar='EMAIL')
-@util.optional('--codecov-user', metavar='USER')
-@util.optional('-c', '--command', metavar='NAME')
+@optional('--author', metavar='NAME')
+@optional('--author-email', metavar='EMAIL')
+@optional('--codecov-user', metavar='USER')
+@optional('-c', '--command', metavar='NAME')
 @click.option('-d', '--description', prompt=True)
-@util.optional('--docs/--no-docs')
-@util.optional('--github-user', metavar='USER')
+@optional('--docs/--no-docs')
+@optional('--github-user', metavar='USER')
 @click.option('--importable/--no-importable', default=None)
-@util.optional('-p', '--project-name', metavar='NAME')
-@util.optional('-P', '--python-requires', metavar='SPEC')
-@util.optional('--repo-name', metavar='NAME')
-@util.optional('--rtfd-name', metavar='NAME')
-@util.optional('--saythanks-to', metavar='USER')
-@util.optional('--tests/--no-tests')
-@util.optional('--travis/--no-travis')
-@util.optional('--travis-user', metavar='USER')
+@optional('-p', '--project-name', metavar='NAME')
+@optional('-P', '--python-requires', metavar='SPEC')
+@optional('--repo-name', metavar='NAME')
+@optional('--rtfd-name', metavar='NAME')
+@optional('--saythanks-to', metavar='USER')
+@optional('--tests/--no-tests')
+@optional('--travis/--no-travis')
+@optional('--travis-user', metavar='USER')
 @click.pass_obj
 def cli(obj, **options):
     if Path('setup.py').exists():
@@ -59,10 +60,8 @@ def cli(obj, **options):
     env["repo_name"] = options.get("repo_name", env["project_name"])
     env["rtfd_name"] = options.get("rtfd_name", env["project_name"])
 
-    env["author_email"] = util.jinja_env().from_string(options["author_email"])\
-                                          .render(
-                                            project_name=env["project_name"]
-                                          )
+    env["author_email"] = obj.jinja_env.from_string(options["author_email"])\
+                                       .render(project_name=env["project_name"])
 
     req_vars = inspecting.parse_requirements('requirements.txt')
 
@@ -155,12 +154,12 @@ def cli(obj, **options):
 
     for filename in templated:
         if not Path(filename).exists():
-            add_templated_file(filename, env)
+            add_templated_file(obj.jinja_env, filename, env)
 
     if Path('LICENSE').exists():
-        util.ensure_license_years('LICENSE', env["copyright_years"])
+        ensure_license_years('LICENSE', env["copyright_years"])
     else:
-        add_templated_file('LICENSE', env)
+        add_templated_file(obj.jinja_env, 'LICENSE', env)
 
     with InPlace(init_src, mode='t', encoding='utf-8') as fp:
         started = False
@@ -171,14 +170,14 @@ def cli(obj, **options):
                 pass
             elif not started:
                 print(
-                    util.jinja_env().get_template('init.j2').render(env),
+                    obj.jinja_env.get_template('init.j2').render(env),
                     file=fp,
                 )
                 print(file=fp)
                 started = True
             print(line, file=fp, end='')
         if not started:  # if init_src is empty
-            print(util.jinja_env().get_template('init.j2').render(env), file=fp)
+            print(obj.jinja_env.get_template('init.j2').render(env), file=fp)
 
     try:
         Path('requirements.txt').unlink()
@@ -186,9 +185,8 @@ def cli(obj, **options):
         pass
 
 
-def add_templated_file(filename, env):
+def add_templated_file(jinja_env, filename, env):
     Path(filename).write_text(
-        util.jinja_env().get_template(filename+'.j2').render(env).rstrip()
-            + '\n',
+        jinja_env.get_template(filename+'.j2').render(env).rstrip() + '\n',
         encoding='utf-8',
     )

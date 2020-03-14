@@ -56,19 +56,16 @@ def update_years2str(year_str, years=None):
     yearspan.update(years)
     return years2str(yearspan)
 
-_jinja_env = None
 def jinja_env():
-    global _jinja_env
-    if _jinja_env is None:
-        _jinja_env = Environment(
-            loader=PackageLoader('pyrepo', 'templates'),
-            trim_blocks=True,
-            lstrip_blocks=True,
-        )
-        _jinja_env.filters['repr'] = repr
-        _jinja_env.filters['rewrap'] = rewrap
-        _jinja_env.filters['years2str'] = years2str
-    return _jinja_env
+    jenv = Environment(
+        loader=PackageLoader('pyrepo', 'templates'),
+        trim_blocks=True,
+        lstrip_blocks=True,
+    )
+    jenv.filters['repr'] = repr
+    jenv.filters['rewrap'] = rewrap
+    jenv.filters['years2str'] = years2str
+    return jenv
 
 def rewrap(s):
     return '\n'.join(wrap(
