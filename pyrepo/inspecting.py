@@ -15,6 +15,8 @@ def inspect_project(dirpath=None):
     """ Fetch various information about an already-initialized project """
     if dirpath is None:
         dirpath = Path()
+    else:
+        dirpath = Path(dirpath)
     if not (dirpath / 'setup.py').exists() \
             and not (dirpath / 'pyproject.toml').exists():
         raise ValueError('No setup.py or pyproject.toml in project root')

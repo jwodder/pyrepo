@@ -13,23 +13,24 @@
 # - The version is set as `__version__` in `packagename/__init__.py` or
 #   `packagename.py`.
 
-from   mimetypes   import add_type, guess_type
+from   mimetypes    import add_type, guess_type
 import os
 import os.path
-from   pathlib     import Path
+from   pathlib      import Path
 import re
-from   shutil      import rmtree
+from   shutil       import rmtree
 import sys
 import time
-from   tempfile    import NamedTemporaryFile
+from   tempfile     import NamedTemporaryFile
 import attr
 import click
-from   in_place    import InPlace
-from   uritemplate import expand
-from   .make       import make
-from   ..changelog import Changelog, ChangelogSection
-from   ..gh        import ACCEPT, GitHub
-from   ..util      import ensure_license_years, read_paragraphs, readcmd, \
+from   in_place     import InPlace
+from   uritemplate  import expand
+from   .make        import make
+from   ..changelog  import Changelog, ChangelogSection
+from   ..gh         import ACCEPT, GitHub
+from   ..inspecting import inspect_project
+from   ..util       import ensure_license_years, read_paragraphs, readcmd, \
                             runcmd, update_years2str
 
 GPG = 'gpg2'
@@ -58,44 +59,25 @@ class Project:
     directory  = attr.ib()
     name       = attr.ib()
     _version   = attr.ib()
-    python     = attr.ib()
     ghrepo     = attr.ib()
+    initfile   = attr.ib()
     assets     = attr.ib(factory=list)
     assets_asc = attr.ib(factory=list)
 
     @classmethod
     def from_directory(cls, directory=os.curdir, gh=None):
-        ### TODO: Eliminate this check and just always use either python3 or
-        ### sys.executable
-        # Use `sys.executable` (Python 3) for the initial check because it
-        # should be able to handle anything remotely sensible
-        if 'Programming Language :: Python :: 3' in readcmd(
-            sys.executable, 'setup.py', '--classifiers', cwd=directory,
-        ).splitlines():
-            python = 'python3'
-        else:
-            python = 'python2'
-        origin_url = readcmd('git', 'remote', 'get-url', 'origin',
-                             cwd=directory)
-        m = re.fullmatch(
-            r'(?:https://|git@)github\.com[:/]([^/]+)/([^/]+)\.git',
-            origin_url,
-            flags=re.I,
-        )
-        if not m:
-            raise ValueError('Could not parse remote Git URL: '
-                             + repr(origin_url))
-        owner, repo = m.groups()
+        directory = Path(directory)
+        about = inspect_project(directory)
         if gh is None:
             gh = GitHub()
         return cls(
-            directory = Path(directory),
-            python    = python,
-            name      = readcmd(python,'setup.py','--name', cwd=directory),
+            directory = directory,
+            name      = about["project_name"],
             # attrs strips leading underscores from variable names for __init__
             # arguments:
-            version   = readcmd(python,'setup.py','--version', cwd=directory),
-            ghrepo    = gh.repos[owner][repo],
+            version   = about["version"],
+            ghrepo    = gh.repos[about["github_user"]][about["repo_name"]],
+            initfile  = directory / about["initfile"],
         )
 
     @property
@@ -105,14 +87,7 @@ class Project:
     @version.setter
     def version(self, version):
         self.log('Updating __version__ string ...')
-        import_name = self.name.replace('-', '_').replace('.', '_')
-        srcdir = self.directory
-        if (srcdir / 'src').exists():
-            srcdir /= 'src'
-        initfile = srcdir / (import_name + '.py')
-        if not initfile.exists():
-            initfile = srcdir / import_name / '__init__.py'
-        with InPlace(initfile, mode='t', encoding='utf-8') as fp:
+        with InPlace(self.initfile, mode='t', encoding='utf-8') as fp:
             for line in fp:
                 m = re.match(r'^__version__\s*=', line)
                 if m:
@@ -148,10 +123,6 @@ class Project:
 
     def log(self, s):
         click.secho(s, bold=True)
-
-    def setup_check(self):  # Idempotent
-        self.log('Running setup.py check ...')
-        runcmd(self.python, 'setup.py', 'check', '-rms', cwd=self.directory)
 
     def tox_check(self):  # Idempotent
         if (self.directory / 'tox.ini').exists():
@@ -383,7 +354,6 @@ def cli(obj):
     add_type('application/zip', '.whl', False)
     proj = Project.from_directory(gh=obj.gh)
     proj.end_dev()
-    #proj.setup_check()
     if CHECK_TOX:
         proj.tox_check()
     proj.build()

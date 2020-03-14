@@ -38,6 +38,8 @@
         - Python executable to use to run `setup.py`?
     - Move the signing of the build assets to after committing & tagging?
     - Also update & manage `docs/changelog.rst` when `docs/` exists
+    - When updating the copyright year, don't just add the current year; ensure
+      that all years in which there were commits are present
 
 - `pyrepo mkgithub`:
     - Update the project's `url` et alii if necessary
