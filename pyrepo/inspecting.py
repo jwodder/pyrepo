@@ -138,7 +138,7 @@ def inspect_project(dirpath=None):
     env["initfile"] = os.path.join(*initpath)
 
     if env["version"] is None:
-        env["version"] = read_version(dirpath / env["initfile"])
+        env["version"] = read_version((dirpath / env["initfile"]).resolve())
     else:
         # The version was read with `attr:`, which imports the module, so we
         # need to un-import the module if we wish to later inspect another
