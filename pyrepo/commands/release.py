@@ -20,8 +20,8 @@ from   pathlib      import Path
 import re
 from   shutil       import rmtree
 import sys
-import time
 from   tempfile     import NamedTemporaryFile
+import time
 import attr
 import click
 from   in_place     import InPlace

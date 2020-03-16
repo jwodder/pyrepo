@@ -99,8 +99,6 @@
       version supported by the project?
     - Support `src` layouts (e.g., in the arguments to `pytest` in `tox.ini`)
     - Add a `pyproject.toml` template?
-    - Add `test/data` to `[pytest]norecursedirs` and `[flake8]exclude` in
-      `tox.ini`?
 
 - Prior art to investigate and compare against:
     - https://pypi.python.org/pypi/octopusapi

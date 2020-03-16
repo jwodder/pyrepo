@@ -1,10 +1,10 @@
 import ast
 from   configparser      import ConfigParser
 import os.path
-import time
 from   pathlib           import Path
 import re
 import sys
+import time
 from   intspan           import intspan
 from   read_version      import read_version
 from   setuptools.config import read_configuration
