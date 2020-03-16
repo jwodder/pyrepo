@@ -2,6 +2,11 @@ import re
 import attr
 
 class Changelog:
+    """
+    See <https://github.com/jwodder/pyrepo/wiki/CHANGELOG-Format> for a
+    description of the format parsed & emitted by this class
+    """
+
     def __init__(self, sections):
         self.sections = list(sections)
 

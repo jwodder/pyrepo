@@ -11,6 +11,10 @@ IMAGE_START = '.. image:: '
 
 @attr.s
 class Readme:
+    """
+    See <https://github.com/jwodder/pyrepo/wiki/README-Format> for a
+    description of the format parsed & emitted by this class
+    """
     badges       = attr.ib()
     header_links = attr.ib()
     contents     = attr.ib()

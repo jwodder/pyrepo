@@ -4,6 +4,10 @@
   commands to be run from deeper in a project
     - Doable with `git rev-parse --show-toplevel`
 - Move `pyrepo/templates/variables.md` somewhere else
+- Support namespace packages?
+- Make this a package in the `jwodder` namespace?
+- `inspect_project()`: Write an alternative stringification routine for
+  `python_requires` that sorts components by the versions involved
 
 - `pyrepo init`:
     - Support `project_name`, `repo_name`, and `rtfd_name` as Jinja2 templates
@@ -91,11 +95,12 @@
         - `CHANGELOG.md`?
         - `CONTRIBUTORS.md`
     - Switch to travis-ci.com?
-    - Figure out how to get more recent PyPy on Travis
     - Set the pytest etc. version in `tox.ini` based on the smallest Python
       version supported by the project?
     - Support `src` layouts (e.g., in the arguments to `pytest` in `tox.ini`)
     - Add a `pyproject.toml` template?
+    - Add `test/data` to `[pytest]norecursedirs` and `[flake8]exclude` in
+      `tox.ini`?
 
 - Prior art to investigate and compare against:
     - https://pypi.python.org/pypi/octopusapi
@@ -107,14 +112,8 @@
 
 - Write scripts for adding new repositories to Read the Docs, Travis, and
   Codecov.io via their APIs
-    - Read the Docs: not possible
+    - Read the Docs: not possible?
+        - Double-check <https://docs.readthedocs.io/en/stable/api/v3.html>
         - Write a module with `mechanicalsoup` to do this?
-    - Travis: <https://developer.travis-ci.org/resource/repository#activate>?
-        - Is this step unnecessary on travis-ci.com?
+    - Travis: automatic as of the move to travis-ci.com?
     - Codecov.io: done automatically when test results are submitted
-
-- Write a "RATIONALE.md" (or "BIKESHED.md"?) file for reminding me why I did
-  certain things / why #2EFFFC is the correct color to paint a bikeshed
-    - cf. <https://blog.ionelmc.ro/2014/05/25/python-packaging/>
-- Standardize Read the Docs settings
-- Standardize Travis settings?
