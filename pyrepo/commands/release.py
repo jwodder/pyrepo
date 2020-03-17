@@ -37,10 +37,6 @@ GPG = 'gpg2'
 # gpg2 automatically & implicitly uses gpg-agent to obviate the need to keep
 # entering one's password.
 
-SIGN_ASSETS = True
-
-CHECK_TOX = False
-
 DROPBOX_UPLOAD_DIR = '/Code/Releases/Python/{name}/'
 
 CHANGELOG_NAMES = ('CHANGELOG.md', 'CHANGELOG.rst')
@@ -191,7 +187,7 @@ class Project:
         })
         self.release_upload_url = reldata["upload_url"]
 
-    def build(self):  ### Not idempotent
+    def build(self, sign_assets=True):  ### Not idempotent
         self.log('Building artifacts ...')
         distdir = self.directory / 'dist'
         rmtree(distdir, ignore_errors=True)  # To keep things simple
@@ -200,7 +196,7 @@ class Project:
         make(proj_dir=self.directory)
         for distfile in distdir.iterdir():
             self.assets.append(str(distfile))
-            if SIGN_ASSETS:
+            if sign_assets:
                 runcmd(GPG, '--detach-sign', '-a', str(distfile))
                 self.assets_asc.append(str(distfile) + '.asc')
 
@@ -346,22 +342,23 @@ class Project:
 
 
 @click.command()
+@click.option('--tox/--no-tox', default=False, help='Run tox before building')
+@click.option('--sign-assets/--no-sign-assets', default=True)
 @click.pass_obj
-def cli(obj):
+def cli(obj, sign_assets, tox):
     # GPG_TTY has to be set so that GPG can be run through Git.
     os.environ['GPG_TTY'] = os.ttyname(0)
     add_type('application/zip', '.whl', False)
     proj = Project.from_directory(gh=obj.gh)
     proj.end_dev()
-    if CHECK_TOX:
+    if tox:
         proj.tox_check()
-    proj.build()
+    proj.build(sign_assets=sign_assets)
     proj.twine_check()
     proj.commit_version()
     proj.mkghrelease()
     proj.upload()
     proj.begin_dev()
-    ### Make the version docs "active" on Readthedocs
 
 def next_version(v):
     """

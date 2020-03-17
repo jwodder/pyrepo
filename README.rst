@@ -290,7 +290,9 @@ following operations in order:
   - Remove the "work-in-progress" topic from the repository on GitHub and add
     the topic "available-on-pypi"
 
-- Build the sdist & wheel and create detached signatures with GPG
+- If the ``--tox`` option is given, run tox, failing if it fails
+- Build the sdist & wheel and (unless ``--no-sign-assets`` is given) create
+  detached signatures with GPG
 - Run ``twine check`` on the sdist & wheel
 - Commit all changes made to the repository; the most recent CHANGELOG section
   is included in the commit message template
@@ -303,9 +305,20 @@ following operations in order:
 - Convert the tag to a release on GitHub, using the commit messsage for the
   name and body
 - Upload the build assets to PyPI, Dropbox, and GitHub (as release assets)
+    - Detached signatures (if any) are uploaded to PyPI and Dropbox but not
+      GitHub
 - Prepare for development on the next version by setting ``__version__`` to the
   next minor version number plus ".dev1" and adding a new section to the top of
   the CHANGELOG (creating a CHANGELOG if necessary)
+
+
+Options
+^^^^^^^
+
+- ``--tox/--no-tox`` — Whether to run ``tox`` on the project before building;
+  default: ``--no-tox``
+- ``--sign-assets/--no-sign-assets`` — Whether to created detached PGP
+  signatures for the release assets; default: ``--sign-assets``
 
 
 ``pyrepo template``
