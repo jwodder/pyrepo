@@ -281,7 +281,8 @@ following operations in order:
 - Remove any prerelease & dev components from ``__version__``
 - If a CHANGELOG exists, set the date for the newest version section
 - Update the copyright year ranges in ``LICENSE`` and (if present)
-  ``docs/conf.py`` to include the current year
+  ``docs/conf.py`` to include all years in which commits were made to the
+  repository
 - If there is no CHANGELOG file, assume this is the first release and:
 
   - Update the repostatus badge in the README from "WIP" to "Active"

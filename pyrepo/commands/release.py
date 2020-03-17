@@ -29,7 +29,7 @@ from   uritemplate  import expand
 from   .make        import make
 from   ..changelog  import Changelog, ChangelogSection
 from   ..gh         import ACCEPT, GitHub
-from   ..inspecting import inspect_project
+from   ..inspecting import get_commit_years, inspect_project
 from   ..util       import ensure_license_years, read_paragraphs, readcmd, \
                             runcmd, update_years2str
 
@@ -281,12 +281,10 @@ class Project:
         if chlog:
             chlog.sections[0].date = today()
             self.changelog = chlog
+        years = get_commit_years(self.directory)
         # Update year ranges in LICENSE
         self.log('Ensuring LICENSE copyright line is up to date ...')
-        ensure_license_years(
-            self.directory / 'LICENSE',
-            [time.localtime().tm_year],
-        )
+        ensure_license_years(self.directory / 'LICENSE', years)
         # Update year ranges in docs/conf.py
         docs_conf = self.directory / 'docs' / 'conf.py'
         if docs_conf.exists():
@@ -296,7 +294,8 @@ class Project:
                     m = re.match(r'^copyright\s*=\s*[\x27"](\d[-,\d\s]+\d) \w+',
                                  line)
                     if m:
-                        line = line[:m.start(1)]+update_years2str(m.group(1)) \
+                        line = line[:m.start(1)] \
+                             + update_years2str(m.group(1), years) \
                              + line[m.end(1):]
                     print(line, file=fp, end='')
         if not chlog:
