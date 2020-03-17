@@ -1,3 +1,4 @@
+from   operator import attrgetter
 import re
 import subprocess
 import sys
@@ -121,3 +122,15 @@ def yield_lines(fp):
         line = line.strip()
         if line and not line.startswith('#'):
             yield line
+
+def sort_specifier(specset):
+    """
+    Stringify a `SpecifierSet`, sorting by each specifier's version
+
+    >>> from packaging.specifiers import SpecifierSet
+    >>> sort_specifier(SpecifierSet(
+    ...     '>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <4'
+    ... ))
+    '>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <4'
+    """
+    return ', '.join(map(str, sorted(specset, key=attrgetter('version'))))

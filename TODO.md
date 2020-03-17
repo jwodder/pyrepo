@@ -6,8 +6,6 @@
 - Move `pyrepo/templates/variables.md` somewhere else
 - Support namespace packages?
 - Make this a package in the `jwodder` namespace?
-- `inspect_project()`: Write an alternative stringification routine for
-  `python_requires` that sorts components by the versions involved
 
 - `pyrepo init`:
     - Support `project_name`, `repo_name`, and `rtfd_name` as Jinja2 templates

@@ -28,10 +28,7 @@ def inspect_project(dirpath=None):
         "short_description": cfg["metadata"]["description"],
         "author": cfg["metadata"]["author"],
         "author_email": cfg["metadata"]["author_email"],
-        # Starting in v41.4.0, setuptools returns
-        # `cfg["options"]["python_requires"]` as a SpecificerSet, hence the
-        # cast to `str`.
-        "python_requires": str(cfg["options"]["python_requires"]),
+        "python_requires": util.sort_specifier(cfg["options"]["python_requires"]),
         "install_requires": cfg["options"].get("install_requires", []),
         "importable": "version" in cfg["metadata"],
         "version": cfg["metadata"].get("version"),
