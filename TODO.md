@@ -46,7 +46,6 @@
 
 - `pyrepo mkgithub`:
     - Update the project's `url` et alii if necessary
-    - Also set GitHub topics based on project keywords?
     - Push all branches, not just master?
     - Push all tags
     - Support creating the repository in an organization?

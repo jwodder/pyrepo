@@ -257,8 +257,9 @@ Options
 
     pyrepo [<global-options>] mkgithub [<options>]
 
-Create a new GitHub repository for the project and push the ``master`` branch
-to it.
+Create a new GitHub repository for the project, set the repository's topics to
+the project's keywords plus "python", and push the ``master`` branch to the
+repository.
 
 
 Options
