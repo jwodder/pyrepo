@@ -24,5 +24,6 @@
     "version": "0.1.0.dev1",
     "initfile": "foobar.py",
     "src_layout": false,
-    "pep517": false
+    "pep517": false,
+    "keywords": []
 }

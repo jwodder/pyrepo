@@ -25,5 +25,5 @@
     "initfile": "foobar.py",
     "src_layout": false,
     "pep517": false,
-    "keywords": []
+    "keywords": ["foo", "bar", "baz glarch"]
 }

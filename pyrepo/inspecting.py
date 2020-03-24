@@ -32,6 +32,7 @@ def inspect_project(dirpath=None):
         "install_requires": cfg["options"].get("install_requires", []),
         "importable": "version" in cfg["metadata"],
         "version": cfg["metadata"].get("version"),
+        "keywords": cfg["metadata"].get("keywords", []),
     }
 
     if cfg["options"].get("packages"):

@@ -6,6 +6,8 @@
 - Move `pyrepo/templates/variables.md` somewhere else
 - Support namespace packages?
 - Make this a package in the `jwodder` namespace?
+- Make the new variables added in e7039fc available during `pyrepo init`
+    - Have `keywords` set to `[]`
 
 - `pyrepo init`:
     - Support `project_name`, `repo_name`, and `rtfd_name` as Jinja2 templates

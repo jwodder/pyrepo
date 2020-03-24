@@ -27,5 +27,6 @@
     "version": "0.1.0.dev1",
     "initfile": "src/foobar.py",
     "src_layout": true,
-    "pep517": false
+    "pep517": false,
+    "keywords": []
 }
