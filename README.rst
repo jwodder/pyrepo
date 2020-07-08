@@ -149,7 +149,8 @@ Options
 - ``-c <name>``, ``--command <name>`` — If the project defines a command-line
   entry point, use this option to specify the name for the command.  The entry
   point will then be assumed to be at either ``IMPORT_NAME:main`` (if the code
-  is flat module) or ``IMPORT_NAME.__main__:main`` (if the code is a package).
+  is a flat module) or ``IMPORT_NAME.__main__:main`` (if the code is a
+  package).
 
 - ``-d <text>``, ``--description <text>`` — Set the project's short
   description.  If no description is specified on the command line, the user

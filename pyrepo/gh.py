@@ -61,11 +61,11 @@ class GitHubException(Exception):
 
     def __str__(self):
         if 400 <= self.response.status_code < 500:
-            msg = '{0.status_code} Client Error: {0.reason} for url: {0.url}\n'
+            msg = '{0.status_code} Client Error: {0.reason} for URL: {0.url}\n'
         elif 500 <= self.response.status_code < 600:
-            msg = '{0.status_code} Server Error: {0.reason} for url: {0.url}\n'
+            msg = '{0.status_code} Server Error: {0.reason} for URL: {0.url}\n'
         else:
-            msg = '{0.status_code} Unknown Error: {0.reason} for url: {0.url}\n'
+            msg = '{0.status_code} Unknown Error: {0.reason} for URL: {0.url}\n'
         msg = msg.format(self.response)
         try:
             resp = self.response.json()
