@@ -127,8 +127,8 @@ class Image:
         }
         opt_name = None
         opt_value = None
-        for l in lines[1:]:
-            m = re.match(r'^\s*:(\w+):\s*', l)
+        for ln in lines[1:]:
+            m = re.match(r'^\s*:(\w+):\s*', ln)
             if m:
                 label = m.group(1)
                 if label not in options:
@@ -138,11 +138,11 @@ class Image:
                 if opt_name is not None:
                     options[opt_name] = opt_value.rstrip()
                 opt_name = label
-                opt_value = l[m.end():]
+                opt_value = ln[m.end():]
             elif opt_name is not None:
-                opt_value += l
-            elif l.strip() != '':
-                raise ValueError(f'Non-option line in image: {l!r}')
+                opt_value += ln
+            elif ln.strip() != '':
+                raise ValueError(f'Non-option line in image: {ln!r}')
         if opt_name is not None:
             options[opt_name] = opt_value.rstrip()
         return cls(href=href, **options)
