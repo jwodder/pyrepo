@@ -307,8 +307,10 @@ following operations in order:
 - Convert the tag to a release on GitHub, using the commit messsage for the
   name and body
 - Upload the build assets to PyPI, Dropbox, and GitHub (as release assets)
-    - Detached signatures (if any) are uploaded to PyPI and Dropbox but not
-      GitHub
+
+  - Detached signatures (if any) are uploaded to PyPI and Dropbox but not
+    GitHub
+
 - Prepare for development on the next version by setting ``__version__`` to the
   next minor version number plus ".dev1" and adding a new section to the top of
   the CHANGELOG (creating a CHANGELOG if necessary)
