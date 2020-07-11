@@ -141,7 +141,10 @@ def inspect_project(dirpath=None):
         # The version was read with `attr:`, which imports the module, so we
         # need to un-import the module if we wish to later inspect another
         # project with the same import_name (say, when testing).
-        del sys.modules[env["import_name"]]
+        sys.modules.pop(env["import_name"], None)
+        ### TODO: Starting in setuptools 46.4.0, reading with `attr:` only
+        ### imports the module if it's godawful, so there should be no need for
+        ### this line.
 
     return env
 
