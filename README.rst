@@ -162,19 +162,6 @@ Options
 - ``--github-user <user>`` — Set the username to use in the project's GitHub
   URL; when not set, the user's GitHub login is retrieved using the GitHub API
 
-- ``--importable/--no-importable`` — A project is said to be *importable*
-  iff ``from IMPORT_NAME import __version__`` succeeds even when none of the
-  project's dependencies have been installed yet; this determines whether
-  setuptools will be fetching the project version with a ``setup.cfg`` line of
-  ``version = attr:IMPORT_NAME.__version__`` or using boilerplate scanning code
-  in ``setup.py`` instead.  By default, a project is assumed to be importable
-  iff the project has no requirements or the project is a package containing a
-  ``__main__.py`` file (in which case it is assumed that the project is a
-  command rather than a library and that ``__init__.py`` imports nothing); use
-  these options to explicitly override the assumed importability.
-
-  This option cannot be set via the configuration file.
-
 - ``-p <name>``, ``--project-name <name>`` — Set the name of the project as it
   will be known on PyPI; defaults to the import name
 

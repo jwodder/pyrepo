@@ -3,7 +3,6 @@ from   configparser      import ConfigParser
 import os.path
 from   pathlib           import Path
 import re
-import sys
 import time
 from   intspan           import intspan
 from   read_version      import read_version
@@ -30,7 +29,6 @@ def inspect_project(dirpath=None):
         "author_email": cfg["metadata"]["author_email"],
         "python_requires": util.sort_specifier(cfg["options"]["python_requires"]),
         "install_requires": cfg["options"].get("install_requires", []),
-        "importable": "version" in cfg["metadata"],
         "version": cfg["metadata"].get("version"),
         "keywords": cfg["metadata"].get("keywords", []),
     }
@@ -137,14 +135,6 @@ def inspect_project(dirpath=None):
 
     if env["version"] is None:
         env["version"] = read_version((dirpath / env["initfile"]).resolve())
-    else:
-        # The version was read with `attr:`, which imports the module, so we
-        # need to un-import the module if we wish to later inspect another
-        # project with the same import_name (say, when testing).
-        sys.modules.pop(env["import_name"], None)
-        ### TODO: Starting in setuptools 46.4.0, reading with `attr:` only
-        ### imports the module if it's godawful, so there should be no need for
-        ### this line.
 
     return env
 

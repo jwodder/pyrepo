@@ -17,7 +17,6 @@
         "click ~= 7.0"
     ],
     "is_flat_module": true,
-    "importable": false,
     "commands": {},
     "has_tests": false,
     "has_travis": false,

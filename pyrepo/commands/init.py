@@ -16,7 +16,6 @@ from   ..util                 import ensure_license_years, optional
 @click.option('-d', '--description', prompt=True)
 @optional('--docs/--no-docs')
 @optional('--github-user', metavar='USER')
-@click.option('--importable/--no-importable', default=None)
 @optional('-p', '--project-name', metavar='NAME')
 @optional('-P', '--python-requires', metavar='SPEC')
 @optional('--repo-name', metavar='NAME')
@@ -126,16 +125,6 @@ def cli(obj, **options):
         env["commands"] = {
             options["command"]: f'{env["import_name"]}.__main__:main'
         }
-
-    if options["importable"] is not None:
-        env["importable"] = options["importable"]
-    elif not env["install_requires"]:
-        env["importable"] = True
-    elif not env["is_flat_module"] \
-            and (Path(env["import_name"]) / '__main__.py').exists():
-        env["importable"] = True
-    else:
-        env["importable"] = False
 
     templated = [
         '.gitignore', 'MANIFEST.in', 'README.rst', 'setup.cfg', 'setup.py',

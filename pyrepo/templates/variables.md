@@ -20,8 +20,6 @@
 - `install_requires: List[str]`
 
 - `is_flat_module: bool`
-- `importable: bool` — whether importing the package from within `setup.py` is
-  an option
 - `commands` — mapping from command (`console_scripts`) names to entry point
   specifications
 - `src_layout: bool`

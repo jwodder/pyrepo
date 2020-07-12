@@ -1,10 +1,6 @@
 [metadata]
 name = {{project_name}}
-{% if importable %}
 version = attr:{{import_name}}.__version__
-{% else %}
-#version = # Set in setup.py
-{% endif %}
 description = {{short_description}}
 long_description = file:README.rst
 long_description_content_type = text/x-rst
