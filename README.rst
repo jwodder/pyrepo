@@ -64,8 +64,6 @@ Global Options
   any further actions
 
 
-.. _configuration_file:
-
 Configuration File
 ------------------
 
