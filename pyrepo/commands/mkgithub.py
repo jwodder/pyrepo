@@ -1,6 +1,6 @@
 import click
 from   ..gh         import ACCEPT
-from   ..inspecting import inspect_project
+from   ..inspecting import UninitializedProjectError, inspect_project
 from   ..util       import readcmd, runcmd
 
 TOPICS_ACCEPT = f'application/vnd.github.mercy-preview,{ACCEPT}'
@@ -9,7 +9,10 @@ TOPICS_ACCEPT = f'application/vnd.github.mercy-preview,{ACCEPT}'
 @click.option('--repo-name', metavar='NAME')
 @click.pass_obj
 def cli(obj, repo_name):
-    env = inspect_project()
+    try:
+        env = inspect_project()
+    except UninitializedProjectError as e:
+        raise click.UsageError(str(e))
     if repo_name is None:
         repo_name = env["repo_name"]
     repo = obj.gh.user.repos.post(json={

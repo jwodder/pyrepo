@@ -9,6 +9,11 @@
 - Make this a package in the `jwodder` namespace?
 - Make the new variables added in e7039fc available during `pyrepo init`
     - Have `keywords` set to `[]`
+- Move (most of) the `Project` class from `pyrepo/commands/release.py` to a
+  module directly in `pyrepo/`, and rewrite most commands as functions that
+  take a `Project` instance as an argument
+    - `Project` instances should store the return value from
+      `inspect_project()` in an `env` (or `context`? `vars`?) attribute
 
 - `pyrepo init`:
     - Support `project_name`, `repo_name`, and `rtfd_name` as Jinja2 templates

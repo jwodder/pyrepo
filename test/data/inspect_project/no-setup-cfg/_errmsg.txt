@@ -1,1 +1,1 @@
-No setup.cfg in project root
+Project repository has not been initialized

@@ -1,6 +1,6 @@
 from   pathlib      import Path
 import click
-from   ..inspecting import inspect_project
+from   ..inspecting import UninitializedProjectError, inspect_project
 
 @click.command()
 @click.option('-o', '--outfile', type=click.File('w', encoding='utf-8'))
@@ -8,7 +8,10 @@ from   ..inspecting import inspect_project
 @click.pass_obj
 def cli(obj, template, outfile):
     """ Replace files with their re-evaluated templates """
-    env = inspect_project()
+    try:
+        env = inspect_project()
+    except UninitializedProjectError as e:
+        raise click.UsageError(str(e))
     jenv = obj.jinja_env
     if outfile is not None:
         if len(template) != 1:

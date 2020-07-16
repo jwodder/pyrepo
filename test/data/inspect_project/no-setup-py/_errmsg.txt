@@ -1,1 +1,1 @@
-No setup.py or pyproject.toml in project root
+Project repository has not been initialized

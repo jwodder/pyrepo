@@ -10,17 +10,24 @@ from   setuptools.config import read_configuration
 from   .                 import util  # Import module to keep mocking easy
 from   .readme           import Readme
 
+def is_project_initialized(dirpath=None):
+    if dirpath is None:
+        dirpath = Path()
+    else:
+        dirpath = Path(dirpath)
+    def exists(fname):
+        return (dirpath / fname).exists()
+    return (exists('setup.py') or exists('pyproject.toml')) \
+        and exists('setup.cfg')
+
 def inspect_project(dirpath=None):
     """ Fetch various information about an already-initialized project """
     if dirpath is None:
         dirpath = Path()
     else:
         dirpath = Path(dirpath)
-    if not (dirpath / 'setup.py').exists() \
-            and not (dirpath / 'pyproject.toml').exists():
-        raise ValueError('No setup.py or pyproject.toml in project root')
-    if not (dirpath / 'setup.cfg').exists():
-        raise ValueError('No setup.cfg in project root')
+    if not is_project_initialized(dirpath):
+        raise UninitializedProjectError()
     cfg = read_configuration(str(dirpath / 'setup.cfg'))
     env = {
         "project_name": cfg["metadata"]["name"],
@@ -221,3 +228,7 @@ def parse_requirements(filepath):
     except FileNotFoundError:
         pass
     return variables
+
+class UninitializedProjectError(Exception):
+    def __str__(self):
+        return 'Project repository has not been initialized'
