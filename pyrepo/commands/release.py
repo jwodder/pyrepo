@@ -92,30 +92,37 @@ class Project:
                 print(line, file=fp, end='')
         self._version = version
 
-    @property
-    def changelog(self) -> Optional[Changelog]:
-        for fname in CHANGELOG_NAMES:
+    def get_changelog(self, docs: bool = False) -> Optional[Changelog]:
+        if docs:
+            paths = [Path('docs', 'changelog.rst')]
+        else:
+            paths = CHANGELOG_NAMES
+        for p in paths:
             try:
-                with open(self.directory / fname, encoding='utf-8') as fp:
+                with (self.directory / p).open(encoding='utf-8') as fp:
                     return Changelog.load(fp)
             except FileNotFoundError:
                 continue
         return None
 
-    @changelog.setter
-    def changelog(self, value: Optional[Changelog]) -> None:
-        for fname in CHANGELOG_NAMES:
-            fpath = self.directory / fname
+    def set_changelog(self, value: Optional[Changelog], docs: bool = False) \
+            -> None:
+        if docs:
+            paths = [Path('docs', 'changelog.rst')]
+        else:
+            paths = CHANGELOG_NAMES
+        for p in paths:
+            fpath = self.directory / p
             if fpath.exists():
                 if value is None:
                     fpath.unlink()
                 else:
-                    with open(fpath, 'w', encoding='utf-8') as fp:
+                    with fpath.open('w', encoding='utf-8') as fp:
                         value.save(fp)
                 return
         if value is not None:
-            fpath = self.directory / CHANGELOG_NAMES[0]
-            with open(fpath, 'w', encoding='utf-8') as fp:
+            fpath = self.directory / paths[0]
+            with fpath.open('w', encoding='utf-8') as fp:
                 value.save(fp)
 
     def log(self, s):
@@ -142,8 +149,8 @@ class Project:
             # a line to delete:
             print('DELETE THIS LINE', file=tmplate)
             print(file=tmplate)
-            chlog = self.changelog
-            if chlog.sections:
+            chlog = self.get_changelog()
+            if chlog and chlog.sections:
                 print(f'v{self.version} — INSERT SHORT DESCRIPTION HERE',
                       file=tmplate)
                 print(file=tmplate)
@@ -247,37 +254,50 @@ class Project:
         old_version = self.version
         new_version = next_version(old_version)
         self.version = new_version + '.dev1'
-        # Add new section to top of CHANGELOG
-        self.log('Adding new section to CHANGELOG ...')
+        # Add new section to top of CHANGELOGs
         new_sect = ChangelogSection(
             version = 'v' + new_version,
             date    = 'in development',
             content = '',
         )
-        chlog = self.changelog
-        if chlog.sections:
-            chlog.sections.insert(0, new_sect)
-        else:
-            chlog = Changelog([
-                new_sect,
-                ChangelogSection(
-                    version = 'v' + old_version,
-                    date    = today(),
-                    content = 'Initial release',
-                ),
-            ])
-        self.changelog = chlog
+        for docs in (False, True):
+            if docs:
+                if not (self.directory / 'docs').exists():
+                    continue
+                self.log('Adding new section to docs/changelog.rst ...')
+            else:
+                self.log('Adding new section to CHANGELOG ...')
+            chlog = self.get_changelog(docs=docs)
+            if chlog and chlog.sections:
+                chlog.sections.insert(0, new_sect)
+            else:
+                chlog = Changelog(
+                    intro='Changelog\n=========\n\n' if docs else '',
+                    sections=[
+                        new_sect,
+                        ChangelogSection(
+                            version = 'v' + old_version,
+                            date    = today(),
+                            content = 'Initial release',
+                        ),
+                    ],
+                )
+            self.set_changelog(chlog, docs=docs)
 
     def end_dev(self):  # Idempotent
         self.log('Finalizing version ...')
         # Remove prerelease & dev release from __version__
         self.version = re.sub(r'(a|b|rc)\d+|\.dev\d+', '', self.version)
-        # Set release date in CHANGELOG
-        self.log('Updating CHANGELOG ...')
-        chlog = self.changelog
-        if chlog.sections:
-            chlog.sections[0].date = today()
-            self.changelog = chlog
+        # Set release date in CHANGELOGs
+        for docs in (False, True):
+            if docs:
+                self.log('Updating docs/changelog.rst ...')
+            else:
+                self.log('Updating CHANGELOG ...')
+            chlog = self.get_changelog(docs=docs)
+            if chlog and chlog.sections:
+                chlog.sections[0].date = today()
+                self.set_changelog(chlog, docs=docs)
         years = get_commit_years(self.directory)
         # Update year ranges in LICENSE
         self.log('Ensuring LICENSE copyright line is up to date ...')
@@ -295,7 +315,7 @@ class Project:
                              + update_years2str(m.group(1), years) \
                              + line[m.end(1):]
                     print(line, file=fp, end='')
-        if not chlog:
+        if self.get_changelog() is None:
             # Initial release
             self.end_initial_dev()
 

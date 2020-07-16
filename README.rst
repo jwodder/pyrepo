@@ -267,6 +267,7 @@ following operations in order:
 
 - Remove any prerelease & dev components from ``__version__``
 - If a CHANGELOG exists, set the date for the newest version section
+- If ``docs/changelog.rst`` exists, set the date for the newest version section
 - Update the copyright year ranges in ``LICENSE`` and (if present)
   ``docs/conf.py`` to include all years in which commits were made to the
   repository
@@ -298,7 +299,8 @@ following operations in order:
 
 - Prepare for development on the next version by setting ``__version__`` to the
   next minor version number plus ".dev1" and adding a new section to the top of
-  the CHANGELOG (creating a CHANGELOG if necessary)
+  the CHANGELOG (creating a CHANGELOG if necessary) and to the top of
+  ``docs/changelog.rst`` (creating it if a ``docs`` directory already exists)
 
 
 Options
