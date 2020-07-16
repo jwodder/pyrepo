@@ -1,4 +1,5 @@
 - Write tests
+- Add type annotations
 - Fill in `--help` strings and command docstrings
 - Autodetect project root by looking for `.git` folder, thereby allowing
   commands to be run from deeper in a project

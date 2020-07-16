@@ -22,6 +22,7 @@ from   shutil       import rmtree
 import sys
 from   tempfile     import NamedTemporaryFile
 import time
+from   typing       import Optional
 import attr
 import click
 from   in_place     import InPlace
@@ -92,7 +93,7 @@ class Project:
         self._version = version
 
     @property
-    def changelog(self):
+    def changelog(self) -> Optional[Changelog]:
         for fname in CHANGELOG_NAMES:
             try:
                 with open(self.directory / fname, encoding='utf-8') as fp:
@@ -102,7 +103,7 @@ class Project:
         return None
 
     @changelog.setter
-    def changelog(self, value):
+    def changelog(self, value: Optional[Changelog]) -> None:
         for fname in CHANGELOG_NAMES:
             fpath = self.directory / fname
             if fpath.exists():
@@ -110,12 +111,12 @@ class Project:
                     fpath.unlink()
                 else:
                     with open(fpath, 'w', encoding='utf-8') as fp:
-                        print(value, file=fp)
+                        value.save(fp)
                 return
         if value is not None:
             fpath = self.directory / CHANGELOG_NAMES[0]
             with open(fpath, 'w', encoding='utf-8') as fp:
-                print(value, file=fp)
+                value.save(fp)
 
     def log(self, s):
         click.secho(s, bold=True)
@@ -142,7 +143,7 @@ class Project:
             print('DELETE THIS LINE', file=tmplate)
             print(file=tmplate)
             chlog = self.changelog
-            if chlog:
+            if chlog.sections:
                 print(f'v{self.version} — INSERT SHORT DESCRIPTION HERE',
                       file=tmplate)
                 print(file=tmplate)
@@ -254,7 +255,7 @@ class Project:
             content = '',
         )
         chlog = self.changelog
-        if chlog:
+        if chlog.sections:
             chlog.sections.insert(0, new_sect)
         else:
             chlog = Changelog([
@@ -274,7 +275,7 @@ class Project:
         # Set release date in CHANGELOG
         self.log('Updating CHANGELOG ...')
         chlog = self.changelog
-        if chlog:
+        if chlog.sections:
             chlog.sections[0].date = today()
             self.changelog = chlog
         years = get_commit_years(self.directory)

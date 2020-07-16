@@ -1,17 +1,20 @@
 import re
+from   typing import IO, List
 import attr
 
+@attr.s
 class Changelog:
     """
     See <https://github.com/jwodder/pyrepo/wiki/CHANGELOG-Format> for a
     description of the format parsed & emitted by this class
     """
 
-    def __init__(self, sections):
-        self.sections = list(sections)
+    intro: str = attr.ib()
+    sections: List['ChangelogSection'] = attr.ib(converter=list)
 
     @classmethod
-    def load(cls, fp):
+    def load(cls, fp: IO[str]) -> 'Changelog':
+        intro = ''
         prev = None
         sections = []
         for line in fp:
@@ -30,9 +33,13 @@ class Changelog:
                     content = '',
                 ))
                 prev = None
-            else:
-                if prev is not None and sections:
+            elif prev is not None:
+                if sections:
                     sections[-1].content += prev
+                else:
+                    intro += prev
+                prev = line
+            else:
                 prev = line
         if prev is not None:
             if not sections:
@@ -40,31 +47,37 @@ class Changelog:
             sections[-1].content += prev
         if sections:
             sections[-1]._end()
-        return cls(sections)
+        return cls(intro, sections)
 
-    def __str__(self):
-        if any('\n\n' in sect.content for sect in self.sections):
-            sep = '\n\n\n'
+    def save(self, fp: IO[str]) -> None:
+        print(self, file=fp, end='')
+
+    def __str__(self) -> str:
+        if self.sections:
+            if any('\n\n' in sect.content for sect in self.sections):
+                sep = '\n\n\n'
+            else:
+                sep = '\n\n'
+            return self.intro + sep.join(map(str, self.sections)) + '\n'
         else:
-            sep = '\n\n'
-        return sep.join(map(str, self.sections))
+            return self.intro
 
-    def __bool__(self):
-        return bool(self.sections)
+    def for_json(self) -> dict:
+        return attr.asdict(self)
 
 
 @attr.s
 class ChangelogSection:
-    version = attr.ib()
-    date    = attr.ib()
-    content = attr.ib()  # has trailing newlines stripped
+    version: str = attr.ib()
+    date: str    = attr.ib()
+    content: str = attr.ib()  # has trailing newlines stripped
 
-    def __str__(self):
+    def __str__(self) -> str:
         s = self.version
         if self.date is not None:
             s += f' ({self.date})'
         return s + '\n' + '-' * len(s) \
                  + ('\n' + self.content if self.content else '')
 
-    def _end(self):
+    def _end(self) -> None:
         self.content = self.content.rstrip('\r\n')
