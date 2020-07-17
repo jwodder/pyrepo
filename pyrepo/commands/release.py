@@ -364,7 +364,7 @@ class Project:
 
 @click.command()
 @click.option('--tox/--no-tox', default=False, help='Run tox before building')
-@click.option('--sign-assets/--no-sign-assets', default=True)
+@click.option('--sign-assets/--no-sign-assets', default=False)
 @click.pass_obj
 def cli(obj, sign_assets, tox):
     # GPG_TTY has to be set so that GPG can be run through Git.

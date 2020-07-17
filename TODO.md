@@ -79,7 +79,8 @@
 - Add a subcommand for updating GitHub description & tags based on the
   project's short description and keywords?
 - Add a subcommand for converting a flat module to a non-flat package?
-- Add a subcommand for converting to a `src` layout?
+- Add a subcommand (`mkmodern`?) for converting to a `src` layout and adding a
+  `pyproject.toml`
 
 - Templates:
     - Adjust the templates to always include package data, even if there is

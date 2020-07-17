@@ -281,8 +281,8 @@ following operations in order:
     the topic "available-on-pypi"
 
 - If the ``--tox`` option is given, run tox, failing if it fails
-- Build the sdist & wheel and (unless ``--no-sign-assets`` is given) create
-  detached signatures with GPG
+- Build the sdist & wheel and (if ``--sign-assets`` is given) create detached
+  signatures with GPG
 - Run ``twine check`` on the sdist & wheel
 - Commit all changes made to the repository; the most recent CHANGELOG section
   is included in the commit message template
@@ -311,7 +311,7 @@ Options
 - ``--tox/--no-tox`` — Whether to run ``tox`` on the project before building;
   default: ``--no-tox``
 - ``--sign-assets/--no-sign-assets`` — Whether to created detached PGP
-  signatures for the release assets; default: ``--sign-assets``
+  signatures for the release assets; default: ``--no-sign-assets``
 
 
 ``pyrepo template``
