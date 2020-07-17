@@ -31,8 +31,8 @@ from   .make        import make
 from   ..changelog  import Changelog, ChangelogSection
 from   ..gh         import ACCEPT, GitHub
 from   ..inspecting import get_commit_years, inspect_project
-from   ..util       import ensure_license_years, read_paragraphs, readcmd, \
-                            runcmd, update_years2str
+from   ..util       import ensure_license_years, optional, read_paragraphs, \
+                            readcmd, runcmd, update_years2str
 
 GPG = 'gpg2'
 # gpg2 automatically & implicitly uses gpg-agent to obviate the need to keep
@@ -363,10 +363,14 @@ class Project:
 
 
 @click.command()
-@click.option('--tox/--no-tox', default=False, help='Run tox before building')
-@click.option('--sign-assets/--no-sign-assets', default=False)
+@optional('--tox/--no-tox', help='Run tox before building')
+@optional('--sign-assets/--no-sign-assets')
 @click.pass_obj
-def cli(obj, sign_assets, tox):
+def cli(obj, **options):
+    defaults = obj.defaults['release']
+    options = dict(defaults, **options)
+    sign_assets = options.get("sign_assets", False)
+    tox = options.get("tox", False)
     # GPG_TTY has to be set so that GPG can be run through Git.
     os.environ['GPG_TTY'] = os.ttyname(0)
     add_type('application/zip', '.whl', False)

@@ -37,18 +37,13 @@
     - Add an option for setting the new version number from the command line
     - Support configuring the following via the config file:
         - whether to sign the version tag
-        - whether to sign assets
         - program to use for signing
         - where & whether to upload on Dropbox
         - whether to create a GitHub release
         - whether to upload to GitHub
-        - GitHub API credentials?
-        - whether to run tox
         - whether to start a shell to examine the assets after building but
           before uploading?
-        - Python executable to use to run `setup.py`?
     - Move the signing of the build assets to after committing & tagging?
-    - Also update & manage `docs/changelog.rst` when `docs/` exists
 
 - `pyrepo mkgithub`:
     - Update the project's `url` et alii if necessary
@@ -59,6 +54,9 @@
 - `pyrepo template`:
     - Add command line options for overriding the various Jinja env vars
     - Preserve keywords and classifiers when retemplating `setup.cfg`?
+
+- `pyrepo make`:
+    - Support setting options via the config file
 
 - Add subcommands for incrementally adding features (tests, docs, Travis, etc.)
   to an already-templated repository

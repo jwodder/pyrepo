@@ -228,6 +228,8 @@ Build an sdist and/or wheel for the project using either ``pep517`` or
 Options
 ^^^^^^^
 
+These options cannot be set via the configuration file.
+
 - ``-c``, ``--clean`` — Delete the ``build/`` and ``dist/`` directories from
   the project root before building
 
@@ -254,7 +256,9 @@ Options
 ^^^^^^^
 
 - ``--repo-name <name>`` — The name of the new repository; defaults to the
-  repository name used in the project's URL
+  repository name used in the project's URL.
+
+  This option cannot be set via the configuration file.
 
 
 ``pyrepo release``
@@ -262,7 +266,7 @@ Options
 
 ::
 
-    pyrepo [<global-options>] release
+    pyrepo [<global-options>] release [<options>]
 
 Create & publish a new release for a project.  This command performs the
 following operations in order:
@@ -330,6 +334,8 @@ Options
 - ``-o <file>``, ``--outfile <file>`` — Write output to ``<file>`` instead of
   overwriting the file given on the command line.  This option may only be
   used when exactly one argument is given on the command line.
+
+  This option cannot be set via the configuration file.
 
 
 Restrictions
