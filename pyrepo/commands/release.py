@@ -13,26 +13,28 @@
 # - The version is set as `__version__` in `packagename/__init__.py` or
 #   `packagename.py`.
 
-from   mimetypes    import add_type, guess_type
+from   mimetypes         import add_type, guess_type
 import os
 import os.path
-from   pathlib      import Path
+from   pathlib           import Path
 import re
-from   shutil       import rmtree
+from   shutil            import rmtree
 import sys
-from   tempfile     import NamedTemporaryFile
+from   tempfile          import NamedTemporaryFile
 import time
-from   typing       import Optional
+from   typing            import Optional
 import attr
 import click
-from   in_place     import InPlace
-from   uritemplate  import expand
-from   .make        import make
-from   ..changelog  import Changelog, ChangelogSection
-from   ..gh         import ACCEPT, GitHub
-from   ..inspecting import get_commit_years, inspect_project
-from   ..util       import ensure_license_years, optional, read_paragraphs, \
-                            readcmd, runcmd, update_years2str
+from   in_place          import InPlace
+from   packaging.version import Version
+from   uritemplate       import expand
+from   .make             import make
+from   ..changelog       import Changelog, ChangelogSection
+from   ..gh              import ACCEPT, GitHub
+from   ..inspecting      import get_commit_years, inspect_project
+from   ..util            import ensure_license_years, optional, \
+                                    read_paragraphs, readcmd, runcmd, \
+                                    update_years2str
 
 GPG = 'gpg2'
 # gpg2 automatically & implicitly uses gpg-agent to obviate the need to keep
@@ -391,11 +393,31 @@ def next_version(v):
     '0.6.0'
     >>> next_version('0.5.1')
     '0.6.0'
+    >>> next_version('0.5.0.post1')
+    '0.6.0'
+    >>> next_version('0.5.1.post1')
+    '0.6.0'
+    >>> next_version('0.5.0a1')
+    '0.5.0'
+    >>> next_version('0.5.1a1')
+    '0.5.1'
+    >>> next_version('0.5.0.dev1')
+    '0.5.0'
+    >>> next_version('0.5.1.dev1')
+    '0.5.1'
+    >>> next_version('1!0.5.0')
+    '1!0.6.0'
     """
-    vs = list(map(int, v.split('.')))
+    vobj = Version(v)
+    if vobj.is_prerelease:
+        return str(vobj.base_version)
+    vs = list(vobj.release)
     vs[1] += 1
     vs[2:] = [0] * len(vs[2:])
-    return '.'.join(map(str, vs))
+    s = '.'.join(map(str, vs))
+    if vobj.epoch:
+        s = f'{vobj.epoch}!{s}'
+    return s
 
 def today():
     return time.strftime('%Y-%m-%d')
