@@ -10,23 +10,18 @@ from   setuptools.config import read_configuration
 from   .                 import util  # Import module to keep mocking easy
 from   .readme           import Readme
 
-def is_project_initialized(dirpath=None):
-    if dirpath is None:
-        dirpath = Path()
-    else:
-        dirpath = Path(dirpath)
-    def exists(fname):
-        return (dirpath / fname).exists()
-    return (exists('setup.py') or exists('pyproject.toml')) \
-        and exists('setup.cfg')
-
 def inspect_project(dirpath=None):
     """ Fetch various information about an already-initialized project """
     if dirpath is None:
         dirpath = Path()
     else:
         dirpath = Path(dirpath)
-    if not is_project_initialized(dirpath):
+
+    def exists(fname):
+        return (dirpath / fname).exists()
+
+    if not ((exists('setup.py') or exists('pyproject.toml'))
+            and exists('setup.cfg')):
         raise UninitializedProjectError()
     cfg = read_configuration(str(dirpath / 'setup.cfg'))
     env = {
@@ -91,15 +86,15 @@ def inspect_project(dirpath=None):
     else:
         env["saythanks_to"] = None
 
-    if (dirpath / 'tox.ini').exists():
+    if exists('tox.ini'):
         toxcfg = ConfigParser(interpolation=None)
         toxcfg.read(str(dirpath / 'tox.ini'))
         env["has_tests"] = toxcfg.has_section("testenv")
     else:
         env["has_tests"] = False
 
-    env["has_travis"] = (dirpath / '.travis.yml').exists()
-    env["has_docs"] = (dirpath / 'docs' / 'index.rst').exists()
+    env["has_travis"] = exists('.travis.yml')
+    env["has_docs"] = exists('docs/index.rst')
 
     env["travis_user"] = env["codecov_user"] = env["github_user"]
     try:
@@ -130,8 +125,8 @@ def inspect_project(dirpath=None):
         else:
             raise ValueError('Copyright years not found in LICENSE')
 
-    env["pep517"] = (dirpath / 'pyproject.toml').exists()
-    env["src_layout"] = (dirpath / 'src').exists()
+    env["pep517"] = exists('pyproject.toml')
+    env["src_layout"] = exists('src')
     if env["is_flat_module"]:
         initpath = [env["import_name"] + '.py']
     else:

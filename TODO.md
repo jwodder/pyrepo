@@ -1,9 +1,9 @@
 - Write tests
 - Add type annotations
 - Fill in `--help` strings and command docstrings
-- Autodetect project root by looking for `.git` folder, thereby allowing
-  commands to be run from deeper in a project
-    - Doable with `git rev-parse --show-toplevel`
+- Autodetect project root by recursing upwards, looking for a `pyproject.toml`
+  or `setup.py` file, thereby allowing commands to be run from deeper in a
+  project
 - Move `pyrepo/templates/variables.md` somewhere else
 - Support namespace packages?
 - Make this a package in the `jwodder` namespace?
@@ -14,6 +14,9 @@
   take a `Project` instance as an argument
     - `Project` instances should store the return value from
       `inspect_project()` in an `env` (or `context`? `vars`?) attribute
+- Make `configure()` store the config file values in `ctx.default_map`
+    - This will require changing the precedence order of `pyrepo init
+      --python-requires` (unless Click 8 comes out in the interim)
 
 - `pyrepo init`:
     - Support `project_name`, `repo_name`, and `rtfd_name` as Jinja2 templates

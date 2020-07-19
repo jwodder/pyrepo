@@ -35,6 +35,7 @@ def configure(ctx, filename):
     cfg.read_dict(DEFAULTS)
     if filename is not None:
         cfg.read(filename)
+        ### TODO: Check the return value and raise an exception if it's empty
     supported_series = [
         v for v in get_pyversion_info().supported_series()
           if not v.startswith('2.')
