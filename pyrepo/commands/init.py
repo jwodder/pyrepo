@@ -1,4 +1,5 @@
-from   pathlib              import Path
+import os.path
+from   pathlib                import Path
 import re
 import click
 from   in_place               import InPlace
@@ -30,6 +31,8 @@ def cli(obj, **options):
         raise click.UsageError('setup.py already exists')
     if Path('setup.cfg').exists():
         raise click.UsageError('setup.cfg already exists')
+    if Path('pyproject.toml').exists():
+        raise click.UsageError('pyproject.toml already exists')
 
     defaults = obj.defaults['init']
     pyreq_cfg = defaults.pop("python_requires")
@@ -50,9 +53,12 @@ def cli(obj, **options):
         "github_user": options["github_user"],
         "travis_user": options.get("travis_user", options["github_user"]),
         "codecov_user": options.get("codecov_user", options["github_user"]),
+        "keywords": [],
+        "version": "0.1.0.dev1",
+        "pep517": False,
     }
 
-    # "import_name" and "is_flat_module"
+    # "import_name", "is_flat_module", and "src_layout"
     env.update(inspecting.find_module(Path()))
 
     env["project_name"] = options.get("project_name", env["import_name"])
@@ -65,10 +71,13 @@ def cli(obj, **options):
     req_vars = inspecting.parse_requirements('requirements.txt')
 
     if env["is_flat_module"]:
-        init_src = Path(env["import_name"] + '.py')
+        init_src = [env["import_name"] + '.py']
     else:
-        init_src = Path(env["import_name"]) / '__init__.py'
-    src_vars = inspecting.extract_requires(init_src)
+        init_src = [env["import_name"], '__init__.py']
+    if env["src_layout"]:
+        init_src.insert(0, 'src')
+    env["initfile"] = os.path.join(*init_src)
+    src_vars = inspecting.extract_requires(env["initfile"])
 
     requirements = {}
     for r in (req_vars["__requires__"] or []) \
@@ -150,7 +159,7 @@ def cli(obj, **options):
     else:
         add_templated_file(obj.jinja_env, 'LICENSE', env)
 
-    with InPlace(init_src, mode='t', encoding='utf-8') as fp:
+    with InPlace(env["initfile"], mode='t', encoding='utf-8') as fp:
         started = False
         for line in fp:
             if line.startswith('#!') \
@@ -165,7 +174,7 @@ def cli(obj, **options):
                 print(file=fp)
                 started = True
             print(line, file=fp, end='')
-        if not started:  # if init_src is empty
+        if not started:  # if initfile is empty
             print(obj.jinja_env.get_template('init.j2').render(env), file=fp)
 
     try:

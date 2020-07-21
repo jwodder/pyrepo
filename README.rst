@@ -100,9 +100,10 @@ Option names are case insensitive and treat hyphens & underscores as equal.
     pyrepo [<global-options>] init [<options>]
 
 Create packaging boilerplate for a new project (i.e., one that does not already
-have a ``setup.py`` or ``setup.cfg`` file).  The project must be in a Git
-repository and already contain Python source code (either one flat module or
-else a package containing an ``__init__.py`` file).  It is recommended to run
+have a ``setup.py``, ``setup.cfg``, or ``pyproject.toml`` file).  The project
+must be in a Git repository and already contain Python source code (either one
+flat module or else a package containing an ``__init__.py`` file; either layout
+may optionally be contained in a ``src/`` directory).  It is recommended to run
 this command in a clean Git repository (i.e., one without any pending changes)
 so that ``git checkout`` can easily be used to revert the command's effects if
 anything goes wrong.

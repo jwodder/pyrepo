@@ -153,12 +153,18 @@ def get_commit_years(dirpath, include_now=True):
 
 def find_module(dirpath: Path):
     results = []
+    if (dirpath / 'src').exists():
+        dirpath /= 'src'
+        src_layout = True
+    else:
+        src_layout = False
     for flat in dirpath.glob('*.py'):
         name = flat.stem
         if name.isidentifier() and name != 'setup':
             results.append({
                 "import_name": name,
                 "is_flat_module": True,
+                "src_layout": src_layout,
             })
     for pkg in dirpath.glob('*/__init__.py'):
         name = pkg.parent.name
@@ -166,6 +172,7 @@ def find_module(dirpath: Path):
             results.append({
                 "import_name": name,
                 "is_flat_module": False,
+                "src_layout": src_layout,
             })
     if len(results) > 1:
         raise ValueError('Multiple Python modules in repository')

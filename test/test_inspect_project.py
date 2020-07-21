@@ -54,6 +54,19 @@ def test_find_module(dirpath):
     assert find_module(dirpath) == {
         "import_name": "foobar",
         "is_flat_module": dirpath.name.endswith("flat"),
+        "src_layout": False,
+    }
+
+@pytest.mark.parametrize(
+    'dirpath',
+    (DATA_DIR / 'find_module' / 'valid-src').iterdir(),
+    ids=attrgetter("name"),
+)
+def test_find_module_src(dirpath):
+    assert find_module(dirpath) == {
+        "import_name": "foobar",
+        "is_flat_module": dirpath.name.endswith("flat"),
+        "src_layout": True,
     }
 
 @pytest.mark.parametrize(
