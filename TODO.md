@@ -76,7 +76,7 @@
     - When generating a README with `has_pypi = False`, use the GitHub URL in
       the installation instructions, with this command replacing that with the
       project name?
-    - Automatically run this command on first release?
+    - Automatically run this command on first release
 - Add a subcommand for updating GitHub description & tags based on the
   project's short description and keywords?
 - Add a subcommand for converting a flat module to a non-flat package?
@@ -96,14 +96,9 @@
       status trove classifier
     - When `has_pypi` is false, the installation instructions in the README
       should refer to the GitHub URL, not the project name
-    - Add templates for:
-        - `CHANGELOG.md`?
-        - `CONTRIBUTORS.md`
-    - Switch to travis-ci.com?
-    - Set the pytest etc. version in `tox.ini` based on the smallest Python
-      version supported by the project?
+    - Add template for `CONTRIBUTORS.md`?
     - Support `src` layouts (e.g., in the arguments to `pytest` in `tox.ini`)
-    - Add a `pyproject.toml` template?
+    - Add a `pyproject.toml` template
 
 - Prior art to investigate and compare against:
     - https://pypi.python.org/pypi/octopusapi
