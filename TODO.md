@@ -26,13 +26,14 @@
       other than "main" on the command line
     - Autodetect `if __name__ == '__main__':` lines in `import_name.py` /
       `import_name/__main__.py` and set `commands` accordingly
-    - Add a `--pypi/--no-pypi` option for controlling the `has_pypi` variable
+    - Add a `--pypi/--no-pypi` option for controlling the `has_pypi` variable?
     - Better handle projects whose `python_requires` includes EOL versions
         - Currently, pyrepo ignores the EOL versions when generating the list
           of versions to use in the classifiers, `tox.ini`, and `.travis.yml,
           but the `python_requires` string that includes the old versions is
           still used unmodified
     - Support initializing a project with a `src` layout
+    - Add an option for setting the starting version
 
 - `pyrepo release`:
     - Add an option for setting the new version number from the command line

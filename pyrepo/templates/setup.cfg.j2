@@ -11,7 +11,13 @@ license_files = LICENSE
 url = https://github.com/{{github_user}}/{{repo_name}}
 
 keywords =
+{% if keywords %}
+{% for k in keywords %}
+    {{k}}
+{% endfor %}
+{% else %}
     ###
+{% endif %}
 
 classifiers =
     Development Status :: 3 - Alpha
@@ -43,12 +49,21 @@ py_modules = {{import_name}}
 {% else %}
 packages = find:
 {% endif %}
+{% if src_layout %}
+package_dir=
+    =src
+{% endif %}
 python_requires = {{python_requires}}
 {% if install_requires %}
 install_requires =
     {% for req in install_requires %}
     {{req}}
     {% endfor %}
+{% endif %}
+{% if src_layout and not is_flat_module %}
+
+[options.packages.find]
+where = src
 {% endif %}
 {% if commands %}
 
