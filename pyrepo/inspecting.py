@@ -86,12 +86,17 @@ def inspect_project(dirpath=None):
     else:
         env["saythanks_to"] = None
 
-    if exists('tox.ini'):
-        toxcfg = ConfigParser(interpolation=None)
-        toxcfg.read(str(dirpath / 'tox.ini'))
-        env["has_tests"] = toxcfg.has_section("testenv")
+    toxcfg = ConfigParser(interpolation=None)
+    toxcfg.read(str(dirpath / 'tox.ini'))  # No-op when tox.ini doesn't exist
+    if toxcfg.has_section("testenv"):
+        env["has_tests"] = True
+        env["has_doctests"] = (
+            '--doctest-modules' in toxcfg.get("testenv","commands",fallback='')
+            or '--doctest-modules' in toxcfg.get("pytest","addopts",fallback='')
+        )
     else:
         env["has_tests"] = False
+        env["has_doctests"] = False
 
     env["has_travis"] = exists('.travis.yml')
     env["has_docs"] = exists('docs/index.rst')

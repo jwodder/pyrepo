@@ -17,6 +17,7 @@
     "commands": {
         "foobar": "foobar:main"
     },
+    "has_doctests": false,
     "has_tests": false,
     "has_travis": false,
     "has_docs": false,

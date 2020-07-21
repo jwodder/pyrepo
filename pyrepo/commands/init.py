@@ -16,6 +16,7 @@ from   ..util                 import ensure_license_years, optional
 @optional('-c', '--command', metavar='NAME')
 @click.option('-d', '--description', prompt=True)
 @optional('--docs/--no-docs')
+@optional('--doctests/--no-doctests')
 @optional('--github-user', metavar='USER')
 @optional('-p', '--project-name', metavar='NAME')
 @optional('-P', '--python-requires', metavar='SPEC')
@@ -46,6 +47,7 @@ def cli(obj, **options):
         "short_description": options["description"],
         "saythanks_to": options.get("saythanks_to"),
         "copyright_years": inspecting.get_commit_years(Path()),
+        "has_doctests": options.get("doctests", False),
         "has_tests": options.get("tests",False) or options.get("travis",False),
         "has_travis": options.get("travis", False),
         "has_docs": options.get("docs", False),

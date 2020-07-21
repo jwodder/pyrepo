@@ -160,6 +160,10 @@ Options
 - ``--docs/--no-docs`` — Whether to generate templates for Sphinx
   documentation; default: ``--no-docs``
 
+- ``--doctests/--no-doctests`` — Whether to include running of doctests in the
+  generated testing templates; only has an effect when ``--tests`` is also
+  given; default: ``--no-doctests``
+
 - ``--github-user <user>`` — Set the username to use in the project's GitHub
   URL; when not set, the user's GitHub login is retrieved using the GitHub API
 

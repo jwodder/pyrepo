@@ -28,6 +28,7 @@
   imported source file", which must contain the definition of `__version__`
 
 - `has_tests: bool`
+- `has_doctests: bool`
 - `has_travis: bool`
 - `has_docs: bool`
 - `has_pypi: bool`

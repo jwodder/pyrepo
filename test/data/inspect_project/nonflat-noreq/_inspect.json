@@ -15,6 +15,7 @@
     "install_requires": [],
     "is_flat_module": false,
     "commands": {},
+    "has_doctests": false,
     "has_tests": false,
     "has_travis": false,
     "has_docs": false,

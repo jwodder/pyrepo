@@ -32,7 +32,6 @@
           of versions to use in the classifiers, `tox.ini`, and `.travis.yml,
           but the `python_requires` string that includes the old versions is
           still used unmodified
-    - Support initializing a project with a `src` layout
     - Add an option for setting the starting version
 
 - `pyrepo release`:
@@ -63,6 +62,8 @@
 - Add subcommands for incrementally adding features (tests, docs, Travis, etc.)
   to an already-templated repository
     - `add-tests`: Create `tox.ini`
+        - Include a `--doctests/--no-doctests` option
+    - `add-doctests`
     - `add-travis`: Do `add-tests`, create `.travis.yml`, add the appropriate
       badges to the README
     - `add-docs`: Create `docs/*`, add block to `tox.ini`, add documentation
