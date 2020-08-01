@@ -15,6 +15,7 @@
 - Make `configure()` store the config file values in `ctx.default_map`
     - This will require changing the precedence order of `pyrepo init
       --python-requires` (unless Click 8 comes out in the interim)
+- Use <https://github.com/borntyping/python-colorlog> to color log messages?
 
 - `pyrepo init`:
     - Support `project_name`, `repo_name`, and `rtfd_name` as Jinja2 templates
@@ -33,6 +34,8 @@
           but the `python_requires` string that includes the old versions is
           still used unmodified
     - Add an option for setting the starting version
+    - Split off all of the variable-determining code into a (nondestructive)
+      `inspect_new_project()` function
 
 - `pyrepo release`:
     - Add an option for setting the new version number from the command line
