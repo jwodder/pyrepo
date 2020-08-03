@@ -31,7 +31,7 @@ commands =
 {% else %}
 {% set pkg_path = import_name %}
 {% endif %}
-    flake8 {{pkg_path}} test
+    flake8 --config=tox.ini {{pkg_path}} test
 {% if src_layout and has_doctests %}
     coverage run -m pytest {posargs} --doctest-modules src
     coverage run -m pytest {posargs} test
