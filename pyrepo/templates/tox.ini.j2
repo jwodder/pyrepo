@@ -33,7 +33,7 @@ commands =
 {% endif %}
     flake8 --config=tox.ini {{pkg_path}} test
 {% if src_layout and has_doctests %}
-    coverage run -m pytest {posargs} --doctest-modules src
+    coverage run -m pytest {posargs} --doctest-modules --pyargs {{import_name}}
     coverage run -m pytest {posargs} test
     coverage combine
     coverage report
