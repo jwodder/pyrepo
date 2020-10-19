@@ -19,9 +19,12 @@ def cli(obj, repo_name):
         "name": repo_name,
         "description": env["short_description"],
     })
+    keywords = [kw.replace(' ', '-') for kw in env["keywords"]]
+    if "python" not in keywords:
+        keywords.append("python")
     obj.gh[repo["url"]].topics.put(
         headers={"Accept": TOPICS_ACCEPT},
-        json={"names": env["keywords"] + ["python"]},
+        json={"names": keywords},
     )
     if 'origin' in readcmd('git', 'remote').splitlines():
         runcmd('git', 'remote', 'rm', 'origin')
