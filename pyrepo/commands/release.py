@@ -7,6 +7,7 @@
 # - git (including push access to repository)
 # - $GPG (including a key usable for signing)
 # - PyPI credentials for twine
+# - GitHub OAuth token in config
 
 # Notable assumptions made by this code:
 # - There is no CHANGELOG file until after the initial release has been made.
@@ -36,9 +37,9 @@ from   ..util            import ensure_license_years, optional, \
                                     read_paragraphs, readcmd, runcmd, \
                                     update_years2str
 
-GPG = 'gpg2'
-# gpg2 automatically & implicitly uses gpg-agent to obviate the need to keep
-# entering one's password.
+GPG = 'gpg'
+# This must point to gpg version 2 or higher, which automatically & implicitly
+# uses gpg-agent to obviate the need to keep entering one's password.
 
 DROPBOX_UPLOAD_DIR = '/Code/Releases/Python/{name}/'
 

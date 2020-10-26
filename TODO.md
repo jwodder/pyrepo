@@ -54,6 +54,7 @@
     - Push all branches, not just master?
     - Push all tags
     - Support creating the repository in an organization?
+    - Add a `--private` option
 
 - `pyrepo template`:
     - Add command line options for overriding the various Jinja env vars
@@ -61,6 +62,9 @@
 
 - `pyrepo make`:
     - Support setting options via the config file
+    - Use `build` instead of `pep517`
+        - Wait for the next version after 0.0.4, as it properly isolates
+          environments
 
 - Add subcommands for incrementally adding features (tests, docs, Travis, etc.)
   to an already-templated repository
