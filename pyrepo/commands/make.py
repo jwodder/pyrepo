@@ -25,22 +25,9 @@ def make(proj_dir=None, clean=False, sdist=True, wheel=True):
         except FileNotFoundError:
             pass
     if sdist or wheel:
-        if (proj_dir / 'pyproject.toml').exists():
-            args = []
-            if sdist:
-                args.append('--source')
-            if wheel:
-                args.append('--binary')
-            runcmd(
-                sys.executable, '-m', 'pep517.build',
-                '-o', 'dist',
-                *args,
-                proj_dir,
-            )
-        else:
-            args = []
-            if sdist:
-                args.append('sdist')
-            if wheel:
-                args.append('bdist_wheel')
-            runcmd(sys.executable, 'setup.py', '-q', *args, cwd=proj_dir)
+        args = []
+        if sdist:
+            args.append('--sdist')
+        if wheel:
+            args.append('--wheel')
+        runcmd(sys.executable, '-m', 'build', '-o', 'dist', *args, proj_dir)
