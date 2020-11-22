@@ -68,6 +68,7 @@
     - `add-tests`: Create `tox.ini`
         - Include a `--doctests/--no-doctests` option
     - `add-doctests`
+        - Use the iniparse package to modify `tox.ini`?
     - `add-travis`: Do `add-tests`, create `.travis.yml`, add the appropriate
       badges to the README
     - `add-docs`: Create `docs/*`, add block to `tox.ini`, add documentation
@@ -76,6 +77,7 @@
           README
         - Should the adding of documentation links be split into a separate
           command?
+        - Use the iniparse package to modify `tox.ini`?
 - Add a subcommand for updating the README for `has_pypi` being true
     - When generating a README with `has_pypi = False`, use the GitHub URL in
       the installation instructions, with this command replacing that with the
@@ -84,8 +86,9 @@
 - Add a subcommand for updating GitHub description & tags based on the
   project's short description and keywords?
 - Add a subcommand for converting a flat module to a non-flat package?
-- Add a subcommand (`mkmodern`?) for converting to a `src` layout and adding a
-  `pyproject.toml`
+    - Use the iniparse package to modify `setup.cfg`?
+- Add subcommands for adding & removing a Python version from the set of
+  supported versions
 
 - Templates:
     - Adjust the templates to always include package data, even if there is
