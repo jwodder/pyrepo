@@ -16,6 +16,7 @@
     - This will require changing the precedence order of `pyrepo init
       --python-requires` (unless Click 8 comes out in the interim)
 - Use <https://github.com/borntyping/python-colorlog> to color log messages?
+- Change `__python_requires__` to `__requires_python__` to match PEP 621?
 
 - `pyrepo init`:
     - Support `project_name`, `repo_name`, and `rtfd_name` as Jinja2 templates
