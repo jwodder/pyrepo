@@ -3,21 +3,22 @@
     :alt: Project Status: WIP — Initial development is in progress, but there
           has not yet been a stable, usable release suitable for the public.
 
-.. image:: https://travis-ci.com/jwodder/foobar.svg?branch=master
-    :target: https://travis-ci.com/jwodder/foobar
+.. image:: https://github.com/ghuser/foobar/workflows/Test/badge.svg?branch=master
+    :target: https://github.com/ghuser/foobar/actions?workflow=Test
+    :alt: CI Status
 
-.. image:: https://codecov.io/gh/jwodder/foobar/branch/master/graph/badge.svg
-    :target: https://codecov.io/gh/jwodder/foobar
+.. image:: https://codecov.io/gh/ghuser/foobar/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/ghuser/foobar
 
-.. image:: https://img.shields.io/github/license/jwodder/foobar.svg
+.. image:: https://img.shields.io/github/license/ghuser/foobar.svg
     :target: https://opensource.org/licenses/MIT
     :alt: MIT License
 
 .. image:: https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg
     :target: https://saythanks.io/to/jwodder
 
-`GitHub <https://github.com/jwodder/foobar>`_
-| `Issues <https://github.com/jwodder/foobar/issues>`_
+`GitHub <https://github.com/ghuser/foobar>`_
+| `Issues <https://github.com/ghuser/foobar/issues>`_
 
 INSERT LONG DESCRIPTION HERE
 

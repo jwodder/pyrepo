@@ -7,10 +7,14 @@
     "author_email": "foobar@varonathe.org",
     "saythanks_to": "jwodder",
     "github_user": "jwodder",
-    "travis_user": "jwodder",
     "codecov_user": "jwodder",
     "short_description": "A project",
-    "python_versions": ["3.4", "3.5", "3.6", "3.7"],
+    "python_versions": [
+        "3.4",
+        "3.5",
+        "3.6",
+        "3.7"
+    ],
     "python_requires": "~=3.4",
     "install_requires": [],
     "is_flat_module": true,
@@ -19,13 +23,20 @@
     },
     "has_doctests": false,
     "has_tests": false,
-    "has_travis": false,
     "has_docs": false,
     "has_pypi": false,
-    "copyright_years": [2016, 2018, 2019],
+    "copyright_years": [
+        2016,
+        2018,
+        2019
+    ],
     "version": "0.1.0.dev1",
     "initfile": "foobar.py",
     "src_layout": false,
     "pep517": false,
-    "keywords": []
+    "keywords": [],
+    "has_ci": false,
+    "supports_pypy3": true,
+    "extra_testenvs": [],
+    "no_pytest_cov": false
 }

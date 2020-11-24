@@ -29,7 +29,9 @@ classifiers =
     Programming Language :: Python :: {{v}}
 {% endfor %}
     Programming Language :: Python :: Implementation :: CPython
+{% if supports_pypy3 %}
     Programming Language :: Python :: Implementation :: PyPy
+{% endif %}
     License :: OSI Approved :: MIT License
     ###
 

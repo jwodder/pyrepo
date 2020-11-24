@@ -24,8 +24,7 @@ from   ..util                 import ensure_license_years, optional
 @optional('--rtfd-name', metavar='NAME')
 @optional('--saythanks-to', metavar='USER')
 @optional('--tests/--no-tests')
-@optional('--travis/--no-travis')
-@optional('--travis-user', metavar='USER')
+@optional('--ci/--no-ci')
 @click.pass_obj
 def cli(obj, **options):
     if Path('setup.py').exists():
@@ -48,16 +47,18 @@ def cli(obj, **options):
         "saythanks_to": options.get("saythanks_to"),
         "copyright_years": inspecting.get_commit_years(Path()),
         "has_doctests": options.get("doctests", False),
-        "has_tests": options.get("tests",False) or options.get("travis",False),
-        "has_travis": options.get("travis", False),
+        "has_tests": options.get("tests", False) or options.get("ci",False),
+        "has_ci": options.get("ci", False),
         "has_docs": options.get("docs", False),
         "has_pypi": False,
         "github_user": options["github_user"],
-        "travis_user": options.get("travis_user", options["github_user"]),
         "codecov_user": options.get("codecov_user", options["github_user"]),
         "keywords": [],
         "version": "0.1.0.dev1",
         "pep517": False,
+        "supports_pypy3": True,
+        "extra_testenvs": [],
+        "no_pytest_cov": False,
     }
 
     # "import_name", "is_flat_module", and "src_layout"
@@ -142,10 +143,9 @@ def cli(obj, **options):
     ]
     if env["has_tests"] or env["has_docs"]:
         templated.append('tox.ini')
-    if env["has_travis"]:
-        templated.append('.travis.yml')
+    if env["has_ci"]:
+        templated.append('.github/workflows/test.yml')
     if env["has_docs"]:
-        Path('docs').mkdir(exist_ok=True)
         templated.extend([
             'docs/index.rst',
             'docs/conf.py',
@@ -186,7 +186,9 @@ def cli(obj, **options):
 
 
 def add_templated_file(jinja_env, filename, env):
-    Path(filename).write_text(
+    p = Path(filename)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(
         jinja_env.get_template(filename+'.j2').render(env).rstrip() + '\n',
         encoding='utf-8',
     )

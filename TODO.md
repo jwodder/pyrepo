@@ -17,6 +17,14 @@
       --python-requires` (unless Click 8 comes out in the interim)
 - Use <https://github.com/borntyping/python-colorlog> to color log messages?
 - Change `__python_requires__` to `__requires_python__` to match PEP 621?
+- Add a `default_branch` variable (for use by badges) in anticipation of `main`
+  becoming the default branch
+- Rename `supports_pypy3` to `supports_pypy` and determine what versions of
+  PyPy to support based on the supported Python versions
+- Determine `extra_testenvs` when inspecting by parsing the workflow file
+- Determine `no_pytest_cov` when inspecting by parsing `[testenv]deps` in
+  `tox.ini`
+- Make `inspect_project()` log at DEBUG level
 
 - `pyrepo init`:
     - Support `project_name`, `repo_name`, and `rtfd_name` as Jinja2 templates
@@ -31,7 +39,7 @@
     - Add a `--pypi/--no-pypi` option for controlling the `has_pypi` variable?
     - Better handle projects whose `python_requires` includes EOL versions
         - Currently, pyrepo ignores the EOL versions when generating the list
-          of versions to use in the classifiers, `tox.ini`, and `.travis.yml,
+          of versions to use in the classifiers, `tox.ini`, and `test.yml,
           but the `python_requires` string that includes the old versions is
           still used unmodified
     - Add an option for setting the starting version
@@ -64,14 +72,14 @@
 - `pyrepo make`:
     - Support setting options via the config file
 
-- Add subcommands for incrementally adding features (tests, docs, Travis, etc.)
-  to an already-templated repository
+- Add subcommands for incrementally adding features (tests, docs, CI, etc.) to
+  an already-templated repository
     - `add-tests`: Create `tox.ini`
         - Include a `--doctests/--no-doctests` option
     - `add-doctests`
         - Use the iniparse package to modify `tox.ini`?
-    - `add-travis`: Do `add-tests`, create `.travis.yml`, add the appropriate
-      badges to the README
+    - `add-ci`: Do `add-tests`, create `test.yml`, add the appropriate badges
+      to the README
     - `add-docs`: Create `docs/*`, add block to `tox.ini`, add documentation
       links to the README, `project_urls`, and main source file docstring
         - The initial content of `docs/index.rst` should be taken from the
@@ -90,14 +98,15 @@
     - Use the iniparse package to modify `setup.cfg`?
 - Add subcommands for adding & removing a Python version from the set of
   supported versions
+- Add a subcommand for adding an arbitrary toxenv + pyver pair to the test
+  workflow
 
 - Templates:
     - Adjust the templates to always include package data, even if there is
       none?
     - When a package has a command, include "Run ``{{command}} --help``" in the
       "see also" paragraph in the module docstring
-    - Is `codecov_user` ever not the same as `github_user`?  What about
-      `travis_user`?
+    - Is `codecov_user` ever not the same as `github_user`?
     - Add `has_release` (equivalent to `has_pypi`?) and `is_stable` variables
       (the latter defined by the version number being at least 1.0) that are
       used to select the repostatus badge in the README and the development
@@ -116,10 +125,9 @@
     - https://github.com/jaraco/skeleton
     - https://github.com/ionelmc/cookiecutter-pylibrary
 
-- Write scripts for adding new repositories to Read the Docs, Travis, and
-  Codecov.io via their APIs
+- Write scripts for adding new repositories to Read the Docs and Codecov.io via
+  their APIs
     - Read the Docs: not possible?
         - Double-check <https://docs.readthedocs.io/en/stable/api/v3.html>
         - Write a module with `mechanicalsoup` to do this?
-    - Travis: automatic as of the move to travis-ci.com?
     - Codecov.io: done automatically when test results are submitted

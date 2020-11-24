@@ -33,6 +33,10 @@ def inspect_project(dirpath=None):
         "install_requires": cfg["options"].get("install_requires", []),
         "version": cfg["metadata"].get("version"),
         "keywords": cfg["metadata"].get("keywords", []),
+        "supports_pypy3": False,
+        ### TODO: Determine these:
+        "extra_testenvs": [],
+        "no_pytest_cov": False,
     }
 
     if cfg["options"].get("packages"):
@@ -47,6 +51,8 @@ def inspect_project(dirpath=None):
         m = re.fullmatch(r'Programming Language :: Python :: (\d+\.\d+)', clsfr)
         if m:
             env["python_versions"].append(m.group(1))
+        if clsfr == 'Programming Language :: Python :: Implementation :: PyPy':
+            env["supports_pypy3"] = True
 
     env["commands"] = {}
     try:
@@ -98,10 +104,10 @@ def inspect_project(dirpath=None):
         env["has_tests"] = False
         env["has_doctests"] = False
 
-    env["has_travis"] = exists('.travis.yml')
+    env["has_ci"] = exists('.github/workflows/test.yml')
     env["has_docs"] = exists('docs/index.rst')
 
-    env["travis_user"] = env["codecov_user"] = env["github_user"]
+    env["codecov_user"] = env["github_user"]
     try:
         with (dirpath / 'README.rst').open(encoding='utf-8') as fp:
             rdme = Readme.parse(fp)
@@ -109,10 +115,6 @@ def inspect_project(dirpath=None):
         env["has_pypi"] = False
     else:
         for badge in rdme.badges:
-            m = re.fullmatch(r'https://travis-ci\.(?:com|org)/([^/]+)/[^/]+\.svg'
-                             r'(?:\?branch=.+)?', badge.href)
-            if m:
-                env["travis_user"] = m.group(1)
             m = re.fullmatch(r'https://codecov\.io/gh/([^/]+)/[^/]+/branch/.+'
                              r'/graph/badge\.svg', badge.href)
             if m:

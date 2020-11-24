@@ -144,7 +144,7 @@ Options
   the variable ``project_name``.
 
 - ``--codecov-user <user>`` — Set the username to use in the Codecov URL added
-  to the README when ``--travis`` is given; defaults to the GitHub username
+  to the README when ``--ci`` is given; defaults to the GitHub username
 
 - ``-c <name>``, ``--command <name>`` — If the project defines a command-line
   entry point, use this option to specify the name for the command.  The entry
@@ -186,7 +186,7 @@ Options
     applied as a filter to all ``X.Y`` versions from ``pyversions.minimum``
     through ``pyversions.maximum`` in order to determine what Python
     subversions to include classifiers for in ``setup.cfg`` and what
-    subversions to test against with tox and Travis.
+    subversions to test against with tox and CI.
 
 - ``--repo-name <name>`` — The name of the project's repository on GitHub;
   defaults to the project name
@@ -202,11 +202,8 @@ Options
 - ``--tests/--no-tests`` — Whether to generate templates for testing with
   pytest and tox; default: ``--no-tests``
 
-- ``--travis/--no-travis`` — Whether to generate templates for testing with
-  Travis; implies ``--tests``; default: ``--no-travis``
-
-- ``--travis-user <user>`` — Set the username to use in the Travis URL added to
-  the README when ``--travis`` is given; defaults to the GitHub username
+- ``--ci/--no-ci`` — Whether to generate templates for testing with GitHub
+  Actions; implies ``--tests``; default: ``--no-ci``
 
 
 ``pyrepo inspect``

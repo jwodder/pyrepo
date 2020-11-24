@@ -10,7 +10,6 @@
 - `keywords: List[str]`
 
 - `github_user: str`
-- `travis_user: str`
 - `codecov_user: str`
 
 - `short_description: str`
@@ -18,6 +17,7 @@
 - `python_versions` — list of `"X.Y"` strings in ascending order
 - `python_requires: str` — calculated from `python_versions`
 - `install_requires: List[str]`
+- `supports_pypy3: bool`
 
 - `is_flat_module: bool`
 - `commands` — mapping from command (`console_scripts`) names to entry point
@@ -29,11 +29,17 @@
 
 - `has_tests: bool`
 - `has_doctests: bool`
-- `has_travis: bool`
+- `has_ci: bool`
 - `has_docs: bool`
 - `has_pypi: bool`
 
 - `copyright_years: List[int]`
+
+- `extra_testenvs: List[Tuple[str, str]]` — list of (testenv name, python
+  version) pairs to include runs for in CI
+- `no_pytest_cov: bool` — Indicates that passing `--cov-report=xml` to the tox
+  run in CI is not an option and that the XML coverage must be generated
+  externally
 
 Custom filters in Jinja2 environment:
     - `repr`
