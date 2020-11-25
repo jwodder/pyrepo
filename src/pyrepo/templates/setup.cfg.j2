@@ -51,10 +51,8 @@ py_modules = {{import_name}}
 {% else %}
 packages = find:
 {% endif %}
-{% if src_layout %}
 package_dir =
     =src
-{% endif %}
 python_requires = {{python_requires}}
 {% if install_requires %}
 install_requires =
@@ -62,7 +60,7 @@ install_requires =
     {{req}}
     {% endfor %}
 {% endif %}
-{% if src_layout and not is_flat_module %}
+{% if not is_flat_module %}
 
 [options.packages.find]
 where = src

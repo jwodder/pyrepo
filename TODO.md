@@ -24,6 +24,7 @@
 - Determine `extra_testenvs` when inspecting by parsing the workflow file
 - Determine `no_pytest_cov` when inspecting by parsing `[testenv]deps` in
   `tox.ini`
+    - Merge this variable with `has_doctests`?
 - Make `inspect_project()` log at DEBUG level
 
 - `pyrepo init`:
@@ -81,8 +82,9 @@
         - Also add `rm-doctests`
     - `add-ci`: Do `add-tests`, create `test.yml`, add the appropriate badges
       to the README
-    - `add-docs`: Create `docs/*`, add block to `tox.ini`, add documentation
-      links to the README, `project_urls`, and main source file docstring
+    - `add-docs`: Create `docs/*` and `.readthedocs.yml`, add block to
+      `tox.ini`, add documentation links to the README, `project_urls`, and
+      main source file docstring
         - The initial content of `docs/index.rst` should be taken from the
           README
         - Should the adding of documentation links be split into a separate

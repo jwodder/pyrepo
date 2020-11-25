@@ -55,7 +55,6 @@ def cli(obj, **options):
         "codecov_user": options.get("codecov_user", options["github_user"]),
         "keywords": [],
         "version": "0.1.0.dev1",
-        "pep517": False,
         "supports_pypy3": True,
         "extra_testenvs": [],
         "no_pytest_cov": False,
@@ -63,6 +62,13 @@ def cli(obj, **options):
 
     # "import_name", "is_flat_module", and "src_layout"
     env.update(inspecting.find_module(Path()))
+
+    if not env.pop("src_layout", False):
+        Path("src").mkdir(exist_ok=True)
+        code_path = env["import_name"]
+        if env["is_flat_module"]:
+            code_path += '.py'
+        Path(code_path).rename(Path("src", code_path))
 
     env["project_name"] = options.get("project_name", env["import_name"])
     env["repo_name"] = options.get("repo_name", env["project_name"])
@@ -74,11 +80,9 @@ def cli(obj, **options):
     req_vars = inspecting.parse_requirements('requirements.txt')
 
     if env["is_flat_module"]:
-        init_src = [env["import_name"] + '.py']
+        init_src = ["src", env["import_name"] + '.py']
     else:
-        init_src = [env["import_name"], '__init__.py']
-    if env["src_layout"]:
-        init_src.insert(0, 'src')
+        init_src = ["src", env["import_name"], '__init__.py']
     env["initfile"] = os.path.join(*init_src)
     src_vars = inspecting.extract_requires(env["initfile"])
 
@@ -139,7 +143,11 @@ def cli(obj, **options):
         }
 
     templated = [
-        '.gitignore', 'MANIFEST.in', 'README.rst', 'setup.cfg', 'setup.py',
+        '.gitignore',
+        'MANIFEST.in',
+        'README.rst',
+        'pyproject.toml',
+        'setup.cfg',
     ]
     if env["has_tests"] or env["has_docs"]:
         templated.append('tox.ini')
@@ -147,6 +155,7 @@ def cli(obj, **options):
         templated.append('.github/workflows/test.yml')
     if env["has_docs"]:
         templated.extend([
+            '.readthedocs.yml',
             'docs/index.rst',
             'docs/conf.py',
             'docs/requirements.txt',

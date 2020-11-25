@@ -2,17 +2,12 @@
 [tox]
 envlist = {% for v in python_versions %}py{{v|replace('.', '')}},{% endfor %}pypy3
 skip_missing_interpreters = True
-{% if pep517 %}
 isolated_build = True
 minversion = 3.3.0
-{% endif %}
 
 [testenv]
-{% if not pep517 %}
-usedevelop = True
-{% endif %}
 deps =
-    {% if src_layout and has_doctests %}
+    {% if has_doctests %}
     coverage~=5.0
     {% endif %}
     flake8~=3.7
@@ -20,37 +15,22 @@ deps =
     flake8-builtins~=1.4
     flake8-import-order-jwodder
     pytest~=6.0
-    {% if not src_layout or not has_doctests %}
+    {% if not has_doctests %}
     pytest-cov~=2.0
     {% endif %}
 commands =
-{% if src_layout %}
-{% set pkg_path = 'src' %}
-{% elif is_flat_module %}
-{% set pkg_path = import_name + '.py' %}
-{% else %}
-{% set pkg_path = import_name %}
-{% endif %}
-    flake8 --config=tox.ini {{pkg_path}} test
-{% if src_layout and has_doctests %}
+    flake8 --config=tox.ini src test
+{% if has_doctests %}
     coverage run -m pytest {posargs} --doctest-modules --pyargs {{import_name}}
     coverage run -m pytest {posargs} test
     coverage combine
     coverage report
-{% elif has_doctests %}
-    pytest {posargs} {{pkg_path}} test
 {% else %}
     pytest {posargs} test
 {% endif %}
 
 [pytest]
-{% if src_layout %}
 {% if not has_doctests %}
-addopts = --cov={{import_name}} --no-cov-on-fail
-{% endif %}
-{% elif has_doctests %}
-addopts = --cov={{import_name}} --no-cov-on-fail --doctest-modules
-{% else %}
 addopts = --cov={{import_name}} --no-cov-on-fail
 {% endif %}
 filterwarnings = error
@@ -58,7 +38,6 @@ norecursedirs = test/data
 
 [coverage:run]
 branch = True
-{% if src_layout %}
 parallel = True
 {% if has_doctests %}
 source = {{import_name}}
@@ -68,7 +47,6 @@ source = {{import_name}}
 source =
     src
     .tox/*/site-packages
-{% endif %}
 
 [coverage:report]
 precision = 2

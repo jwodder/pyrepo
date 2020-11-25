@@ -111,8 +111,8 @@ anything goes wrong.
 - ``.gitignore``
 - ``MANIFEST.in``
 - ``README.rst``
+- ``pyproject.toml``
 - ``setup.cfg``
-- ``setup.py``
 
 If a ``LICENSE`` file does not exist, one is created; otherwise, the copyright
 years in the ``LICENSE`` file are updated.  In both cases, the copyright years
@@ -139,6 +139,9 @@ Options
 - ``--author-email <email>`` — Set the project's author's e-mail address.  This
   may be either a plain e-mail address or a Jinja2 template defined in terms of
   the variable ``project_name``.
+
+- ``--ci/--no-ci`` — Whether to generate templates for testing with GitHub
+  Actions; implies ``--tests``; default: ``--no-ci``
 
 - ``--codecov-user <user>`` — Set the username to use in the Codecov URL added
   to the README when ``--ci`` is given; defaults to the GitHub username
@@ -198,9 +201,6 @@ Options
 
 - ``--tests/--no-tests`` — Whether to generate templates for testing with
   pytest and tox; default: ``--no-tests``
-
-- ``--ci/--no-ci`` — Whether to generate templates for testing with GitHub
-  Actions; implies ``--tests``; default: ``--no-ci``
 
 
 ``pyrepo inspect``
