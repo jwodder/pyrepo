@@ -29,9 +29,7 @@
         2019
     ],
     "version": "0.1.0.dev1",
-    "initfile": "foobar/__init__.py",
-    "src_layout": false,
-    "pep517": false,
+    "initfile": "src/foobar/__init__.py",
     "keywords": [],
     "has_ci": false,
     "supports_pypy3": true,

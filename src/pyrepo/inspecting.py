@@ -20,9 +20,11 @@ def inspect_project(dirpath=None):
     def exists(fname):
         return (dirpath / fname).exists()
 
-    if not ((exists('setup.py') or exists('pyproject.toml'))
-            and exists('setup.cfg')):
+    if not exists('pyproject.toml') or not exists('setup.cfg'):
         raise UninitializedProjectError()
+    if not exists('src'):
+        raise RuntimeError('Project does not have src/ layout')
+
     cfg = read_configuration(str(dirpath / 'setup.cfg'))
     env = {
         "project_name": cfg["metadata"]["name"],
@@ -132,14 +134,10 @@ def inspect_project(dirpath=None):
         else:
             raise ValueError('Copyright years not found in LICENSE')
 
-    env["pep517"] = exists('pyproject.toml')
-    env["src_layout"] = exists('src')
     if env["is_flat_module"]:
-        initpath = [env["import_name"] + '.py']
+        initpath = ["src", env["import_name"] + '.py']
     else:
-        initpath = [env["import_name"], '__init__.py']
-    if env["src_layout"]:
-        initpath.insert(0, 'src')
+        initpath = ["src", env["import_name"], '__init__.py']
     env["initfile"] = os.path.join(*initpath)
 
     if env["version"] is None:
