@@ -221,8 +221,7 @@ object.  This command is primarily intended for debugging purposes.
 
     pyrepo [<global-options>] make [<options>]
 
-Build an sdist and/or wheel for the project using either ``pep517`` or
-``setuptools``, as appropriate.
+Build an sdist and/or wheel for the project.
 
 
 Options
