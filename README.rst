@@ -32,11 +32,8 @@ structuring Python projects, and so it is not suitable for general use.
 Installation
 ============
 ``jwodder-pyrepo`` requires Python 3.6 or higher to run and `pip
-<https://pip.pypa.io>`_ 6.0+, `Setuptools <https://setuptools.readthedocs.io>`_
-38.6.0+, & `wheel <https://pypi.org/project/wheel>`_ to install.  `Once you
-have those
-<https://packaging.python.org/tutorials/installing-packages/#ensure-pip-setuptools-and-wheel-are-up-to-date>`_,
-you can install ``jwodder-pyrepo`` and its dependencies by running::
+<https://pip.pypa.io>`_ 19.0 or higher to install.  You can install
+``jwodder-pyrepo`` and its dependencies by running::
 
     python3 -m pip install git+https://github.com/jwodder/pyrepo.git
 
