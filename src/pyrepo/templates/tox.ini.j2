@@ -21,6 +21,7 @@ deps =
 commands =
     flake8 --config=tox.ini src test
 {% if has_doctests %}
+    coverage erase
     coverage run -m pytest {posargs} --doctest-modules --pyargs {{import_name}}
     coverage run -m pytest {posargs} test
     coverage combine
