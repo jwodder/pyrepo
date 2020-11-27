@@ -246,10 +246,12 @@ repository.
 Options
 ^^^^^^^
 
-- ``--repo-name <name>`` — The name of the new repository; defaults to the
-  repository name used in the project's URL.
+-P, --private           Make the new repository private.  This option cannot be
+                        set via the configuration file.
 
-  This option cannot be set via the configuration file.
+--repo-name <name>      The name of the new repository; defaults to the
+                        repository name used in the project's URL.  This option
+                        cannot be set via the configuration file.
 
 
 ``pyrepo release``

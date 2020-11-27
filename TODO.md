@@ -17,8 +17,8 @@
       --python-requires` (unless Click 8 comes out in the interim)
 - Use <https://github.com/borntyping/python-colorlog> to color log messages?
 - Change `__python_requires__` to `__requires_python__` to match PEP 621?
-- Add a `default_branch` variable (for use by badges) in anticipation of `main`
-  becoming the default branch
+- Add a `default_branch` variable (for use by badges and mkgithub) in
+  anticipation of `main` becoming the default branch
 - Rename `supports_pypy3` to `supports_pypy` and determine what versions of
   PyPy to support based on the supported Python versions
 - Determine `extra_testenvs` when inspecting by parsing the workflow file
@@ -64,7 +64,6 @@
     - Push all branches, not just master?
     - Push all tags
     - Support creating the repository in an organization?
-    - Add a `--private` option
 
 - `pyrepo template`:
     - Add command line options for overriding the various Jinja env vars

@@ -6,9 +6,10 @@ from   ..util       import readcmd, runcmd
 TOPICS_ACCEPT = f'application/vnd.github.mercy-preview,{ACCEPT}'
 
 @click.command()
+@click.option('-P', '--private', is_flag=True)
 @click.option('--repo-name', metavar='NAME')
 @click.pass_obj
-def cli(obj, repo_name):
+def cli(obj, repo_name, private):
     try:
         env = inspect_project()
     except UninitializedProjectError as e:
@@ -18,6 +19,7 @@ def cli(obj, repo_name):
     repo = obj.gh.user.repos.post(json={
         "name": repo_name,
         "description": env["short_description"],
+        "private": private,
     })
     keywords = [kw.replace(' ', '-') for kw in env["keywords"]]
     if "python" not in keywords:
