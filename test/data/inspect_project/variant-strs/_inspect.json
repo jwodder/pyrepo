@@ -5,7 +5,6 @@
     "rtfd_name": "py-foo_bar",
     "author": "Joe Q. Coder",
     "author_email": "jcoder@example.com",
-    "saythanks_to": "jqcoder",
     "github_user": "jcoder",
     "codecov_user": "jcoder",
     "short_description": "This is a project description.",

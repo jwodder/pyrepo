@@ -22,7 +22,6 @@ from   ..util                 import ensure_license_years, optional
 @optional('-P', '--python-requires', metavar='SPEC')
 @optional('--repo-name', metavar='NAME')
 @optional('--rtfd-name', metavar='NAME')
-@optional('--saythanks-to', metavar='USER')
 @optional('--tests/--no-tests')
 @optional('--ci/--no-ci')
 @click.pass_obj
@@ -44,7 +43,6 @@ def cli(obj, **options):
     env = {
         "author": options["author"],
         "short_description": options["description"],
-        "saythanks_to": options.get("saythanks_to"),
         "copyright_years": inspecting.get_commit_years(Path()),
         "has_doctests": options.get("doctests", False),
         "has_tests": options.get("tests", False) or options.get("ci",False),

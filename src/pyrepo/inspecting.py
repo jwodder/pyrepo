@@ -84,16 +84,6 @@ def inspect_project(dirpath=None):
     else:
         env["rtfd_name"] = env["project_name"]
 
-    if "Say Thanks!" in cfg["metadata"]["project_urls"]:
-        m = re.fullmatch(
-            r'https://saythanks\.io/to/([^/]+)',
-            cfg["metadata"]["project_urls"]["Say Thanks!"],
-        )
-        assert m, 'Invalid Say Thanks! URL'
-        env["saythanks_to"] = m.group(1)
-    else:
-        env["saythanks_to"] = None
-
     toxcfg = ConfigParser(interpolation=None)
     toxcfg.read(str(dirpath / 'tox.ini'))  # No-op when tox.ini doesn't exist
     if toxcfg.has_section("testenv"):

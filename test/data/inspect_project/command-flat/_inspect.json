@@ -5,7 +5,6 @@
     "rtfd_name": "foobar",
     "author": "John Thorvald Wodder II",
     "author_email": "foobar@varonathe.org",
-    "saythanks_to": "jwodder",
     "github_user": "jwodder",
     "codecov_user": "jwodder",
     "short_description": "A project",

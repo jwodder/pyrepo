@@ -191,11 +191,6 @@ Options
 - ``--rtfd-name <name>`` — The name of the project's Read the Docs site;
   defaults to the project name
 
-- ``--saythanks-to <user>`` — When this is set, a ``saythanks.io`` badge will
-  be included in the generated ``README.rst`` and a "Say Thanks!" entry will be
-  included in the ``project_urls``, both pointing to
-  ``https://saythanks.io/to/{{saythanks_to}}``
-
 - ``--tests/--no-tests`` — Whether to generate templates for testing with
   pytest and tox; default: ``--no-tests``
 
