@@ -26,6 +26,9 @@
   `tox.ini`
     - Merge this variable with `has_doctests`?
 - Make `inspect_project()` log at DEBUG level
+- Require default `init` config values to be in `[options.init]` in the config
+  file instead of under just `[options]`?  I.e., don't copy values from
+  `[options]` to other sections?
 
 - `pyrepo init`:
     - Support `project_name`, `repo_name`, and `rtfd_name` as Jinja2 templates

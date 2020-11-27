@@ -52,11 +52,11 @@ init``.
 Global Options
 --------------
 
-- ``-c <file>``, ``--config <file>`` — Read configuration from ``<file>``; by
-  default, configuration is read from ``~/.config/pyrepo.cfg``
+-c, --config <file>     Read configuration from ``<file>``; by default,
+                        configuration is read from ``~/.config/pyrepo.cfg``
 
-- ``-C <dir>``, ``--chdir <dir>`` — Change to directory ``<dir>`` before taking
-  any further actions
+-C, --chdir <dir>       Change to directory ``<dir>`` before taking any further
+                        actions
 
 
 Configuration File
@@ -100,10 +100,10 @@ must be in a Git repository and already contain Python source code (either one
 flat module or else a package containing an ``__init__.py`` file; either layout
 may optionally be contained in a ``src/`` directory).  It is recommended to run
 this command in a clean Git repository (i.e., one without any pending changes)
-so that ``git checkout`` can easily be used to revert the command's effects if
-anything goes wrong.
+so that the command's effects can easily be reverted should anything go wrong.
 
-``pyrepo init`` creates the following files if they do not already exist:
+``pyrepo init`` moves the code into a ``src/`` directory (if it not in one
+already) and creates the following files if they do not already exist:
 
 - ``.gitignore``
 - ``MANIFEST.in``
@@ -131,72 +131,84 @@ if the same package is given two different requirement specifications.
 Options
 ^^^^^^^
 
-- ``--author <name>`` — Set the name of the project's author
+--author <name>         Set the name of the project's author
 
-- ``--author-email <email>`` — Set the project's author's e-mail address.  This
-  may be either a plain e-mail address or a Jinja2 template defined in terms of
-  the variable ``project_name``.
+--author-email <email>  Set the project's author's e-mail address.  This may be
+                        either a plain e-mail address or a Jinja2 template
+                        defined in terms of the variable ``project_name``.
 
-- ``--ci/--no-ci`` — Whether to generate templates for testing with GitHub
-  Actions; implies ``--tests``; default: ``--no-ci``
+--ci, --no-ci           Whether to generate templates for testing with GitHub
+                        Actions; implies ``--tests``; default: ``--no-ci``
 
-- ``--codecov-user <user>`` — Set the username to use in the Codecov URL added
-  to the README when ``--ci`` is given; defaults to the GitHub username
+--codecov-user <user>   Set the username to use in the Codecov URL added to the
+                        README when ``--ci`` is given; defaults to the GitHub
+                        username
 
-- ``-c <name>``, ``--command <name>`` — If the project defines a command-line
-  entry point, use this option to specify the name for the command.  The entry
-  point will then be assumed to be at either ``IMPORT_NAME:main`` (if the code
-  is a flat module) or ``IMPORT_NAME.__main__:main`` (if the code is a
-  package).
+-c, --command <name>    If the project defines a command-line entry point, use
+                        this option to specify the name for the command.  The
+                        entry point will then be assumed to be at either
+                        ``IMPORT_NAME:main`` (if the code is a flat module) or
+                        ``IMPORT_NAME.__main__:main`` (if the code is a
+                        package).
 
-- ``-d <text>``, ``--description <text>`` — Set the project's short
-  description.  If no description is specified on the command line, the user
-  will be prompted for one.
+-d, --description <text>    Set the project's short description.  If no
+                            description is specified on the command line, the
+                            user will be prompted for one.  This option cannot
+                            be set via the configuration file.
 
-  This option cannot be set via the configuration file.
+--docs, --no-docs           Whether to generate templates for Sphinx
+                            documentation; default: ``--no-docs``
 
-- ``--docs/--no-docs`` — Whether to generate templates for Sphinx
-  documentation; default: ``--no-docs``
+--doctests, --no-doctests   Whether to include running of doctests in the
+                            generated testing templates; only has an effect
+                            when ``--tests`` is also given; default:
+                            ``--no-doctests``
 
-- ``--doctests/--no-doctests`` — Whether to include running of doctests in the
-  generated testing templates; only has an effect when ``--tests`` is also
-  given; default: ``--no-doctests``
+--github-user <user>        Set the username to use in the project's GitHub
+                            URL; when not set, the user's GitHub login is
+                            retrieved using the GitHub API
 
-- ``--github-user <user>`` — Set the username to use in the project's GitHub
-  URL; when not set, the user's GitHub login is retrieved using the GitHub API
+-p, --project-name <name>   Set the name of the project as it will be known on
+                            PyPI; defaults to the import name
 
-- ``-p <name>``, ``--project-name <name>`` — Set the name of the project as it
-  will be known on PyPI; defaults to the import name
+-P, --python-requires <spec>    Set the project's ``python_requires`` value.
+                                ``<spec>`` may be either a PEP 440 version
+                                specifier (e.g., ``>= 3.3, != 3.4.0``) or a
+                                bare ``X.Y`` version (to which ``~=`` will be
+                                prepended).  When not specified on the command
+                                line, this value is instead extracted from
+                                either a "``# Python <spec>``" comment in
+                                ``requirements.txt`` or a ``__python_requires__
+                                = '<spec>'`` assignment in the main source
+                                file; it is an error if these sources have
+                                different values.  If none of these sources are
+                                present, ``pyrepo init`` falls back to the
+                                value of ``python_requires`` in the
+                                ``[options.init]`` section of the configuration
+                                file, which in turn defaults to ``~=
+                                pyversions.minimum``.
 
-- ``-P <spec>``, ``--python-requires <spec>`` — Set the project's
-  ``python_requires`` value.  ``<spec>`` may be either a PEP 440 version
-  specifier (e.g., ``>= 3.3, != 3.4.0``) or a bare ``X.Y`` version (to which
-  ``~=`` will be prepended).  When not specified on the command line, this
-  value is instead extracted from either a "``# Python <spec>``" comment in
-  ``requirements.txt`` or a ``__python_requires__ = '<spec>'`` assignment in
-  the main source file; it is an error if these sources have different values.
-  If none of these sources are present, ``pyrepo init`` falls back to the value
-  of ``python_requires`` in the ``[options.init]`` section of the configuration
-  file, which in turn defaults to ``~= pyversions.minimum``.
+                                Besides setting ``python_requires``, the value
+                                of this option will also be applied as a filter
+                                to all ``X.Y`` versions from
+                                ``pyversions.minimum`` through
+                                ``pyversions.maximum`` in order to determine
+                                what Python subversions to include classifiers
+                                for in ``setup.cfg`` and what subversions to
+                                test against with tox and CI.
 
-  - Besides setting ``python_requires``, the value of this option will also be
-    applied as a filter to all ``X.Y`` versions from ``pyversions.minimum``
-    through ``pyversions.maximum`` in order to determine what Python
-    subversions to include classifiers for in ``setup.cfg`` and what
-    subversions to test against with tox and CI.
+--repo-name <name>      The name of the project's repository on GitHub;
+                        defaults to the project name
 
-- ``--repo-name <name>`` — The name of the project's repository on GitHub;
-  defaults to the project name
+--rtfd-name <name>      The name of the project's Read the Docs site; defaults
+                        to the project name
 
-- ``--rtfd-name <name>`` — The name of the project's Read the Docs site;
-  defaults to the project name
-
-- ``--tests/--no-tests`` — Whether to generate templates for testing with
-  pytest and tox; default: ``--no-tests``
+--tests, --no-tests     Whether to generate templates for testing with pytest
+                        and tox; default: ``--no-tests``
 
 
 ``pyrepo inspect``
----------------
+------------------
 
 ::
 
@@ -221,12 +233,12 @@ Options
 
 These options cannot be set via the configuration file.
 
-- ``-c``, ``--clean`` — Delete the ``build/`` and ``dist/`` directories from
-  the project root before building
+-c, --clean             Delete the ``build/`` and ``dist/`` directories from
+                        the project root before building
 
-- ``--sdist/--no-sdist`` — Whether to build an sdist; default: ``--sdist``
+--sdist, --no-sdist     Whether to build an sdist; default: ``--sdist``
 
-- ``--wheel/--no-wheel`` — Whether to build an sdist; default: ``--wheel``
+--wheel, --no-wheel     Whether to build an sdist; default: ``--wheel``
 
 
 ``pyrepo mkgithub``
@@ -305,10 +317,12 @@ following operations in order:
 Options
 ^^^^^^^
 
-- ``--tox/--no-tox`` — Whether to run ``tox`` on the project before building;
-  default: ``--no-tox``
-- ``--sign-assets/--no-sign-assets`` — Whether to created detached PGP
-  signatures for the release assets; default: ``--no-sign-assets``
+--tox, --no-tox         Whether to run ``tox`` on the project before building;
+                        default: ``--no-tox``
+
+--sign-assets, --no-sign-assets     Whether to created detached PGP signatures
+                                    for the release assets; default:
+                                    ``--no-sign-assets``
 
 
 ``pyrepo template``
@@ -324,11 +338,11 @@ Replace the given files with their re-evaluated templates.
 Options
 ^^^^^^^
 
-- ``-o <file>``, ``--outfile <file>`` — Write output to ``<file>`` instead of
-  overwriting the file given on the command line.  This option may only be
-  used when exactly one argument is given on the command line.
-
-  This option cannot be set via the configuration file.
+-o, --outfile <file>    Write output to ``<file>`` instead of overwriting the
+                        file given on the command line.  This option may only
+                        be used when exactly one argument is given on the
+                        command line.  This option cannot be set via the
+                        configuration file.
 
 
 Restrictions
@@ -341,3 +355,4 @@ Besides the various assumptions about project layout and formatting,
 - namespace packages
 - (``pyrepo init``) projects that support Python 2
 - (``pyrepo release``) projects that only support Python 2
+- projects that do not use a ``src/`` layout
