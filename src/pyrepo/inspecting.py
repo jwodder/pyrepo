@@ -36,9 +36,8 @@ def inspect_project(dirpath=None):
         "version": cfg["metadata"].get("version"),
         "keywords": cfg["metadata"].get("keywords", []),
         "supports_pypy3": False,
-        ### TODO: Determine these:
+        ### TODO: Fill in this one:
         "extra_testenvs": [],
-        "no_pytest_cov": False,
     }
 
     if cfg["options"].get("packages"):

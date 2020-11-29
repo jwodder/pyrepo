@@ -45,7 +45,7 @@ def cli(obj, **options):
         "short_description": options["description"],
         "copyright_years": inspecting.get_commit_years(Path()),
         "has_doctests": options.get("doctests", False),
-        "has_tests": options.get("tests", False) or options.get("ci",False),
+        "has_tests": options.get("tests", False) or options.get("ci", False),
         "has_ci": options.get("ci", False),
         "has_docs": options.get("docs", False),
         "has_pypi": False,
@@ -55,7 +55,6 @@ def cli(obj, **options):
         "version": "0.1.0.dev1",
         "supports_pypy3": True,
         "extra_testenvs": [],
-        "no_pytest_cov": False,
     }
 
     # "import_name", "is_flat_module", and "src_layout"

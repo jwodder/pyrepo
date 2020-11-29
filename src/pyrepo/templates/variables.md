@@ -33,9 +33,6 @@
 
 - `extra_testenvs: List[Tuple[str, str]]` — list of (testenv name, python
   version) pairs to include runs for in CI
-- `no_pytest_cov: bool` — Indicates that passing `--cov-report=xml` to the tox
-  run in CI is not an option and that the XML coverage must be generated
-  externally
 
 Custom filters in Jinja2 environment:
     - `repr`

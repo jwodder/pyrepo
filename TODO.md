@@ -22,13 +22,11 @@
 - Rename `supports_pypy3` to `supports_pypy` and determine what versions of
   PyPy to support based on the supported Python versions
 - Determine `extra_testenvs` when inspecting by parsing the workflow file
-- Determine `no_pytest_cov` when inspecting by parsing `[testenv]deps` in
-  `tox.ini`
-    - Merge this variable with `has_doctests`?
 - Make `inspect_project()` log at DEBUG level
 - Require default `init` config values to be in `[options.init]` in the config
   file instead of under just `[options]`?  I.e., don't copy values from
   `[options]` to other sections?
+- Is `codecov_user` ever not the same as `github_user`?
 
 - `pyrepo init`:
     - Support `project_name`, `repo_name`, and `rtfd_name` as Jinja2 templates
@@ -49,6 +47,8 @@
     - Add an option for setting the starting version
     - Split off all of the variable-determining code into a (nondestructive)
       `inspect_new_project()` function
+    - Should `has_doctests` be autodetected the same way as for an initialized
+      project?
 
 - `pyrepo release`:
     - Add an option for setting the new version number from the command line
@@ -107,11 +107,8 @@
   workflow
 
 - Templates:
-    - Adjust the templates to always include package data, even if there is
-      none?
     - When a package has a command, include "Run ``{{command}} --help``" in the
       "see also" paragraph in the module docstring
-    - Is `codecov_user` ever not the same as `github_user`?
     - Add `has_release` (equivalent to `has_pypi`?) and `is_stable` variables
       (the latter defined by the version number being at least 1.0) that are
       used to select the repostatus badge in the README and the development
@@ -119,8 +116,6 @@
     - When `has_pypi` is false, the installation instructions in the README
       should refer to the GitHub URL, not the project name
     - Add template for `CONTRIBUTORS.md`?
-    - Support `src` layouts (e.g., in the arguments to `pytest` in `tox.ini`)
-    - Add a `pyproject.toml` template
 
 - Prior art to investigate and compare against:
     - https://pypi.python.org/pypi/octopusapi

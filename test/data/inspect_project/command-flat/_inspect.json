@@ -34,6 +34,5 @@
     "keywords": [],
     "has_ci": false,
     "supports_pypy3": true,
-    "extra_testenvs": [],
-    "no_pytest_cov": false
+    "extra_testenvs": []
 }

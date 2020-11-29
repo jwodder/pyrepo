@@ -39,13 +39,13 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip wheel
-          {% if no_pytest_cov %}
+          {% if has_doctests %}
           python -m pip install --upgrade --upgrade-strategy=eager coverage tox
           {% else %}
           python -m pip install --upgrade --upgrade-strategy=eager tox
           {% endif %}
 
-      {% if no_pytest_cov %}
+      {% if has_doctests %}
       - name: Run tests
         {% if extra_testenvs %}
         run: tox -e ${{ '{{' }} matrix.toxenv }}
