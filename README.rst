@@ -347,12 +347,17 @@ Options
 
 Restrictions
 ============
-Besides the various assumptions about project layout and formatting,
-``jwodder-pyrepo`` does not support the following types of packages:
+``jwodder-pyrepo`` relies on various assumptions about project layout and
+formatting; see the project wiki on GitHub for details.  Most notably, it does
+not support the following types of projects:
 
-- packages that are not pure Python
-- packages containing more than one root-level module/package
+- projects that do not use setuptools
+- projects that do not use a ``src/`` layout
+- projects that do not declare all of their project metadata in ``setup.cfg``
+- projects that do not declare their version in ``setup.cfg`` (either literally
+  or via an ``attr:`` directive)
+- projects that are not pure Python
+- projects containing more than one root-level module/package
 - namespace packages
 - (``pyrepo init``) projects that support Python 2
 - (``pyrepo release``) projects that only support Python 2
-- projects that do not use a ``src/`` layout

@@ -5,7 +5,6 @@ from   pathlib           import Path
 import re
 import time
 from   intspan           import intspan
-from   read_version      import read_version
 from   setuptools.config import read_configuration
 from   .                 import util  # Import module to keep mocking easy
 from   .readme           import Readme
@@ -39,6 +38,9 @@ def inspect_project(dirpath=None):
         ### TODO: Fill in this one:
         "extra_testenvs": [],
     }
+
+    if env["version"] is None:
+        raise RuntimeError("Cannot determine project version")
 
     if cfg["options"].get("packages"):
         env["is_flat_module"] = False
@@ -126,9 +128,6 @@ def inspect_project(dirpath=None):
     else:
         initpath = ["src", env["import_name"], '__init__.py']
     env["initfile"] = os.path.join(*initpath)
-
-    if env["version"] is None:
-        env["version"] = read_version((dirpath / env["initfile"]).resolve())
 
     return env
 
