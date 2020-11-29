@@ -86,15 +86,13 @@ def inspect_project(dirpath=None):
 
     toxcfg = ConfigParser(interpolation=None)
     toxcfg.read(str(dirpath / 'tox.ini'))  # No-op when tox.ini doesn't exist
-    if toxcfg.has_section("testenv"):
-        env["has_tests"] = True
-        env["has_doctests"] = (
-            '--doctest-modules' in toxcfg.get("testenv","commands",fallback='')
-            or '--doctest-modules' in toxcfg.get("pytest","addopts",fallback='')
-        )
-    else:
-        env["has_tests"] = False
-        env["has_doctests"] = False
+    env["has_tests"] = toxcfg.has_section("testenv")
+
+    env["has_doctests"] = False
+    for pyfile in (dirpath / "src").rglob("*.py"):
+        if re.search(r'^\s*>>>\s+', pyfile.read_text(), flags=re.M):
+            env["has_doctests"] = True
+            break
 
     env["has_ci"] = exists('.github/workflows/test.yml')
     env["has_docs"] = exists('docs/index.rst')
