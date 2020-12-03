@@ -290,6 +290,7 @@ class Project:
     def end_dev(self):  # Idempotent
         self.log('Finalizing version ...')
         # Remove prerelease & dev release from __version__
+        ### TODO: Just use Version.base_version here?
         self.version = re.sub(r'(a|b|rc)\d+|\.dev\d+', '', self.version)
         # Set release date in CHANGELOGs
         for docs in (False, True):

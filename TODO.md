@@ -7,6 +7,7 @@
 - Move `pyrepo/templates/variables.md` somewhere else
 - Support namespace packages?
 - Make this a package in the `jwodder` namespace?
+- Rename the actual Python package to `jwodder_pyrepo`?
 - Move (most of) the `Project` class from `pyrepo/commands/release.py` to a
   module directly in `pyrepo/`, and rewrite most commands as functions that
   take a `Project` instance as an argument
@@ -27,6 +28,8 @@
   file instead of under just `[options]`?  I.e., don't copy values from
   `[options]` to other sections?
 - Is `codecov_user` ever not the same as `github_user`?
+- Support reading project-specific configuration from `pyproject.toml` and/or
+  some dotfile?
 
 - `pyrepo init`:
     - Support `project_name`, `repo_name`, and `rtfd_name` as Jinja2 templates
