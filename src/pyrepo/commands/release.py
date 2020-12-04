@@ -14,6 +14,7 @@
 # - The version is set as `__version__` in `packagename/__init__.py` or
 #   `packagename.py`.
 
+import logging
 from   mimetypes         import add_type, guess_type
 import os
 import os.path
@@ -36,6 +37,8 @@ from   ..inspecting      import get_commit_years, inspect_project
 from   ..util            import ensure_license_years, optional, \
                                     read_paragraphs, readcmd, runcmd, \
                                     update_years2str
+
+log = logging.getLogger(__name__)
 
 GPG = 'gpg'
 # This must point to gpg version 2 or higher, which automatically & implicitly
@@ -86,7 +89,7 @@ class Project:
 
     @version.setter
     def version(self, version):
-        self.log('Updating __version__ string ...')
+        log.info('Updating __version__ string ...')
         with InPlace(self.initfile, mode='t', encoding='utf-8') as fp:
             for line in fp:
                 m = re.match(r'^__version__\s*=', line)
@@ -128,21 +131,18 @@ class Project:
             with fpath.open('w', encoding='utf-8') as fp:
                 value.save(fp)
 
-    def log(self, s):
-        click.secho(s, bold=True)
-
     def tox_check(self):  # Idempotent
         if (self.directory / 'tox.ini').exists():
-            self.log('Running tox ...')
+            log.info('Running tox ...')
             runcmd('tox', cwd=self.directory)
 
     def twine_check(self):  # Idempotent
-        self.log('Running twine check ...')
+        log.info('Running twine check ...')
         assert self.assets, 'Nothing to check'
         runcmd(sys.executable, '-m', 'twine', 'check', *self.assets)
 
     def commit_version(self):  ### Not idempotent
-        self.log('Committing & tagging ...')
+        log.info('Committing & tagging ...')
         # We need to create a temporary file instead of just passing the commit
         # message on stdin because `git commit`'s `--template` option doesn't
         # support reading from stdin.
@@ -184,7 +184,7 @@ class Project:
         runcmd('git', 'push', '--follow-tags', cwd=self.directory)
 
     def mkghrelease(self):  ### Not idempotent
-        self.log('Creating GitHub release ...')
+        log.info('Creating GitHub release ...')
         subject, body = readcmd(
             'git', 'show', '-s', '--format=%s%x00%b',
             'v' + self.version + '^{commit}',
@@ -199,7 +199,7 @@ class Project:
         self.release_upload_url = reldata["upload_url"]
 
     def build(self, sign_assets=True):  ### Not idempotent
-        self.log('Building artifacts ...')
+        log.info('Building artifacts ...')
         distdir = self.directory / 'dist'
         rmtree(distdir, ignore_errors=True)  # To keep things simple
         self.assets = []
@@ -212,14 +212,14 @@ class Project:
                 self.assets_asc.append(str(distfile) + '.asc')
 
     def upload(self):
-        self.log('Uploading artifacts ...')
+        log.info('Uploading artifacts ...')
         assert self.assets, 'Nothing to upload'
         self.upload_pypi()
         self.upload_dropbox()
         self.upload_github()
 
     def upload_pypi(self):  # Idempotent
-        self.log('Uploading artifacts to PyPI ...')
+        log.info('Uploading artifacts to PyPI ...')
         runcmd(
             sys.executable,
             '-m',
@@ -230,7 +230,7 @@ class Project:
         )
 
     def upload_dropbox(self):  # Idempotent
-        self.log('Uploading artifacts to Dropbox ...')
+        log.info('Uploading artifacts to Dropbox ...')
         runcmd(
             'dropbox_uploader',
             'upload',
@@ -239,7 +239,7 @@ class Project:
         )
 
     def upload_github(self):  ### Not idempotent
-        self.log('Uploading artifacts to GitHub release ...')
+        log.info('Uploading artifacts to GitHub release ...')
         assert getattr(self, 'release_upload_url', None) is not None, \
             "Cannot upload to GitHub before creating release"
         for asset in self.assets:
@@ -252,7 +252,7 @@ class Project:
                 )
 
     def begin_dev(self):  # Not idempotent
-        self.log('Preparing for work on next version ...')
+        log.info('Preparing for work on next version ...')
         # Set __version__ to the next version number plus ".dev1"
         old_version = self.version
         new_version = next_version(old_version)
@@ -267,9 +267,9 @@ class Project:
             if docs:
                 if not (self.directory / 'docs').exists():
                     continue
-                self.log('Adding new section to docs/changelog.rst ...')
+                log.info('Adding new section to docs/changelog.rst ...')
             else:
-                self.log('Adding new section to CHANGELOG ...')
+                log.info('Adding new section to CHANGELOG ...')
             chlog = self.get_changelog(docs=docs)
             if chlog and chlog.sections:
                 chlog.sections.insert(0, new_sect)
@@ -288,28 +288,28 @@ class Project:
             self.set_changelog(chlog, docs=docs)
 
     def end_dev(self):  # Idempotent
-        self.log('Finalizing version ...')
+        log.info('Finalizing version ...')
         # Remove prerelease & dev release from __version__
         ### TODO: Just use Version.base_version here?
         self.version = re.sub(r'(a|b|rc)\d+|\.dev\d+', '', self.version)
         # Set release date in CHANGELOGs
         for docs in (False, True):
             if docs:
-                self.log('Updating docs/changelog.rst ...')
+                log.info('Updating docs/changelog.rst ...')
             else:
-                self.log('Updating CHANGELOG ...')
+                log.info('Updating CHANGELOG ...')
             chlog = self.get_changelog(docs=docs)
             if chlog and chlog.sections:
                 chlog.sections[0].date = today()
                 self.set_changelog(chlog, docs=docs)
         years = get_commit_years(self.directory)
         # Update year ranges in LICENSE
-        self.log('Ensuring LICENSE copyright line is up to date ...')
+        log.info('Ensuring LICENSE copyright line is up to date ...')
         ensure_license_years(self.directory / 'LICENSE', years)
         # Update year ranges in docs/conf.py
         docs_conf = self.directory / 'docs' / 'conf.py'
         if docs_conf.exists():
-            self.log('Ensuring docs/conf.py copyright is up to date ...')
+            log.info('Ensuring docs/conf.py copyright is up to date ...')
             with InPlace(docs_conf, mode='t', encoding='utf-8') as fp:
                 for line in fp:
                     m = re.match(r'^copyright\s*=\s*[\x27"](\d[-,\d\s]+\d) \w+',
@@ -325,7 +325,7 @@ class Project:
 
     def end_initial_dev(self):  # Idempotent
         # Set repostatus to "Active":
-        self.log('Advancing repostatus ...')
+        log.info('Advancing repostatus ...')
         with InPlace(self.directory / 'README.rst', mode='t', encoding='utf-8')\
                 as fp:
             for para in read_paragraphs(fp):
@@ -336,7 +336,7 @@ class Project:
                 else:
                     print(para, file=fp, end='')
         # Set "Development Status" classifier to "Beta" or higher:
-        self.log('Advancing Development Status classifier ...')
+        log.info('Advancing Development Status classifier ...')
         with InPlace(self.directory / 'setup.cfg', mode='t', encoding='utf-8') \
                 as fp:
             matched = False
@@ -348,7 +348,7 @@ class Project:
                     matched = True
                     line = line.replace('#', '', 1)
                 print(line, file=fp, end='')
-        self.log('Updating GitHub topics ...')
+        log.info('Updating GitHub topics ...')
         ### TODO: Check that the repository has topics first?
         self.update_gh_topics(
             add=['available-on-pypi'],

@@ -16,7 +16,6 @@
 - Make `configure()` store the config file values in `ctx.default_map`
     - This will require changing the precedence order of `pyrepo init
       --python-requires` (unless Click 8 comes out in the interim)
-- Use <https://github.com/borntyping/python-colorlog> to color log messages?
 - Change `__python_requires__` to `__requires_python__` to match PEP 621?
 - Add a `default_branch` variable (for use by badges and mkgithub) in
   anticipation of `main` becoming the default branch

@@ -1,7 +1,9 @@
 from   importlib import import_module
+import logging
 import os
 from   pathlib   import Path
 import click
+import colorlog
 from   .         import __version__
 from   .config   import DEFAULT_CFG, configure
 
@@ -27,6 +29,17 @@ def main(ctx, chdir, config):
     configure(ctx, config)
     if chdir is not None:
         os.chdir(chdir)
+    colorlog.basicConfig(
+        format='%(log_color)s[%(levelname)-8s] %(message)s',
+        log_colors={
+            'DEBUG':    'cyan',
+            'INFO':     'bold',
+            'WARNING':  'yellow',
+            'ERROR':    'red',
+            'CRITICAL': 'bold_red',
+        },
+        level=logging.INFO,
+    )
 
 for fpath in Path(__file__).with_name('commands').iterdir():
     modname = fpath.stem

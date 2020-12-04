@@ -1,3 +1,4 @@
+import logging
 import os.path
 from   pathlib                import Path
 import re
@@ -8,6 +9,8 @@ from   packaging.specifiers   import SpecifierSet
 from   packaging.utils        import canonicalize_name as normalize
 from   ..                     import inspecting
 from   ..util                 import ensure_license_years, optional
+
+log = logging.getLogger(__name__)
 
 @click.command()
 @optional('--author', metavar='NAME')
@@ -57,10 +60,16 @@ def cli(obj, **options):
         "extra_testenvs": [],
     }
 
+    log.info("Determining Python module ...")
     # "import_name", "is_flat_module", and "src_layout"
     env.update(inspecting.find_module(Path()))
+    if env["is_flat_module"]:
+        log.info("Found flat module %s.py", env["import_name"])
+    else:
+        log.info("Found package %s", env["import_name"])
 
     if not env.pop("src_layout", False):
+        log.info("Moving code to src/ directory ...")
         Path("src").mkdir(exist_ok=True)
         code_path = env["import_name"]
         if env["is_flat_module"]:
@@ -74,6 +83,7 @@ def cli(obj, **options):
     env["author_email"] = obj.jinja_env.from_string(options["author_email"])\
                                        .render(project_name=env["project_name"])
 
+    log.info("Checking for requirements.txt ...")
     req_vars = inspecting.parse_requirements('requirements.txt')
 
     if env["is_flat_module"]:
@@ -81,6 +91,7 @@ def cli(obj, **options):
     else:
         init_src = ["src", env["import_name"], '__init__.py']
     env["initfile"] = os.path.join(*init_src)
+    log.info("Checking for __requires__ ...")
     src_vars = inspecting.extract_requires(env["initfile"])
 
     requirements = {}
@@ -163,10 +174,13 @@ def cli(obj, **options):
             add_templated_file(obj.jinja_env, filename, env)
 
     if Path('LICENSE').exists():
+        log.info("Setting copyright year in LICENSE ...")
         ensure_license_years('LICENSE', env["copyright_years"])
     else:
+        log.info("Creating LICENSE ...")
         add_templated_file(obj.jinja_env, 'LICENSE', env)
 
+    log.info("Adding intro block to initfile ...")
     with InPlace(env["initfile"], mode='t', encoding='utf-8') as fp:
         started = False
         for line in fp:
@@ -192,6 +206,7 @@ def cli(obj, **options):
 
 
 def add_templated_file(jinja_env, filename, env):
+    log.info("Creating %s ...", filename)
     p = Path(filename)
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(
