@@ -8,6 +8,7 @@ from   pyrepo            import util
 from   pyrepo.inspecting import extract_requires, find_module, \
                                     get_commit_years, inspect_project, \
                                     parse_requirements
+from   pyrepo.project    import Project
 
 DATA_DIR = Path(__file__).with_name('data')
 
@@ -124,3 +125,5 @@ def test_inspect_project(dirpath):
     else:
         env = inspect_project(dirpath)
         assert env == json.loads((dirpath / '_inspect.json').read_text())
+        project = Project.from_inspection(dirpath, env)
+        assert project.get_template_context() == env

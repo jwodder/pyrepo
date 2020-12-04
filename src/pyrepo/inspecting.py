@@ -1,6 +1,5 @@
 import ast
 from   configparser      import ConfigParser
-import os.path
 from   pathlib           import Path
 import re
 import time
@@ -122,12 +121,6 @@ def inspect_project(dirpath=None):
                 break
         else:
             raise ValueError('Copyright years not found in LICENSE')
-
-    if env["is_flat_module"]:
-        initpath = ["src", env["import_name"] + '.py']
-    else:
-        initpath = ["src", env["import_name"], '__init__.py']
-    env["initfile"] = os.path.join(*initpath)
 
     return env
 

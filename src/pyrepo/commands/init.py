@@ -1,3 +1,4 @@
+from   contextlib             import suppress
 import logging
 import os.path
 from   pathlib                import Path
@@ -8,7 +9,9 @@ from   packaging.requirements import Requirement
 from   packaging.specifiers   import SpecifierSet
 from   packaging.utils        import canonicalize_name as normalize
 from   ..                     import inspecting
-from   ..util                 import ensure_license_years, optional
+from   ..project              import Project
+from   ..util                 import ensure_license_years, get_jinja_env, \
+                                        optional
 
 log = logging.getLogger(__name__)
 
@@ -80,8 +83,10 @@ def cli(obj, **options):
     env["repo_name"] = options.get("repo_name", env["project_name"])
     env["rtfd_name"] = options.get("rtfd_name", env["project_name"])
 
-    env["author_email"] = obj.jinja_env.from_string(options["author_email"])\
-                                       .render(project_name=env["project_name"])
+    jenv = get_jinja_env()
+
+    env["author_email"] = jenv.from_string(options["author_email"])\
+                              .render(project_name=env["project_name"])
 
     log.info("Checking for requirements.txt ...")
     req_vars = inspecting.parse_requirements('requirements.txt')
@@ -90,9 +95,9 @@ def cli(obj, **options):
         init_src = ["src", env["import_name"] + '.py']
     else:
         init_src = ["src", env["import_name"], '__init__.py']
-    env["initfile"] = os.path.join(*init_src)
+    initfile = os.path.join(*init_src)
     log.info("Checking for __requires__ ...")
-    src_vars = inspecting.extract_requires(env["initfile"])
+    src_vars = inspecting.extract_requires(initfile)
 
     requirements = {}
     for r in (req_vars["__requires__"] or []) \
@@ -150,38 +155,31 @@ def cli(obj, **options):
             options["command"]: f'{env["import_name"]}.__main__:main'
         }
 
-    templated = [
-        '.gitignore',
-        'MANIFEST.in',
-        'README.rst',
-        'pyproject.toml',
-        'setup.cfg',
-    ]
-    if env["has_tests"] or env["has_docs"]:
-        templated.append('tox.ini')
-    if env["has_ci"]:
-        templated.append('.github/workflows/test.yml')
-    if env["has_docs"]:
-        templated.extend([
-            '.readthedocs.yml',
-            'docs/index.rst',
-            'docs/conf.py',
-            'docs/requirements.txt',
-        ])
+    project = Project.from_inspection(Path(), env)
+    project.write_template(".gitignore", jenv, force=False)
+    project.write_template("MANIFEST.in", jenv, force=False)
+    project.write_template("README.rst", jenv, force=False)
+    project.write_template("pyproject.toml", jenv, force=False)
+    project.write_template("setup.cfg", jenv, force=False)
 
-    for filename in templated:
-        if not Path(filename).exists():
-            add_templated_file(obj.jinja_env, filename, env)
+    if env["has_tests"] or env["has_docs"]:
+        project.write_template('tox.ini', jenv, force=False)
+    if env["has_ci"]:
+        project.write_template('.github/workflows/test.yml', jenv, force=False)
+    if env["has_docs"]:
+        project.write_template('.readthedocs.yml', jenv, force=False)
+        project.write_template('docs/index.rst', jenv, force=False)
+        project.write_template('docs/conf.py', jenv, force=False)
+        project.write_template('docs/requirements.txt', jenv, force=False)
 
     if Path('LICENSE').exists():
         log.info("Setting copyright year in LICENSE ...")
         ensure_license_years('LICENSE', env["copyright_years"])
     else:
-        log.info("Creating LICENSE ...")
-        add_templated_file(obj.jinja_env, 'LICENSE', env)
+        project.write_template("LICENSE", jenv, force=False)
 
     log.info("Adding intro block to initfile ...")
-    with InPlace(env["initfile"], mode='t', encoding='utf-8') as fp:
+    with InPlace(initfile, mode='t', encoding='utf-8') as fp:
         started = False
         for line in fp:
             if line.startswith('#!') \
@@ -189,27 +187,12 @@ def cli(obj, **options):
                     and re.search(r'coding[=:]\s*([-\w.]+)', line)):
                 pass
             elif not started:
-                print(
-                    obj.jinja_env.get_template('init.j2').render(env),
-                    file=fp,
-                )
+                print(jenv.get_template('init.j2').render(env), file=fp)
                 print(file=fp)
                 started = True
             print(line, file=fp, end='')
         if not started:  # if initfile is empty
-            print(obj.jinja_env.get_template('init.j2').render(env), file=fp)
+            print(jenv.get_template('init.j2').render(env), file=fp)
 
-    try:
+    with suppress(FileNotFoundError):
         Path('requirements.txt').unlink()
-    except FileNotFoundError:
-        pass
-
-
-def add_templated_file(jinja_env, filename, env):
-    log.info("Creating %s ...", filename)
-    p = Path(filename)
-    p.parent.mkdir(parents=True, exist_ok=True)
-    p.write_text(
-        jinja_env.get_template(filename+'.j2').render(env).rstrip() + '\n',
-        encoding='utf-8',
-    )

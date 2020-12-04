@@ -28,7 +28,6 @@
         2019
     ],
     "version": "0.1.0.dev1",
-    "initfile": "src/foobar.py",
     "keywords": [],
     "has_ci": true,
     "supports_pypy3": true,

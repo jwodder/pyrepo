@@ -7,7 +7,6 @@ from   pyversion_info import get_pyversion_info
 import requests
 from   pyrepo         import __url__, __version__
 from   .gh            import ACCEPT, GitHub
-from   .util          import jinja_env
 
 DEFAULT_CFG = str(Path.home() / '.config' / 'pyrepo.cfg')
 
@@ -68,7 +67,6 @@ def configure(ctx, filename):
     ctx.obj = SimpleNamespace(
         defaults   = {},
         pyversions = pyver_range(min_pyversion, max_pyversion),
-        jinja_env  = jinja_env(),
     )
 
     s = requests.Session()

@@ -57,7 +57,7 @@ def update_years2str(year_str, years=None):
     yearspan.update(years)
     return years2str(yearspan)
 
-def jinja_env():
+def get_jinja_env():
     jenv = Environment(
         loader=PackageLoader('pyrepo', 'templates'),
         trim_blocks=True,

@@ -20,8 +20,6 @@
 - `is_flat_module: bool`
 - `commands` — mapping from command (`console_scripts`) names to entry point
   specifications
-- `initfile: str` — path (relative to the project root) to the "primary
-  imported source file", which must contain the definition of `__version__`
 
 - `has_tests: bool`
 - `has_doctests: bool`

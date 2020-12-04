@@ -8,11 +8,6 @@
 - Support namespace packages?
 - Make this a package in the `jwodder` namespace?
 - Rename the actual Python package to `jwodder_pyrepo`?
-- Move (most of) the `Project` class from `pyrepo/commands/release.py` to a
-  module directly in `pyrepo/`, and rewrite most commands as functions that
-  take a `Project` instance as an argument
-    - `Project` instances should store the return value from
-      `inspect_project()` in an `env` (or `context`? `vars`?) attribute
 - Make `configure()` store the config file values in `ctx.default_map`
     - This will require changing the precedence order of `pyrepo init
       --python-requires` (unless Click 8 comes out in the interim)
@@ -29,6 +24,8 @@
 - Is `codecov_user` ever not the same as `github_user`?
 - Support reading project-specific configuration from `pyproject.toml` and/or
   some dotfile?
+- Replace `UninitializedProjectError` with `InvalidProjectError` and use it for
+  all the other ways that inspection can go wrong
 
 - `pyrepo init`:
     - Support `project_name`, `repo_name`, and `rtfd_name` as Jinja2 templates
