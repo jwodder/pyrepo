@@ -18,10 +18,12 @@ def inspect_project(dirpath=None):
     def exists(fname):
         return (dirpath / fname).exists()
 
-    if not exists('pyproject.toml') or not exists('setup.cfg'):
-        raise UninitializedProjectError()
+    if not exists('pyproject.toml'):
+        raise InvalidProjectError('Project is missing pyproject.toml file')
+    if not exists('setup.cfg'):
+        raise InvalidProjectError('Project is missing setup.cfg file')
     if not exists('src'):
-        raise RuntimeError('Project does not have src/ layout')
+        raise InvalidProjectError('Project does not have src/ layout')
 
     cfg = read_configuration(str(dirpath / 'setup.cfg'))
     env = {
@@ -39,7 +41,7 @@ def inspect_project(dirpath=None):
     }
 
     if env["version"] is None:
-        raise RuntimeError("Cannot determine project version")
+        raise InvalidProjectError("Cannot determine project version")
 
     if cfg["options"].get("packages"):
         env["is_flat_module"] = False
@@ -120,7 +122,7 @@ def inspect_project(dirpath=None):
                 env["copyright_years"] = list(intspan(m.group(1)))
                 break
         else:
-            raise ValueError('Copyright years not found in LICENSE')
+            raise InvalidProjectError('Copyright years not found in LICENSE')
 
     return env
 
@@ -159,9 +161,9 @@ def find_module(dirpath: Path):
                 "src_layout": src_layout,
             })
     if len(results) > 1:
-        raise ValueError('Multiple Python modules in repository')
+        raise InvalidProjectError('Multiple Python modules in repository')
     elif not results:
-        raise ValueError('No Python modules in repository')
+        raise InvalidProjectError('No Python modules in repository')
     else:
         return results[0]
 
@@ -215,6 +217,5 @@ def parse_requirements(filepath):
         pass
     return variables
 
-class UninitializedProjectError(Exception):
-    def __str__(self):
-        return 'Project repository has not been initialized'
+class InvalidProjectError(Exception):
+    pass

@@ -1,6 +1,6 @@
 import click
 from   ..gh         import ACCEPT
-from   ..inspecting import UninitializedProjectError, inspect_project
+from   ..inspecting import InvalidProjectError, inspect_project
 from   ..util       import readcmd, runcmd
 
 TOPICS_ACCEPT = f'application/vnd.github.mercy-preview,{ACCEPT}'
@@ -12,7 +12,7 @@ TOPICS_ACCEPT = f'application/vnd.github.mercy-preview,{ACCEPT}'
 def cli(obj, repo_name, private):
     try:
         env = inspect_project()
-    except UninitializedProjectError as e:
+    except InvalidProjectError as e:
         raise click.UsageError(str(e))
     if repo_name is None:
         repo_name = env["repo_name"]

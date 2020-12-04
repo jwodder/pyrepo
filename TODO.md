@@ -24,8 +24,6 @@
 - Is `codecov_user` ever not the same as `github_user`?
 - Support reading project-specific configuration from `pyproject.toml` and/or
   some dotfile?
-- Replace `UninitializedProjectError` with `InvalidProjectError` and use it for
-  all the other ways that inspection can go wrong
 
 - `pyrepo init`:
     - Support `project_name`, `repo_name`, and `rtfd_name` as Jinja2 templates

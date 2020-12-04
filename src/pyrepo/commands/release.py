@@ -29,7 +29,7 @@ from   packaging.version import Version
 from   uritemplate       import expand
 from   ..changelog       import Changelog, ChangelogSection
 from   ..gh              import ACCEPT, GitHub
-from   ..inspecting      import get_commit_years
+from   ..inspecting      import InvalidProjectError, get_commit_years
 from   ..project         import Project
 from   ..util            import ensure_license_years, optional, \
                                     read_paragraphs, readcmd, runcmd, \
@@ -330,6 +330,10 @@ class Releaser:
 @optional('--sign-assets/--no-sign-assets')
 @click.pass_obj
 def cli(obj, **options):
+    try:
+        project = Project.from_directory()
+    except InvalidProjectError as e:
+        raise click.UsageError(str(e))
     defaults = obj.defaults['release']
     options = dict(defaults, **options)
     sign_assets = options.get("sign_assets", False)
@@ -338,7 +342,7 @@ def cli(obj, **options):
     os.environ['GPG_TTY'] = os.ttyname(0)
     add_type('application/zip', '.whl', False)
     Releaser(
-        project     = Project.from_directory(),
+        project     = project,
         gh          = obj.gh,
         tox         = tox,
         sign_assets = sign_assets,

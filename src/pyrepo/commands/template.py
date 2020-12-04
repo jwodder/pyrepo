@@ -1,5 +1,5 @@
 import click
-from   ..inspecting import UninitializedProjectError
+from   ..inspecting import InvalidProjectError
 from   ..project    import Project
 from   ..util       import get_jinja_env
 
@@ -11,7 +11,7 @@ def cli(obj, template, outfile):
     """ Replace files with their re-evaluated templates """
     try:
         project = Project.from_directory()
-    except UninitializedProjectError as e:
+    except InvalidProjectError as e:
         raise click.UsageError(str(e))
     jenv = get_jinja_env()
     if outfile is not None:

@@ -5,9 +5,10 @@ from   shutil            import copyfile
 import time
 import pytest
 from   pyrepo            import util
-from   pyrepo.inspecting import extract_requires, find_module, \
-                                    get_commit_years, inspect_project, \
-                                    parse_requirements
+from   pyrepo.inspecting import (
+    InvalidProjectError, extract_requires, find_module, get_commit_years,
+    inspect_project, parse_requirements,
+)
 from   pyrepo.project    import Project
 
 DATA_DIR = Path(__file__).with_name('data')
@@ -76,7 +77,7 @@ def test_find_module_src(dirpath):
     ids=attrgetter("name"),
 )
 def test_find_module_extra(dirpath):
-    with pytest.raises(ValueError) as excinfo:
+    with pytest.raises(InvalidProjectError) as excinfo:
         find_module(dirpath)
     assert str(excinfo.value) == 'Multiple Python modules in repository'
 
@@ -86,7 +87,7 @@ def test_find_module_extra(dirpath):
     ids=attrgetter("name"),
 )
 def test_find_module_none(dirpath):
-    with pytest.raises(ValueError) as excinfo:
+    with pytest.raises(InvalidProjectError) as excinfo:
         find_module(dirpath)
     assert str(excinfo.value) == 'No Python modules in repository'
 

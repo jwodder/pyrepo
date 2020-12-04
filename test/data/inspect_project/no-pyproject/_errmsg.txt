@@ -1,1 +1,1 @@
-Project repository has not been initialized
+Project is missing pyproject.toml file
