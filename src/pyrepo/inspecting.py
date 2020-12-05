@@ -133,7 +133,7 @@ def get_commit_years(dirpath, include_now=True):
     years = set(map(
         int,
         util.readcmd(
-            'git', '-C', str(dirpath), 'log', '--format=%ad', '--date=format:%Y'
+            'git', 'log', '--format=%ad', '--date=format:%Y', cwd=dirpath
         ).splitlines(),
     ))
     if include_now:

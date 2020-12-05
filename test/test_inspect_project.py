@@ -26,7 +26,7 @@ def test_get_commit_years_include_now(gitoutput, result, mocker):
     mocker.patch('pyrepo.util.readcmd', return_value=gitoutput)
     assert get_commit_years(Path()) == result
     util.readcmd.assert_called_once_with(
-        'git', '-C', '.', 'log', '--format=%ad', '--date=format:%Y',
+        'git', 'log', '--format=%ad', '--date=format:%Y', cwd=Path()
     )
     time.localtime.assert_called_once_with()
 
@@ -43,7 +43,7 @@ def test_get_commit_years_no_include_now(gitoutput, result, mocker):
     mocker.patch('pyrepo.util.readcmd', return_value=gitoutput)
     assert get_commit_years(Path(), include_now=False) == result
     util.readcmd.assert_called_once_with(
-        'git', '-C', '.', 'log', '--format=%ad', '--date=format:%Y',
+        'git', 'log', '--format=%ad', '--date=format:%Y', cwd=Path()
     )
     time.localtime.assert_not_called()
 
