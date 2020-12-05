@@ -24,7 +24,7 @@
 - Support reading project-specific configuration from `pyproject.toml` and/or
   some dotfile?
 - Write a `License` class for parsing & formatting licenses and extracting &
-  manipulating their copyright years
+  manipulating their copyright years?
 
 - `pyrepo init`:
     - Support `project_name`, `repo_name`, and `rtfd_name` as Jinja2 templates
@@ -49,7 +49,6 @@
       project?
 
 - `pyrepo release`:
-    - Add an option for setting the new version number from the command line
     - Support configuring the following via the config file:
         - whether to sign the version tag
         - program to use for signing

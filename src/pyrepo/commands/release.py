@@ -69,6 +69,8 @@ class Releaser:
             # Remove prerelease & dev release from __version__
             ### TODO: Just use Version.base_version instead?
             version = re.sub(r'(a|b|rc)\d+|\.dev\d+', '', project.version)
+        else:
+            version = version.lstrip("v")
         if gh is None:
             gh = GitHub()
         return cls(
@@ -328,8 +330,9 @@ class Releaser:
 @click.command()
 @optional('--tox/--no-tox', help='Run tox before building')
 @optional('--sign-assets/--no-sign-assets')
+@click.argument('version', required=False)
 @click.pass_obj
-def cli(obj, **options):
+def cli(obj, version, **options):
     try:
         project = Project.from_directory()
     except InvalidProjectError as e:
@@ -343,6 +346,7 @@ def cli(obj, **options):
     add_type('application/zip', '.whl', False)
     Releaser(
         project     = project,
+        version     = version,
         gh          = obj.gh,
         tox         = tox,
         sign_assets = sign_assets,

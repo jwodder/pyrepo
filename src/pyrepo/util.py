@@ -4,6 +4,7 @@ import subprocess
 import sys
 from   textwrap import wrap
 import time
+from   typing   import List
 import click
 from   in_place import InPlace
 from   intspan  import intspan
@@ -21,7 +22,7 @@ def readcmd(*args, **kwargs):
     except subprocess.CalledProcessError as e:
         sys.exit(e.returncode)
 
-def ensure_license_years(filepath, years: 'list[int]'):
+def ensure_license_years(filepath, years: List[int]) -> None:
     with InPlace(filepath, mode='t', encoding='utf-8') as fp:
         for line in fp:
             m = re.match(r'^Copyright \(c\) (\d[-,\d\s]+\d) \w+', line)

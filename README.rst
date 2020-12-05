@@ -270,12 +270,15 @@ Options
 
 ::
 
-    pyrepo [<global-options>] release [<options>]
+    pyrepo [<global-options>] release [<options>] [<version>]
 
 Create & publish a new release for a project.  This command performs the
 following operations in order:
 
-- Remove any prerelease & dev components from ``__version__``
+- If the version for the new release is not specified on the command line, it
+  is calculated by removing any prerelease & dev components from
+  ``__version__``
+- Set ``__version__`` to the version of the new release
 - If a CHANGELOG exists, set the date for the newest version section
 - If ``docs/changelog.rst`` exists, set the date for the newest version section
 - Update the copyright year ranges in ``LICENSE`` and (if present)
