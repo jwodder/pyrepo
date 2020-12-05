@@ -49,7 +49,7 @@ class Project:
             directory = Path()
         else:
             directory = Path(dirpath)
-        return cls.from_inspection(dirpath, inspect_project(directory))
+        return cls.from_inspection(directory, inspect_project(directory))
 
     @classmethod
     def from_inspection(cls, directory, context):

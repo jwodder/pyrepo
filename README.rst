@@ -206,6 +206,17 @@ Options
                         and tox; default: ``--no-tests``
 
 
+``pyrepo add-ci-testenv``
+-------------------------
+
+::
+
+    pyrepo [<global-options>] add-ci-testenv <testenv> <python-version>
+
+Configure the GitHub Actions test workflow to include a run of the tox
+environment ``<testenv>`` against ``<python-version>``.
+
+
 ``pyrepo inspect``
 ------------------
 

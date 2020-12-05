@@ -49,7 +49,7 @@ def test_get_commit_years_no_include_now(gitoutput, result, mocker):
 
 @pytest.mark.parametrize(
     'dirpath',
-    (DATA_DIR / 'find_module' / 'valid').iterdir(),
+    sorted((DATA_DIR / 'find_module' / 'valid').iterdir()),
     ids=attrgetter("name"),
 )
 def test_find_module(dirpath):
@@ -61,7 +61,7 @@ def test_find_module(dirpath):
 
 @pytest.mark.parametrize(
     'dirpath',
-    (DATA_DIR / 'find_module' / 'valid-src').iterdir(),
+    sorted((DATA_DIR / 'find_module' / 'valid-src').iterdir()),
     ids=attrgetter("name"),
 )
 def test_find_module_src(dirpath):
@@ -73,7 +73,7 @@ def test_find_module_src(dirpath):
 
 @pytest.mark.parametrize(
     'dirpath',
-    (DATA_DIR / 'find_module' / 'extra').iterdir(),
+    sorted((DATA_DIR / 'find_module' / 'extra').iterdir()),
     ids=attrgetter("name"),
 )
 def test_find_module_extra(dirpath):
@@ -83,7 +83,7 @@ def test_find_module_extra(dirpath):
 
 @pytest.mark.parametrize(
     'dirpath',
-    (DATA_DIR / 'find_module' / 'none').iterdir(),
+    sorted((DATA_DIR / 'find_module' / 'none').iterdir()),
     ids=attrgetter("name"),
 )
 def test_find_module_none(dirpath):
@@ -93,7 +93,7 @@ def test_find_module_none(dirpath):
 
 @pytest.mark.parametrize(
     'dirpath',
-    (DATA_DIR / 'extract_requires').iterdir(),
+    sorted((DATA_DIR / 'extract_requires').iterdir()),
     ids=attrgetter("name"),
 )
 def test_extract_requires(dirpath, tmp_path):
@@ -104,17 +104,18 @@ def test_extract_requires(dirpath, tmp_path):
         assert variables == json.load(fp)
     assert (dirpath / 'after.py').read_text() == dest.read_text()
 
-@pytest.mark.parametrize('reqfile', [
-    p for p in (DATA_DIR / 'parse_requirements').iterdir()
-      if p.suffix == '.txt'
-], ids=attrgetter("name"))
+@pytest.mark.parametrize(
+    'reqfile',
+    sorted((DATA_DIR / 'parse_requirements').glob("*.txt")),
+    ids=attrgetter("name"),
+)
 def test_parse_requirements(reqfile):
     variables = parse_requirements(reqfile)
     assert variables == json.loads(reqfile.with_suffix('.json').read_text())
 
 @pytest.mark.parametrize(
     'dirpath',
-    (DATA_DIR / 'inspect_project').iterdir(),
+    sorted((DATA_DIR / 'inspect_project').iterdir()),
     ids=attrgetter("name"),
 )
 def test_inspect_project(dirpath):

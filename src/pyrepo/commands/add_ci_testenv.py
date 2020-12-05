@@ -1,0 +1,19 @@
+import logging
+import click
+from   ..inspecting import InvalidProjectError
+from   ..project    import Project
+from   ..util       import get_jinja_env
+
+log = logging.getLogger(__name__)
+
+@click.command()
+@click.argument('testenv')
+@click.argument('pyver')
+def cli(testenv, pyver):
+    try:
+        project = Project.from_directory()
+    except InvalidProjectError as e:
+        raise click.UsageError(str(e))
+    log.info("Adding testenv %r with python version %r", testenv, pyver)
+    project.extra_testenvs[testenv] = pyver
+    project.write_template(".github/workflows/test.yml", get_jinja_env())

@@ -67,7 +67,7 @@
 
 - `pyrepo template`:
     - Add command line options for overriding the various Jinja env vars
-    - Preserve keywords and classifiers when retemplating `setup.cfg`?
+    - Preserve classifiers etc. when retemplating `setup.cfg`?
 
 - `pyrepo make`:
     - Support setting options via the config file
@@ -96,12 +96,10 @@
     - Automatically run this command on first release
 - Add a subcommand for updating GitHub description & tags based on the
   project's short description and keywords?
-- Add a subcommand for converting a flat module to a non-flat package?
+- Add a subcommand for converting a flat module to a non-flat package
     - Use the iniparse package to modify `setup.cfg`?
 - Add subcommands for adding & removing a Python version from the set of
   supported versions
-- Add a subcommand for adding an arbitrary toxenv + pyver pair to the test
-  workflow
 
 - Templates:
     - When a package has a command, include "Run ``{{command}} --help``" in the
@@ -113,6 +111,8 @@
     - When `has_pypi` is false, the installation instructions in the README
       should refer to the GitHub URL, not the project name
     - Add template for `CONTRIBUTORS.md`?
+    - Support having the same extra testenv run against multiple Python
+      versions
 
 - Prior art to investigate and compare against:
     - https://pypi.python.org/pypi/octopusapi
