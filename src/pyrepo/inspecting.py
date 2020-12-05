@@ -5,6 +5,7 @@ import re
 import time
 from   intspan           import intspan
 from   setuptools.config import read_configuration
+import yaml
 from   .                 import util  # Import module to keep mocking easy
 from   .readme           import Readme
 
@@ -36,8 +37,6 @@ def inspect_project(dirpath=None):
         "version": cfg["metadata"].get("version"),
         "keywords": cfg["metadata"].get("keywords", []),
         "supports_pypy3": False,
-        ### TODO: Fill in this one:
-        "extra_testenvs": [],
     }
 
     if env["version"] is None:
@@ -123,6 +122,10 @@ def inspect_project(dirpath=None):
                 break
         else:
             raise InvalidProjectError('Copyright years not found in LICENSE')
+
+    env["extra_testenvs"] = parse_extra_testenvs(
+        dirpath / ".github" / "workflows" / "test.yml"
+    )
 
     return env
 
@@ -216,6 +219,15 @@ def parse_requirements(filepath):
     except FileNotFoundError:
         pass
     return variables
+
+def parse_extra_testenvs(filepath: Path):
+    try:
+        with filepath.open(encoding='utf-8') as fp:
+            workflow = yaml.safe_load(fp)
+    except FileNotFoundError:
+        return {}
+    includes = workflow["jobs"]["test"]["strategy"]["matrix"].get("include", [])
+    return {inc["toxenv"]: inc["python-version"] for inc in includes}
 
 class InvalidProjectError(Exception):
     pass

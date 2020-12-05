@@ -60,7 +60,7 @@ def cli(obj, **options):
         "keywords": [],
         "version": "0.1.0.dev1",
         "supports_pypy3": True,
-        "extra_testenvs": [],
+        "extra_testenvs": {},
     }
 
     log.info("Determining Python module ...")

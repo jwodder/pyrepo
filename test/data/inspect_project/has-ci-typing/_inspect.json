@@ -18,8 +18,8 @@
     "install_requires": [],
     "is_flat_module": false,
     "commands": {},
-    "has_doctests": false,
-    "has_tests": false,
+    "has_doctests": true,
+    "has_tests": true,
     "has_docs": false,
     "has_pypi": false,
     "copyright_years": [
@@ -29,7 +29,9 @@
     ],
     "version": "0.1.0.dev1",
     "keywords": [],
-    "has_ci": false,
+    "has_ci": true,
     "supports_pypy3": true,
-    "extra_testenvs": {}
+    "extra_testenvs": {
+        "typing": "3.6"
+    }
 }

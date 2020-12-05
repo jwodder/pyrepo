@@ -16,7 +16,6 @@
   anticipation of `main` becoming the default branch
 - Rename `supports_pypy3` to `supports_pypy` and determine what versions of
   PyPy to support based on the supported Python versions
-- Determine `extra_testenvs` when inspecting by parsing the workflow file
 - Make `inspect_project()` log at DEBUG level
 - Require default `init` config values to be in `[options.init]` in the config
   file instead of under just `[options]`?  I.e., don't copy values from
@@ -24,6 +23,8 @@
 - Is `codecov_user` ever not the same as `github_user`?
 - Support reading project-specific configuration from `pyproject.toml` and/or
   some dotfile?
+- Write a `License` class for parsing & formatting licenses and extracting &
+  manipulating their copyright years
 
 - `pyrepo init`:
     - Support `project_name`, `repo_name`, and `rtfd_name` as Jinja2 templates

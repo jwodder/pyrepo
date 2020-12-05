@@ -22,7 +22,7 @@ jobs:
         {% if extra_testenvs %}
         toxenv: [py]
         include:
-        {% for testenv, pyver in extra_testenvs %}
+        {% for testenv, pyver in extra_testenvs.items()|sort %}
           - python-version: '{{pyver}}'
             toxenv: {{testenv}}
         {% endfor %}

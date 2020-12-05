@@ -4,7 +4,7 @@ from   pathlib     import Path
 import re
 from   shutil      import rmtree
 import sys
-from   typing      import Dict, List, Optional, Tuple
+from   typing      import Dict, List, Optional
 import attr
 from   in_place    import InPlace
 from   .changelog  import Changelog
@@ -27,7 +27,7 @@ class Project:
     install_requires: List[str]
     keywords: List[str]
     supports_pypy3: bool
-    extra_testenvs: List[Tuple[str,str]]
+    extra_testenvs: Dict[str,str]
     is_flat_module: bool
     import_name: str
     python_versions: List[str]

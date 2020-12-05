@@ -29,8 +29,8 @@
 
 - `copyright_years: List[int]`
 
-- `extra_testenvs: List[Tuple[str, str]]` — list of (testenv name, python
-  version) pairs to include runs for in CI
+- `extra_testenvs: Dict[str, str]` — extra testenvs to include runs for in CI,
+  as a mapping from testenv name to Python version
 
 Custom filters in Jinja2 environment:
     - `repr`
