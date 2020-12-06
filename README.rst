@@ -359,6 +359,20 @@ Options
                         configuration file.
 
 
+``pyrepo unflatten``
+--------------------
+
+::
+
+    pyrepo [<global-options>] unflatten
+
+Convert a "flat module" project (one where all the code is in a
+``src/foobar.py`` file) to a "package" project (one where all the code is in a
+``src/foobar/`` directory containing an ``__init__.py`` file).  The old flat
+module becomes the ``__init__.py`` file of the new package directory, and the
+project's ``setup.cfg`` is updated for the change in configuration.
+
+
 Restrictions
 ============
 ``jwodder-pyrepo`` relies on various assumptions about project layout and

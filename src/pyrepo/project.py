@@ -142,3 +142,40 @@ class Project:
             if wheel:
                 args.append('--wheel')
             runcmd(sys.executable, '-m', 'build', *args, self.directory)
+
+    def unflatten(self):
+        if not self.is_flat_module:
+            log.info("Project is already a package; no need to unflatten")
+            return
+        log.info("Unflattening project ...")
+        pkgdir = self.directory / "src" / self.import_name
+        pkgdir.mkdir(parents=True, exist_ok=True)
+        old_initfile = self.initfile
+        new_initfile = pkgdir / "__init__.py"
+        log.info(
+            "- Moving %s to %s ...",
+            old_initfile.relative_to(self.directory),
+            new_initfile.relative_to(self.directory),
+        )
+        old_initfile.rename(new_initfile)
+        log.info("- Updating setup.cfg ...")
+        with InPlace(
+            self.directory / "setup.cfg", mode='t', encoding='utf-8',
+        ) as fp:
+            in_options = False
+            for ln in fp:
+                if re.match(r'^py_modules\s*=', ln):
+                    ln = 'packages = find:\n'
+                print(ln, end='', file=fp)
+                if ln == '[options]\n':
+                    in_options = True
+                elif in_options and ln.isspace():
+                    print('[options.packages.find]', file=fp)
+                    print('where = src', file=fp)
+                    print('', file=fp)
+                    in_options = False
+            if in_options:
+                print('', file=fp)
+                print('[options.packages.find]', file=fp)
+                print('where = src', file=fp)
+        self.is_flat_module = False

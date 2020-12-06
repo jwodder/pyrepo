@@ -96,8 +96,6 @@
     - Automatically run this command on first release
 - Add a subcommand for updating GitHub description & tags based on the
   project's short description and keywords?
-- Add a subcommand for converting a flat module to a non-flat package
-    - Use the iniparse package to modify `setup.cfg`?
 - Add subcommands for adding & removing a Python version from the set of
   supported versions
 
