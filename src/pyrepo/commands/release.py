@@ -257,6 +257,7 @@ class Releaser:
                 log.info('Updating CHANGELOG ...')
             chlog = self.project.get_changelog(docs=docs)
             if chlog and chlog.sections:
+                chlog.sections[0].version = f"v{self.version}"
                 chlog.sections[0].date = today()
                 self.project.set_changelog(chlog, docs=docs)
         years = get_commit_years(self.project.directory)
