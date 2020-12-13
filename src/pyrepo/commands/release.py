@@ -161,7 +161,7 @@ class Releaser:
 
     def build(self, sign_assets=False):  ### Not idempotent
         log.info('Building artifacts ...')
-        self.project.make(clean=True)
+        self.project.build(clean=True)
         self.assets = []
         self.assets_asc = []
         for distfile in (self.project.directory / "dist").iterdir():
