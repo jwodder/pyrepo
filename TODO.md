@@ -25,6 +25,8 @@
   some dotfile?
 - Write a `License` class for parsing & formatting licenses and extracting &
   manipulating their copyright years?
+- Problem: Inspecting the version of a local project doesn't seem to work right
+  when a different version of that project is installed.
 
 - `pyrepo init`:
     - Support `project_name`, `repo_name`, and `rtfd_name` as Jinja2 templates

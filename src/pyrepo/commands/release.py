@@ -344,7 +344,7 @@ def cli(obj, version, **options):
     # GPG_TTY has to be set so that GPG can be run through Git.
     os.environ['GPG_TTY'] = os.ttyname(0)
     add_type('application/zip', '.whl', False)
-    Releaser(
+    Releaser.from_project(
         project     = project,
         version     = version,
         gh          = obj.gh,
