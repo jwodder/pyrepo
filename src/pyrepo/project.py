@@ -37,6 +37,7 @@ class Project:
     repo_name: str
     rtfd_name: str
     has_tests: bool
+    has_typing: bool
     has_doctests: bool
     has_docs: bool
     has_ci: bool

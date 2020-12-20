@@ -22,6 +22,7 @@
   specifications
 
 - `has_tests: bool`
+- `has_typing: bool`
 - `has_doctests: bool`
 - `has_ci: bool`
 - `has_docs: bool`

@@ -34,6 +34,9 @@ classifiers =
 {% endif %}
     License :: OSI Approved :: MIT License
     ###
+{% if has_typing %}
+    Typing :: Typed
+{% endif %}
 
 project_urls =
     Source Code = https://github.com/{{github_user}}/{{repo_name}}
@@ -70,4 +73,21 @@ console_scripts =
     {% for name, ep in commands.items() %}
     {{name}} = {{ep}}
     {% endfor %}
+{% endif %}
+{% if has_typing %}
+
+[mypy]
+ignore_missing_imports = True
+disallow_untyped_defs = True
+disallow_incomplete_defs = True
+no_implicit_optional = True
+warn_redundant_casts = True
+warn_return_any = True
+warn_unreachable = True
+local_partial_types = True
+no_implicit_reexport = True
+strict_equality = True
+show_error_codes = True
+show_traceback = True
+pretty = True
 {% endif %}

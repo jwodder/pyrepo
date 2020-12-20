@@ -5,6 +5,7 @@
   or `setup.py` file, thereby allowing commands to be run from deeper in a
   project
 - Move `pyrepo/templates/variables.md` somewhere else
+    - Use as attribute documentation on `Project`?
 - Support namespace packages?
 - Make this a package in the `jwodder` namespace?
 - Rename the actual Python package to `jwodder_pyrepo`?
@@ -23,10 +24,10 @@
 - Is `codecov_user` ever not the same as `github_user`?
 - Support reading project-specific configuration from `pyproject.toml` and/or
   some dotfile?
-- Write a `License` class for parsing & formatting licenses and extracting &
-  manipulating their copyright years?
 - Problem: Inspecting the version of a local project doesn't seem to work right
   when a different version of that project is installed.
+- Rename the `project_name` context variable to `name` in order to match
+  `Project`?
 
 - `pyrepo init`:
     - Support `project_name`, `repo_name`, and `rtfd_name` as Jinja2 templates
@@ -103,7 +104,7 @@
 
 - Templates:
     - When a package has a command, include "Run ``{{command}} --help``" in the
-      "see also" paragraph in the module docstring
+      "see also" paragraph in the module docstring?
     - Add `has_release` (equivalent to `has_pypi`?) and `is_stable` variables
       (the latter defined by the version number being at least 1.0) that are
       used to select the repostatus badge in the README and the development
@@ -113,6 +114,7 @@
     - Add template for `CONTRIBUTORS.md`?
     - Support having the same extra testenv run against multiple Python
       versions
+    - Make `supports_pypy3` affect the envlist in `tox.ini`
 
 - Prior art to investigate and compare against:
     - https://pypi.python.org/pypi/octopusapi

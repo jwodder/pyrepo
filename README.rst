@@ -205,6 +205,12 @@ Options
 --tests, --no-tests     Whether to generate templates for testing with pytest
                         and tox; default: ``--no-tests``
 
+--typing, --no-typing   Whether to include configuration for type annotations
+                        (creating a ``py.typed`` file, adding a ``typing``
+                        testenv to ``tox.ini`` if ``--tests`` is set, adding a
+                        ``typing`` job to the CI configuration if ``--ci`` is
+                        set, etc.); default: ``--no-typing``
+
 
 ``pyrepo add-ci-testenv``
 -------------------------

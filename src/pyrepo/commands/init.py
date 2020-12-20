@@ -1,6 +1,5 @@
 from   contextlib             import suppress
 import logging
-import os.path
 from   pathlib                import Path
 import re
 import click
@@ -18,6 +17,7 @@ log = logging.getLogger(__name__)
 @click.command()
 @optional('--author', metavar='NAME')
 @optional('--author-email', metavar='EMAIL')
+@optional('--ci/--no-ci')
 @optional('--codecov-user', metavar='USER')
 @optional('-c', '--command', metavar='NAME')
 @click.option('-d', '--description', prompt=True)
@@ -29,7 +29,7 @@ log = logging.getLogger(__name__)
 @optional('--repo-name', metavar='NAME')
 @optional('--rtfd-name', metavar='NAME')
 @optional('--tests/--no-tests')
-@optional('--ci/--no-ci')
+@optional('--typing/--no-typing')
 @click.pass_obj
 def cli(obj, **options):
     if Path('setup.py').exists():
@@ -52,6 +52,7 @@ def cli(obj, **options):
         "copyright_years": inspecting.get_commit_years(Path()),
         "has_doctests": options.get("doctests", False),
         "has_tests": options.get("tests", False) or options.get("ci", False),
+        "has_typing": options.get("typing", False),
         "has_ci": options.get("ci", False),
         "has_docs": options.get("docs", False),
         "has_pypi": False,
@@ -79,6 +80,13 @@ def cli(obj, **options):
             code_path += '.py'
         Path(code_path).rename(Path("src", code_path))
 
+    if env["is_flat_module"] and env["has_typing"]:
+        log.info("Unflattening for py.typed file ...")
+        pkgdir = Path("src", env["import_name"])
+        pkgdir.mkdir(parents=True, exist_ok=True)
+        Path("src", env["import_name"] + ".py").rename(pkgdir / "__init__.py")
+        env["is_flat_module"] = False
+
     env["project_name"] = options.get("project_name", env["import_name"])
     env["repo_name"] = options.get("repo_name", env["project_name"])
     env["rtfd_name"] = options.get("rtfd_name", env["project_name"])
@@ -92,10 +100,9 @@ def cli(obj, **options):
     req_vars = inspecting.parse_requirements('requirements.txt')
 
     if env["is_flat_module"]:
-        init_src = ["src", env["import_name"] + '.py']
+        initfile = Path("src", env["import_name"] + '.py')
     else:
-        init_src = ["src", env["import_name"], '__init__.py']
-    initfile = os.path.join(*init_src)
+        initfile = Path("src", env["import_name"], '__init__.py')
     log.info("Checking for __requires__ ...")
     src_vars = inspecting.extract_requires(initfile)
 
@@ -164,7 +171,12 @@ def cli(obj, **options):
 
     if env["has_tests"] or env["has_docs"]:
         project.write_template('tox.ini', jenv, force=False)
+    if env["has_typing"]:
+        log.info("Creating src/%s/py.typed ...", env["import_name"])
+        (project.directory / "src" / env["import_name"] / "py.typed").touch()
     if env["has_ci"]:
+        if env["has_typing"]:
+            project.extra_testenvs["typing"] = project.python_versions[0]
         project.write_template('.github/workflows/test.yml', jenv, force=False)
     if env["has_docs"]:
         project.write_template('.readthedocs.yml', jenv, force=False)

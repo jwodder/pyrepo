@@ -16,8 +16,8 @@ def inspect_project(dirpath=None):
     else:
         dirpath = Path(dirpath)
 
-    def exists(fname):
-        return (dirpath / fname).exists()
+    def exists(*fname):
+        return Path(dirpath, *fname).exists()
 
     if not exists('pyproject.toml'):
         raise InvalidProjectError('Project is missing pyproject.toml file')
@@ -95,8 +95,9 @@ def inspect_project(dirpath=None):
             env["has_doctests"] = True
             break
 
-    env["has_ci"] = exists('.github/workflows/test.yml')
-    env["has_docs"] = exists('docs/index.rst')
+    env["has_typing"] = exists('src', env["import_name"], 'py.typed')
+    env["has_ci"] = exists('.github', 'workflows', 'test.yml')
+    env["has_docs"] = exists('docs', 'index.rst')
 
     env["codecov_user"] = env["github_user"]
     try:
