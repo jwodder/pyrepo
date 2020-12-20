@@ -55,7 +55,6 @@
     - Support configuring the following via the config file:
         - whether to sign the version tag
         - program to use for signing
-        - where & whether to upload on Dropbox
         - whether to create a GitHub release
         - whether to upload to GitHub
         - whether to start a shell to examine the assets after building but

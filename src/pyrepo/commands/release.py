@@ -3,7 +3,6 @@
 # - Add options/individual commands for doing each release step separately
 
 # External dependencies:
-# - dropbox_uploader (including OAuth configuration)
 # - git (including push access to repository)
 # - $GPG (including a key usable for signing)
 # - PyPI credentials for twine
@@ -40,8 +39,6 @@ log = logging.getLogger(__name__)
 GPG = 'gpg'
 # This must point to gpg version 2 or higher, which automatically & implicitly
 # uses gpg-agent to obviate the need to keep entering one's password.
-
-DROPBOX_UPLOAD_DIR = '/Code/Releases/Python/{name}/'
 
 ACTIVE_BADGE = '''\
 .. image:: http://www.repostatus.org/badges/latest/active.svg
@@ -174,7 +171,6 @@ class Releaser:
         log.info('Uploading artifacts ...')
         assert self.assets, 'Nothing to upload'
         self.upload_pypi()
-        self.upload_dropbox()
         self.upload_github()
 
     def upload_pypi(self):  # Idempotent
@@ -186,15 +182,6 @@ class Releaser:
             'upload',
             '--skip-existing',
             *(self.assets + self.assets_asc),
-        )
-
-    def upload_dropbox(self):  # Idempotent
-        log.info('Uploading artifacts to Dropbox ...')
-        runcmd(
-            'dropbox_uploader',
-            'upload',
-            *(self.assets + self.assets_asc),
-            DROPBOX_UPLOAD_DIR.format(name=self.project.name),
         )
 
     def upload_github(self):  ### Not idempotent
