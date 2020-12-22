@@ -79,7 +79,6 @@
     - `add-tests`: Create `tox.ini`
         - Include a `--doctests/--no-doctests` option
     - `add-doctests`
-        - Use the iniparse package to modify `tox.ini`?
         - Also add `rm-doctests`
     - `add-ci`: Do `add-tests`, create `test.yml`, add the appropriate badges
       to the README
@@ -90,7 +89,6 @@
           README
         - Should the adding of documentation links be split into a separate
           command?
-        - Use the iniparse package to modify `tox.ini`?
 - Add a subcommand for updating the README for `has_pypi` being true
     - When generating a README with `has_pypi = False`, use the GitHub URL in
       the installation instructions, with this command replacing that with the

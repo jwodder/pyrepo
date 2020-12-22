@@ -223,6 +223,29 @@ Configure the GitHub Actions test workflow to include a run of the tox
 environment ``<testenv>`` against ``<python-version>``.
 
 
+``pyrepo add-typing``
+---------------------
+
+::
+
+    pyrepo [<global-options>] add-typing
+
+
+Add configuration for type annotations and the checking thereof:
+
+- Add a ``py.typed`` file to the Python package (after converting from a flat
+  module, if necessary)
+
+- Add a "``Typing :: Typed``" classifier to the project classifiers
+
+- Add a ``mypy`` configuration section to ``setup.cfg``
+
+- Add a ``typing`` testenv to ``tox.ini`` if tests are enabled
+
+- Add a ``typing`` job (run against the lowest supported Python version) to the
+  CI configuration if it exists
+
+
 ``pyrepo inspect``
 ------------------
 

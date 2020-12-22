@@ -9,7 +9,7 @@ import attr
 from   in_place    import InPlace
 from   .changelog  import Changelog
 from   .inspecting import inspect_project
-from   .util       import runcmd
+from   .util       import get_jinja_env, runcmd, split_ini_sections
 
 log = logging.getLogger(__name__)
 
@@ -86,6 +86,11 @@ class Project:
             self.render_template(template_path, jinja_env),
             encoding="utf-8",
         )
+
+    def get_template_block(self, template_name, block_name, jinja_env):
+        tmpl = jinja_env.get_template(template_name)
+        context = tmpl.new_context()
+        return "".join(tmpl.blocks[block_name](context))
 
     def set_version(self, version):
         log.info('Setting __version__ to %r ...', version)
@@ -180,3 +185,61 @@ class Project:
                 print('[options.packages.find]', file=fp)
                 print('where = src', file=fp)
         self.is_flat_module = False
+
+    def add_typing(self):
+        log.info("Adding typing configuration ...")
+        self.unflatten()
+        log.info("Creating src/%s/py.typed ...", self.import_name)
+        (self.directory / "src" / self.import_name / "py.typed").touch()
+        jenv = get_jinja_env()
+        log.info("Updating setup.cfg ...")
+        with InPlace(
+            self.directory / "setup.cfg", mode='t', encoding='utf-8',
+        ) as fp:
+            in_classifiers = False
+            for ln in fp:
+                if re.match(r'^classifiers\s*=', ln):
+                    in_classifiers = True
+                elif ln.isspace():
+                    if in_classifiers:
+                        print("    Typing :: Typed", file=fp)
+                    in_classifiers = False
+                print(ln, end='', file=fp)
+            if in_classifiers:
+                print("Typing :: Typed", file=fp)
+            print(file=fp)
+            print(
+                self.get_template_block("setup.cfg.j2", "mypy", jenv),
+                end='',
+                file=fp,
+            )
+        if self.has_tests:
+            log.info("Updating tox.ini ...")
+            toxfile = self.directory / "tox.ini"
+            sections = split_ini_sections(toxfile.read_text(encoding="utf-8"))
+            with toxfile.open("w", encoding="utf-8") as fp:
+                for sectname, sect in sections:
+                    if sectname == "tox":
+                        m = re.search(r'^envlist\s*=\s*', sect, flags=re.M)
+                        if m:
+                            sect = sect[:m.end()] + "typing," + sect[m.end():]
+                        else:
+                            raise RuntimeError(
+                                "Could not find [tox]envlist in tox.ini"
+                            )
+                    print(sect, end='', file=fp)
+                    if sectname == "testenv":
+                        print(
+                            self.get_template_block(
+                                "tox.ini.j2",
+                                "testenv_typing",
+                                jenv,
+                            ),
+                            file=fp,
+                        )
+        if self.has_ci:
+            pyver = self.python_versions[0]
+            log.info("Adding testenv %r with Python version %r", "typing", pyver)
+            self.extra_testenvs["typing"] = pyver
+            self.write_template(".github/workflows/test.yml", jenv)
+        self.has_typing = True

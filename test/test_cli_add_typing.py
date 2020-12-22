@@ -9,17 +9,16 @@ from   test_helpers    import DATA_DIR, assert_dirtrees_eq, show_result
 
 @pytest.mark.parametrize(
     'dirpath',
-    sorted((DATA_DIR / 'add_ci_testenv').iterdir()),
+    sorted((DATA_DIR / 'add_typing').iterdir()),
     ids=attrgetter("name"),
 )
-def test_pyrepo_add_ci_testenv(caplog, dirpath, tmp_path):
+def test_pyrepo_add_typing(caplog, dirpath, tmp_path):
     caplog.set_level(logging.INFO)  # to catch errors in logging statements
     tmp_path /= 'tmp'  # copytree() can't copy to a dir that already exists
     copytree(dirpath / 'before', tmp_path)
-    args = (dirpath / 'args.txt').read_text().splitlines()
     r = CliRunner().invoke(
         main,
-        ['-c', os.devnull, '-C', str(tmp_path), 'add-ci-testenv'] + args,
+        ['-c', os.devnull, '-C', str(tmp_path), 'add-typing'],
         # Standalone mode needs to be disabled so that `ClickException`s (e.g.,
         # `UsageError`) will be returned in `r.exception` instead of a
         # `SystemExit`

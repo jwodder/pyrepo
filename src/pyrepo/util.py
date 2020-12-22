@@ -4,11 +4,12 @@ import subprocess
 import sys
 from   textwrap import wrap
 import time
-from   typing   import List
+from   typing   import List, Optional, Tuple
 import click
 from   in_place import InPlace
 from   intspan  import intspan
 from   jinja2   import Environment, PackageLoader
+from   linesep  import split_preceded
 
 def runcmd(*args, **kwargs):
     r = subprocess.run(args, **kwargs)
@@ -135,3 +136,16 @@ def sort_specifier(specset):
     '>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <4'
     """
     return ', '.join(map(str, sorted(specset, key=attrgetter('version'))))
+
+def split_ini_sections(s: str) -> List[Tuple[Optional[str], str]]:
+    """
+    Splits an INI file into a list of (section name, sections) pairs.  A given
+    section name is `None` iff the "section" is leading whitespace and/or
+    comments in the file. Each section includes the `[section name]` line and
+    any trailing newlines.
+    """
+    sect_rgx = re.compile(r'^\[([^]]+)\]$', flags=re.M)
+    for sect in split_preceded(s, sect_rgx, retain=True):
+        m = sect_rgx.match(sect)
+        sect_name = m and m[1]
+        yield (sect_name, sect)

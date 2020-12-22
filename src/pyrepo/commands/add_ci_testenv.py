@@ -14,6 +14,6 @@ def cli(testenv, pyver):
         project = Project.from_directory()
     except InvalidProjectError as e:
         raise click.UsageError(str(e))
-    log.info("Adding testenv %r with python version %r", testenv, pyver)
+    log.info("Adding testenv %r with Python version %r", testenv, pyver)
     project.extra_testenvs[testenv] = pyver
     project.write_template(".github/workflows/test.yml", get_jinja_env())
