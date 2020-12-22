@@ -4,8 +4,6 @@
 - Autodetect project root by recursing upwards, looking for a `pyproject.toml`
   or `setup.py` file, thereby allowing commands to be run from deeper in a
   project
-- Move `pyrepo/templates/variables.md` somewhere else
-    - Use as attribute documentation on `Project`?
 - Support namespace packages?
 - Make this a package in the `jwodder` namespace?
 - Rename the actual Python package to `jwodder_pyrepo`?

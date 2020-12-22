@@ -18,20 +18,38 @@ CHANGELOG_NAMES = ('CHANGELOG.md', 'CHANGELOG.rst')
 @attr.s(auto_attribs=True)
 class Project:
     directory: Path
+
+    # All attributes from this point on are also context variables used by the
+    # Jinja2 templates.
+
+    #: The name of the project as it is/will be known on PyPI
     name: str
+
     version: str
     short_description: str
     author: str
     author_email: str
-    python_requires: str
     install_requires: List[str]
     keywords: List[str]
     supports_pypy3: bool
+
+    #: Extra testenvs to include runs for in CI, as a mapping from testenv name
+    #: to Python version
     extra_testenvs: Dict[str,str]
+
     is_flat_module: bool
     import_name: str
+
+    #: List of `"X.Y"` strings in ascending order
     python_versions: List[str]
+
+    #: Calculated from `python_versions`
+    python_requires: str
+
+    #: Mapping from command (`console_scripts`) names to entry point
+    #: specifications
     commands: Dict[str, str]
+
     github_user: str
     codecov_user: str
     repo_name: str
