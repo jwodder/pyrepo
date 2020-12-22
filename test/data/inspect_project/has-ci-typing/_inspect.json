@@ -1,5 +1,4 @@
 {
-    "project_name": "foobar",
     "import_name": "foobar",
     "repo_name": "foobar",
     "rtfd_name": "foobar",
@@ -34,5 +33,6 @@
     "extra_testenvs": {
         "typing": "3.6"
     },
-    "has_typing": true
+    "has_typing": true,
+    "name": "foobar"
 }

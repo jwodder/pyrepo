@@ -87,14 +87,14 @@ def cli(obj, **options):
         Path("src", env["import_name"] + ".py").rename(pkgdir / "__init__.py")
         env["is_flat_module"] = False
 
-    env["project_name"] = options.get("project_name", env["import_name"])
-    env["repo_name"] = options.get("repo_name", env["project_name"])
-    env["rtfd_name"] = options.get("rtfd_name", env["project_name"])
+    env["name"] = options.get("project_name", env["import_name"])
+    env["repo_name"] = options.get("repo_name", env["name"])
+    env["rtfd_name"] = options.get("rtfd_name", env["name"])
 
     jenv = get_jinja_env()
 
     env["author_email"] = jenv.from_string(options["author_email"])\
-                              .render(project_name=env["project_name"])
+                              .render(project_name=env["name"])
 
     log.info("Checking for requirements.txt ...")
     req_vars = inspecting.parse_requirements('requirements.txt')

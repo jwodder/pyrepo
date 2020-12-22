@@ -26,8 +26,6 @@
   some dotfile?
 - Problem: Inspecting the version of a local project doesn't seem to work right
   when a different version of that project is installed.
-- Rename the `project_name` context variable to `name` in order to match
-  `Project`?
 
 - `pyrepo init`:
     - Support `project_name`, `repo_name`, and `rtfd_name` as Jinja2 templates

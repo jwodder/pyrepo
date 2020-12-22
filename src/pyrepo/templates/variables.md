@@ -1,4 +1,4 @@
-- `project_name: str`
+- `name: str` — the name of the project as it is/will be known on PyPI
 - `import_name: str`
 - `repo_name: str`
 - `rtfd_name: str`

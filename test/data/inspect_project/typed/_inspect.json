@@ -1,5 +1,4 @@
 {
-    "project_name": "foobar",
     "import_name": "foobar",
     "repo_name": "foobar",
     "rtfd_name": "foobar",
@@ -32,5 +31,6 @@
     "has_ci": false,
     "supports_pypy3": true,
     "extra_testenvs": {},
-    "has_typing": true
+    "has_typing": true,
+    "name": "foobar"
 }

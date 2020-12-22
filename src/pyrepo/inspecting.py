@@ -28,7 +28,7 @@ def inspect_project(dirpath=None):
 
     cfg = read_configuration(str(dirpath / 'setup.cfg'))
     env = {
-        "project_name": cfg["metadata"]["name"],
+        "name": cfg["metadata"]["name"],
         "short_description": cfg["metadata"]["description"],
         "author": cfg["metadata"]["author"],
         "author_email": cfg["metadata"]["author_email"],
@@ -83,7 +83,7 @@ def inspect_project(dirpath=None):
         assert m, 'Documentation URL is not a Read the Docs URL'
         env["rtfd_name"] = m.group(1)
     else:
-        env["rtfd_name"] = env["project_name"]
+        env["rtfd_name"] = env["name"]
 
     toxcfg = ConfigParser(interpolation=None)
     toxcfg.read(str(dirpath / 'tox.ini'))  # No-op when tox.ini doesn't exist

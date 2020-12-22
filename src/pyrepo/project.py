@@ -54,8 +54,6 @@ class Project:
 
     @classmethod
     def from_inspection(cls, directory, context):
-        context = context.copy()
-        context["name"] = context.pop("project_name")
         return cls(directory=directory.resolve(), **context)
 
     @property
@@ -68,7 +66,6 @@ class Project:
     def get_template_context(self):
         context = attr.asdict(self)
         context.pop("directory")
-        context["project_name"] = context.pop("name")
         return context
 
     def render_template(self, template_path, jinja_env):
