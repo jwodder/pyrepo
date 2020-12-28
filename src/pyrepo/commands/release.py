@@ -97,7 +97,7 @@ class Releaser:
     def twine_check(self):  # Idempotent
         log.info('Running twine check ...')
         assert self.assets, 'Nothing to check'
-        runcmd(sys.executable, '-m', 'twine', 'check', *self.assets)
+        runcmd(sys.executable, '-m', 'twine', 'check', '--strict', *self.assets)
 
     def commit_version(self):  ### Not idempotent
         log.info('Committing & tagging ...')
