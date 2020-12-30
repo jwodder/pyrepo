@@ -15,23 +15,49 @@ from   ..util                 import ensure_license_years, get_jinja_env, \
 log = logging.getLogger(__name__)
 
 @click.command()
-@optional('--author', metavar='NAME')
-@optional('--author-email', metavar='EMAIL')
-@optional('--ci/--no-ci')
-@optional('--codecov-user', metavar='USER')
-@optional('-c', '--command', metavar='NAME')
-@click.option('-d', '--description', prompt=True)
-@optional('--docs/--no-docs')
-@optional('--doctests/--no-doctests')
-@optional('--github-user', metavar='USER')
-@optional('-p', '--project-name', metavar='NAME')
-@optional('-P', '--python-requires', metavar='SPEC')
-@optional('--repo-name', metavar='NAME')
-@optional('--rtfd-name', metavar='NAME')
-@optional('--tests/--no-tests')
-@optional('--typing/--no-typing')
+@optional('--author', metavar='NAME', help="Project author's name")
+@optional(
+    '--author-email',
+    metavar='EMAIL',
+    help="Project author's e-mail address",
+)
+@optional('--ci/--no-ci', help='Whether to generate CI configuration')
+@optional('--codecov-user', metavar='USER', help='Codecov.io username')
+@optional(
+    '-c', '--command',
+    metavar='NAME',
+    help='Name of CLI command defined by project',
+)
+@click.option(
+    '-d', '--description',
+    prompt=True,
+    help="Project's summary/short description",
+)
+@optional(
+    '--docs/--no-docs',
+    help='Whether to generate Sphinx/RTD documentation boilerplate',
+)
+@optional(
+    '--doctests/--no-doctests',
+    help='Whether to include running doctests in test configuration',
+)
+@optional('--github-user', metavar='USER', help='Username of GitHub repository')
+@optional('-p', '--project-name', metavar='NAME', help='Name of project')
+@optional(
+    '-P', '--python-requires',
+    metavar='SPEC',
+    help='Python versions required by project',
+)
+@optional('--repo-name', metavar='NAME', help='Name of GitHub repository')
+@optional('--rtfd-name', metavar='NAME', help='Name of RTFD.io site')
+@optional('--tests/--no-tests', help='Whether to generate test configuration')
+@optional(
+    '--typing/--no-typing',
+    help='Whether to configure for type annotations',
+)
 @click.pass_obj
 def cli(obj, **options):
+    """ Create packaging boilerplate for a new project """
     if Path('setup.py').exists():
         raise click.UsageError('setup.py already exists')
     if Path('setup.cfg').exists():

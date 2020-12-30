@@ -10,6 +10,7 @@ log = logging.getLogger(__name__)
 @click.argument('testenv')
 @click.argument('pyver')
 def cli(testenv, pyver):
+    """ Add a TESTENV job with the given PYVER to the CI configuration """
     try:
         project = Project.from_directory()
     except InvalidProjectError as e:

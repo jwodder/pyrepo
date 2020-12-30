@@ -26,6 +26,7 @@ from   .config   import DEFAULT_CFG, configure
 )
 @click.pass_context
 def main(ctx, chdir, config):
+    """ Manage Python packaging boilerplate """
     configure(ctx, config)
     if chdir is not None:
         os.chdir(chdir)
