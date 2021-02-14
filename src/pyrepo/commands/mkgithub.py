@@ -21,7 +21,7 @@ def cli(obj, repo_name, private):
         "description": env["short_description"],
         "private": private,
     })
-    keywords = [kw.replace(' ', '-') for kw in env["keywords"]]
+    keywords = [kw.lower().replace(' ', '-') for kw in env["keywords"]]
     if "python" not in keywords:
         keywords.append("python")
     obj.gh[repo["url"]].topics.put(
