@@ -4,6 +4,7 @@ from   pathlib           import Path
 import re
 import time
 from   intspan           import intspan
+from   read_version      import read_version
 from   setuptools.config import read_configuration
 import yaml
 from   .                 import util  # Import module to keep mocking easy
@@ -34,20 +35,29 @@ def inspect_project(dirpath=None):
         "author_email": cfg["metadata"]["author_email"],
         "python_requires": util.sort_specifier(cfg["options"]["python_requires"]),
         "install_requires": cfg["options"].get("install_requires", []),
-        "version": cfg["metadata"].get("version"),
+        # Until <https://github.com/pypa/setuptools/issues/2575> is fixed, we
+        # have to determine versions via read_version() instead of
+        # read_configuration().
+        #"version": cfg["metadata"].get("version"),
         "keywords": cfg["metadata"].get("keywords", []),
         "supports_pypy3": False,
     }
 
-    if env["version"] is None:
-        raise InvalidProjectError("Cannot determine project version")
+    #if env["version"] is None:
+    #    raise InvalidProjectError("Cannot determine project version")
 
     if cfg["options"].get("packages"):
         env["is_flat_module"] = False
         env["import_name"] = cfg["options"]["packages"][0]
+        env["version"] = read_version(
+            (dirpath / "src" / env["import_name"] / "__init__.py").resolve()
+        )
     else:
         env["is_flat_module"] = True
         env["import_name"] = cfg["options"]["py_modules"][0]
+        env["version"] = read_version(
+            (dirpath / "src" / (env["import_name"] + ".py")).resolve()
+        )
 
     env["python_versions"] = []
     for clsfr in cfg["metadata"]["classifiers"]:
