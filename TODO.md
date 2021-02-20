@@ -22,8 +22,6 @@
 - Is `codecov_user` ever not the same as `github_user`?
 - Support reading project-specific configuration from `pyproject.toml` and/or
   some dotfile?
-- Problem: Inspecting the version of a local project doesn't seem to work right
-  when a different version of that project is installed.
 
 - `pyrepo init`:
     - Support `project_name`, `repo_name`, and `rtfd_name` as Jinja2 templates
