@@ -111,9 +111,17 @@ class Project:
         log.info('Setting __version__ to %r ...', version)
         with InPlace(self.initfile, mode='t', encoding='utf-8') as fp:
             for line in fp:
-                m = re.match(r'^__version__\s*=', line)
+                # Preserve quotation marks around version:
+                m = re.fullmatch(
+                    r'__version__\s*=\s*([\x27"])(?P<version>.+)\1\s*',
+                    line,
+                )
                 if m:
-                    line = m.group(0) + ' ' + repr(version) + '\n'
+                    line = (
+                        line[:m.start("version")]
+                        + str(version)
+                        + line[m.end("version"):]
+                    )
                 print(line, file=fp, end='')
         self.version = version
 
