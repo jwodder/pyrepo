@@ -6,10 +6,11 @@ from   pyrepo.readme import Readme
 
 DATA_DIR = Path(__file__).with_name('data')
 
-@pytest.mark.parametrize('filepath', [
-    p for p in (DATA_DIR / 'readme').iterdir()
-      if p.suffix == '.rst'
-], ids=attrgetter("name"))
+@pytest.mark.parametrize(
+    'filepath',
+    (DATA_DIR / 'readme').glob("*.rst"),
+    ids=attrgetter("name"),
+)
 def test_readme(filepath):
     with filepath.open(encoding='utf-8') as fp:
         rme = Readme.parse(fp)
