@@ -6,8 +6,7 @@ from   ..util       import get_jinja_env
 @click.command()
 @click.option('-o', '--outfile', type=click.File('w', encoding='utf-8'))
 @click.argument('template', nargs=-1)
-@click.pass_obj
-def cli(obj, template, outfile):
+def cli(template, outfile):
     """ Replace files with their re-evaluated templates """
     try:
         project = Project.from_directory()
