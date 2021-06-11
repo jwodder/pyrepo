@@ -110,6 +110,7 @@ def separate_lint(dirpath, git):
                     if has_flakes:
                         print(file=fp)
                         print("[testenv:lint]", file=fp)
+                        print("skip_install = True", file=fp)
                         print("deps =", file=fp)
                         print("    flake8~=3.7", file=fp)
                         print("    flake8-bugbear", file=fp)
