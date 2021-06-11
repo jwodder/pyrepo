@@ -1,19 +1,20 @@
-from   contextlib  import suppress
+from contextlib import suppress
 import logging
-from   pathlib     import Path
+from pathlib import Path
 import re
-from   shutil      import rmtree
+from shutil import rmtree
 import sys
-from   typing      import Dict, List, Optional
+from typing import Dict, List, Optional
 import attr
-from   in_place    import InPlace
-from   .changelog  import Changelog
-from   .inspecting import inspect_project
-from   .util       import get_jinja_env, runcmd, split_ini_sections
+from in_place import InPlace
+from .changelog import Changelog
+from .inspecting import inspect_project
+from .util import get_jinja_env, runcmd, split_ini_sections
 
 log = logging.getLogger(__name__)
 
-CHANGELOG_NAMES = ('CHANGELOG.md', 'CHANGELOG.rst')
+CHANGELOG_NAMES = ("CHANGELOG.md", "CHANGELOG.rst")
+
 
 @attr.s(auto_attribs=True)
 class Project:
@@ -35,7 +36,7 @@ class Project:
 
     #: Extra testenvs to include runs for in CI, as a mapping from testenv name
     #: to Python version
-    extra_testenvs: Dict[str,str]
+    extra_testenvs: Dict[str, str]
 
     is_flat_module: bool
     import_name: str
@@ -87,9 +88,12 @@ class Project:
         return context
 
     def render_template(self, template_path, jinja_env):
-        return jinja_env.get_template(template_path + ".j2").render(
-            self.get_template_context()
-        ).rstrip() + "\n"
+        return (
+            jinja_env.get_template(template_path + ".j2")
+            .render(self.get_template_context())
+            .rstrip()
+            + "\n"
+        )
 
     def write_template(self, template_path, jinja_env, force=True):
         outpath = self.directory / template_path
@@ -108,8 +112,8 @@ class Project:
         return "".join(tmpl.blocks[block_name](context))
 
     def set_version(self, version):
-        log.info('Setting __version__ to %r ...', version)
-        with InPlace(self.initfile, mode='t', encoding='utf-8') as fp:
+        log.info("Setting __version__ to %r ...", version)
+        with InPlace(self.initfile, mode="t", encoding="utf-8") as fp:
             for line in fp:
                 # Preserve quotation marks around version:
                 m = re.fullmatch(
@@ -118,30 +122,29 @@ class Project:
                 )
                 if m:
                     line = (
-                        line[:m.start("version")]
+                        line[: m.start("version")]
                         + str(version)
-                        + line[m.end("version"):]
+                        + line[m.end("version") :]
                     )
-                print(line, file=fp, end='')
+                print(line, file=fp, end="")
         self.version = version
 
     def get_changelog(self, docs: bool = False) -> Optional[Changelog]:
         if docs:
-            paths = [Path('docs', 'changelog.rst')]
+            paths = [Path("docs", "changelog.rst")]
         else:
             paths = CHANGELOG_NAMES
         for p in paths:
             try:
-                with (self.directory / p).open(encoding='utf-8') as fp:
+                with (self.directory / p).open(encoding="utf-8") as fp:
                     return Changelog.load(fp)
             except FileNotFoundError:
                 continue
         return None
 
-    def set_changelog(self, value: Optional[Changelog], docs: bool = False) \
-            -> None:
+    def set_changelog(self, value: Optional[Changelog], docs: bool = False) -> None:
         if docs:
-            paths = [Path('docs', 'changelog.rst')]
+            paths = [Path("docs", "changelog.rst")]
         else:
             paths = CHANGELOG_NAMES
         for p in paths:
@@ -150,27 +153,27 @@ class Project:
                 if value is None:
                     fpath.unlink()
                 else:
-                    with fpath.open('w', encoding='utf-8') as fp:
+                    with fpath.open("w", encoding="utf-8") as fp:
                         value.save(fp)
                 return
         if value is not None:
             fpath = self.directory / paths[0]
-            with fpath.open('w', encoding='utf-8') as fp:
+            with fpath.open("w", encoding="utf-8") as fp:
                 value.save(fp)
 
     def build(self, sdist=True, wheel=True, clean=False):
         if clean:
             with suppress(FileNotFoundError):
-                rmtree(self.directory / 'build')
+                rmtree(self.directory / "build")
             with suppress(FileNotFoundError):
-                rmtree(self.directory / 'dist')
+                rmtree(self.directory / "dist")
         if sdist or wheel:
             args = []
             if sdist:
-                args.append('--sdist')
+                args.append("--sdist")
             if wheel:
-                args.append('--wheel')
-            runcmd(sys.executable, '-m', 'build', *args, self.directory)
+                args.append("--wheel")
+            runcmd(sys.executable, "-m", "build", *args, self.directory)
 
     def unflatten(self):
         if not self.is_flat_module:
@@ -189,24 +192,26 @@ class Project:
         old_initfile.rename(new_initfile)
         log.info("- Updating setup.cfg ...")
         with InPlace(
-            self.directory / "setup.cfg", mode='t', encoding='utf-8',
+            self.directory / "setup.cfg",
+            mode="t",
+            encoding="utf-8",
         ) as fp:
             in_options = False
             for ln in fp:
-                if re.match(r'^py_modules\s*=', ln):
-                    ln = 'packages = find:\n'
-                print(ln, end='', file=fp)
-                if ln == '[options]\n':
+                if re.match(r"^py_modules\s*=", ln):
+                    ln = "packages = find:\n"
+                print(ln, end="", file=fp)
+                if ln == "[options]\n":
                     in_options = True
                 elif in_options and ln.isspace():
-                    print('[options.packages.find]', file=fp)
-                    print('where = src', file=fp)
-                    print('', file=fp)
+                    print("[options.packages.find]", file=fp)
+                    print("where = src", file=fp)
+                    print("", file=fp)
                     in_options = False
             if in_options:
-                print('', file=fp)
-                print('[options.packages.find]', file=fp)
-                print('where = src', file=fp)
+                print("", file=fp)
+                print("[options.packages.find]", file=fp)
+                print("where = src", file=fp)
         self.is_flat_module = False
 
     def add_typing(self):
@@ -217,23 +222,25 @@ class Project:
         jenv = get_jinja_env()
         log.info("Updating setup.cfg ...")
         with InPlace(
-            self.directory / "setup.cfg", mode='t', encoding='utf-8',
+            self.directory / "setup.cfg",
+            mode="t",
+            encoding="utf-8",
         ) as fp:
             in_classifiers = False
             for ln in fp:
-                if re.match(r'^classifiers\s*=', ln):
+                if re.match(r"^classifiers\s*=", ln):
                     in_classifiers = True
                 elif ln.isspace():
                     if in_classifiers:
                         print("    Typing :: Typed", file=fp)
                     in_classifiers = False
-                print(ln, end='', file=fp)
+                print(ln, end="", file=fp)
             if in_classifiers:
                 print("Typing :: Typed", file=fp)
             print(file=fp)
             print(
                 self.get_template_block("setup.cfg.j2", "mypy", jenv),
-                end='',
+                end="",
                 file=fp,
             )
         if self.has_tests:
@@ -243,14 +250,12 @@ class Project:
             with toxfile.open("w", encoding="utf-8") as fp:
                 for sectname, sect in sections:
                     if sectname == "tox":
-                        m = re.search(r'^envlist\s*=\s*', sect, flags=re.M)
+                        m = re.search(r"^envlist\s*=\s*", sect, flags=re.M)
                         if m:
-                            sect = sect[:m.end()] + "typing," + sect[m.end():]
+                            sect = sect[: m.end()] + "typing," + sect[m.end() :]
                         else:
-                            raise RuntimeError(
-                                "Could not find [tox]envlist in tox.ini"
-                            )
-                    print(sect, end='', file=fp)
+                            raise RuntimeError("Could not find [tox]envlist in tox.ini")
+                    print(sect, end="", file=fp)
                     if sectname == "testenv":
                         print(
                             self.get_template_block(

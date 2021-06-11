@@ -1,10 +1,11 @@
 import json
 import click
-from   ..inspecting import InvalidProjectError, inspect_project
+from ..inspecting import InvalidProjectError, inspect_project
+
 
 @click.command()
 def cli():
-    """ Extract template variables from a project """
+    """Extract template variables from a project"""
     try:
         data = inspect_project()
     except InvalidProjectError as e:

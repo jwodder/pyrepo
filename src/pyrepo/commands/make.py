@@ -1,26 +1,28 @@
 import click
-from   ..inspecting import InvalidProjectError
-from   ..project    import Project
+from ..inspecting import InvalidProjectError
+from ..project import Project
+
 
 @click.command()
 @click.option(
-    '-c', '--clean',
+    "-c",
+    "--clean",
     is_flag=True,
     default=False,
-    help='Delete dist/ and build/ before building',
+    help="Delete dist/ and build/ before building",
 )
 @click.option(
-    '--sdist/--no-sdist',
+    "--sdist/--no-sdist",
     default=True,
-    help='Whether to build an sdist [default: true]',
+    help="Whether to build an sdist [default: true]",
 )
 @click.option(
-    '--wheel/--no-wheel',
+    "--wheel/--no-wheel",
     default=True,
-    help='Whether to build a wheel [default: true]',
+    help="Whether to build a wheel [default: true]",
 )
 def cli(clean, sdist, wheel):
-    """ Build an sdist and/or wheel for a project """
+    """Build an sdist and/or wheel for a project"""
     try:
         project = Project.from_directory()
     except InvalidProjectError as e:

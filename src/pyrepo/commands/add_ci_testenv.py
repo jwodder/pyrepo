@@ -1,16 +1,17 @@
 import logging
 import click
-from   ..inspecting import InvalidProjectError
-from   ..project    import Project
-from   ..util       import get_jinja_env
+from ..inspecting import InvalidProjectError
+from ..project import Project
+from ..util import get_jinja_env
 
 log = logging.getLogger(__name__)
 
+
 @click.command()
-@click.argument('testenv')
-@click.argument('pyver')
+@click.argument("testenv")
+@click.argument("pyver")
 def cli(testenv, pyver):
-    """ Add a TESTENV job with the given PYVER to the CI configuration """
+    """Add a TESTENV job with the given PYVER to the CI configuration"""
     try:
         project = Project.from_directory()
     except InvalidProjectError as e:

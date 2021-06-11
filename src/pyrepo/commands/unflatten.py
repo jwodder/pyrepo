@@ -1,6 +1,7 @@
 import click
-from   ..inspecting import InvalidProjectError
-from   ..project    import Project
+from ..inspecting import InvalidProjectError
+from ..project import Project
+
 
 @click.command()
 def cli():

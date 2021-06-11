@@ -1,21 +1,22 @@
 import json
-from   pathlib import Path
+from pathlib import Path
 import requests
 
-ACCEPT = 'application/vnd.github.v3+json'
+ACCEPT = "application/vnd.github.v3+json"
 
-API_ENDPOINT = 'https://api.github.com'
+API_ENDPOINT = "https://api.github.com"
 
-DEFAULT_TOKEN_FILE = Path.home() / '.github'
+DEFAULT_TOKEN_FILE = Path.home() / ".github"
+
 
 class GitHub:
     def __init__(
         self,
-        url        = API_ENDPOINT,
-        token      = None,
-        token_file = DEFAULT_TOKEN_FILE,
-        session    = None,
-        _method    = None,
+        url=API_ENDPOINT,
+        token=None,
+        token_file=DEFAULT_TOKEN_FILE,
+        session=None,
+        _method=None,
     ):
         self._url = url
         if session is None:
@@ -35,10 +36,10 @@ class GitHub:
         url = self._url
         if self._method is not None:
             p = str(self._method)
-            if p.lower().startswith(('http://', 'https://')):
+            if p.lower().startswith(("http://", "https://")):
                 url = p
             else:
-                url = url.rstrip('/') + '/' + p.lstrip('/')
+                url = url.rstrip("/") + "/" + p.lstrip("/")
         return GitHub(url=url, session=self._session, _method=name)
 
     def __call__(self, raw=False, **kwargs):
@@ -47,7 +48,7 @@ class GitHub:
             return r
         elif not r.ok:
             raise GitHubException(r)
-        elif self._method.lower() == 'get' and 'next' in r.links:
+        elif self._method.lower() == "get" and "next" in r.links:
             return paginate(self._session, r)
         elif r.status_code == 204:
             return None
@@ -61,11 +62,11 @@ class GitHubException(Exception):
 
     def __str__(self):
         if 400 <= self.response.status_code < 500:
-            msg = '{0.status_code} Client Error: {0.reason} for URL: {0.url}\n'
+            msg = "{0.status_code} Client Error: {0.reason} for URL: {0.url}\n"
         elif 500 <= self.response.status_code < 600:
-            msg = '{0.status_code} Server Error: {0.reason} for URL: {0.url}\n'
+            msg = "{0.status_code} Server Error: {0.reason} for URL: {0.url}\n"
         else:
-            msg = '{0.status_code} Unknown Error: {0.reason} for URL: {0.url}\n'
+            msg = "{0.status_code} Unknown Error: {0.reason} for URL: {0.url}\n"
         msg = msg.format(self.response)
         try:
             resp = self.response.json()
@@ -81,7 +82,7 @@ def paginate(session, r):
         if not r.ok:
             raise GitHubException(r)
         yield from r.json()
-        url = r.links.get('next', {}).get('url')
+        url = r.links.get("next", {}).get("url")
         if url is None:
             break
         r = session.get(url)

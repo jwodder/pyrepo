@@ -4,13 +4,14 @@ A project
 Visit <https://github.com/jwodder/foobar> for more information.
 """
 
-__version__      = '1.2.3'
-__author__       = 'John Thorvald Wodder II'
-__author_email__ = 'foobar@varonathe.org'
-__license__      = 'MIT'
-__url__          = 'https://github.com/jwodder/foobar'
+__version__ = "1.2.3"
+__author__ = "John Thorvald Wodder II"
+__author_email__ = "foobar@varonathe.org"
+__license__ = "MIT"
+__url__ = "https://github.com/jwodder/foobar"
 
 from collections import Counter
+
 
 def life(before):
     """
@@ -20,10 +21,10 @@ def life(before):
     """
     before = set(before)
     neighbors = Counter(
-        (x+i, y+j) for (x,y) in before
-                   for i in [-1,0,1]
-                   for j in [-1,0,1]
-                   if (i,j) != (0,0)
+        (x + i, y + j)
+        for (x, y) in before
+        for i in [-1, 0, 1]
+        for j in [-1, 0, 1]
+        if (i, j) != (0, 0)
     )
-    return {xy for (xy, n) in neighbors.items()
-               if n == 3 or (n == 2 and xy in before)}
+    return {xy for (xy, n) in neighbors.items() if n == 3 or (n == 2 and xy in before)}

@@ -1,71 +1,74 @@
-from   contextlib             import suppress
+from contextlib import suppress
 import logging
-from   pathlib                import Path
+from pathlib import Path
 import re
 import click
-from   in_place               import InPlace
-from   packaging.requirements import Requirement
-from   packaging.specifiers   import SpecifierSet
-from   packaging.utils        import canonicalize_name as normalize
-from   ..                     import inspecting
-from   ..project              import Project
-from   ..util                 import ensure_license_years, get_jinja_env, \
-                                        optional
+from in_place import InPlace
+from packaging.requirements import Requirement
+from packaging.specifiers import SpecifierSet
+from packaging.utils import canonicalize_name as normalize
+from .. import inspecting
+from ..project import Project
+from ..util import ensure_license_years, get_jinja_env, optional
 
 log = logging.getLogger(__name__)
 
+
 @click.command()
-@optional('--author', metavar='NAME', help="Project author's name")
+@optional("--author", metavar="NAME", help="Project author's name")
 @optional(
-    '--author-email',
-    metavar='EMAIL',
+    "--author-email",
+    metavar="EMAIL",
     help="Project author's e-mail address",
 )
-@optional('--ci/--no-ci', help='Whether to generate CI configuration')
-@optional('--codecov-user', metavar='USER', help='Codecov.io username')
+@optional("--ci/--no-ci", help="Whether to generate CI configuration")
+@optional("--codecov-user", metavar="USER", help="Codecov.io username")
 @optional(
-    '-c', '--command',
-    metavar='NAME',
-    help='Name of CLI command defined by project',
+    "-c",
+    "--command",
+    metavar="NAME",
+    help="Name of CLI command defined by project",
 )
 @click.option(
-    '-d', '--description',
+    "-d",
+    "--description",
     prompt=True,
     help="Project's summary/short description",
 )
 @optional(
-    '--docs/--no-docs',
-    help='Whether to generate Sphinx/RTD documentation boilerplate',
+    "--docs/--no-docs",
+    help="Whether to generate Sphinx/RTD documentation boilerplate",
 )
 @optional(
-    '--doctests/--no-doctests',
-    help='Whether to include running doctests in test configuration',
+    "--doctests/--no-doctests",
+    help="Whether to include running doctests in test configuration",
 )
-@optional('--github-user', metavar='USER', help='Username of GitHub repository')
-@optional('-p', '--project-name', metavar='NAME', help='Name of project')
+@optional("--github-user", metavar="USER", help="Username of GitHub repository")
+@optional("-p", "--project-name", metavar="NAME", help="Name of project")
 @optional(
-    '-P', '--python-requires',
-    metavar='SPEC',
-    help='Python versions required by project',
+    "-P",
+    "--python-requires",
+    metavar="SPEC",
+    help="Python versions required by project",
 )
-@optional('--repo-name', metavar='NAME', help='Name of GitHub repository')
-@optional('--rtfd-name', metavar='NAME', help='Name of RTFD.io site')
-@optional('--tests/--no-tests', help='Whether to generate test configuration')
+@optional("--repo-name", metavar="NAME", help="Name of GitHub repository")
+@optional("--rtfd-name", metavar="NAME", help="Name of RTFD.io site")
+@optional("--tests/--no-tests", help="Whether to generate test configuration")
 @optional(
-    '--typing/--no-typing',
-    help='Whether to configure for type annotations',
+    "--typing/--no-typing",
+    help="Whether to configure for type annotations",
 )
 @click.pass_obj
 def cli(obj, **options):
-    """ Create packaging boilerplate for a new project """
-    if Path('setup.py').exists():
-        raise click.UsageError('setup.py already exists')
-    if Path('setup.cfg').exists():
-        raise click.UsageError('setup.cfg already exists')
-    if Path('pyproject.toml').exists():
-        raise click.UsageError('pyproject.toml already exists')
+    """Create packaging boilerplate for a new project"""
+    if Path("setup.py").exists():
+        raise click.UsageError("setup.py already exists")
+    if Path("setup.cfg").exists():
+        raise click.UsageError("setup.cfg already exists")
+    if Path("pyproject.toml").exists():
+        raise click.UsageError("pyproject.toml already exists")
 
-    defaults = obj.defaults['init']
+    defaults = obj.defaults["init"]
     pyreq_cfg = defaults.pop("python_requires")
     options = dict(defaults, **options)
 
@@ -103,7 +106,7 @@ def cli(obj, **options):
         Path("src").mkdir(exist_ok=True)
         code_path = env["import_name"]
         if env["is_flat_module"]:
-            code_path += '.py'
+            code_path += ".py"
         Path(code_path).rename(Path("src", code_path))
 
     if env["is_flat_module"] and env["has_typing"]:
@@ -119,22 +122,22 @@ def cli(obj, **options):
 
     jenv = get_jinja_env()
 
-    env["author_email"] = jenv.from_string(options["author_email"])\
-                              .render(project_name=env["name"])
+    env["author_email"] = jenv.from_string(options["author_email"]).render(
+        project_name=env["name"]
+    )
 
     log.info("Checking for requirements.txt ...")
-    req_vars = inspecting.parse_requirements('requirements.txt')
+    req_vars = inspecting.parse_requirements("requirements.txt")
 
     if env["is_flat_module"]:
-        initfile = Path("src", env["import_name"] + '.py')
+        initfile = Path("src", env["import_name"] + ".py")
     else:
-        initfile = Path("src", env["import_name"], '__init__.py')
+        initfile = Path("src", env["import_name"], "__init__.py")
     log.info("Checking for __requires__ ...")
     src_vars = inspecting.extract_requires(initfile)
 
     requirements = {}
-    for r in (req_vars["__requires__"] or []) \
-            + (src_vars["__requires__"] or []):
+    for r in (req_vars["__requires__"] or []) + (src_vars["__requires__"] or []):
         req = Requirement(r)
         name = normalize(req.name)
         # `Requirement` objects don't have an `__eq__`, so we need to convert
@@ -144,23 +147,23 @@ def cli(obj, **options):
             requirements[name] = (r, req)
         elif req != requirements[name][1]:
             raise click.UsageError(
-                f'Two different requirements for {name} found:'
-                f' {requirements[name][0]!r} and {r!r}'
+                f"Two different requirements for {name} found:"
+                f" {requirements[name][0]!r} and {r!r}"
             )
-    env["install_requires"] = [r for _,(r,_) in sorted(requirements.items())]
+    env["install_requires"] = [r for _, (r, _) in sorted(requirements.items())]
 
     python_requires = options.get("python_requires")
     if python_requires is not None:
-        if re.fullmatch(r'\d+\.\d+', python_requires):
-            python_requires = '~=' + python_requires
+        if re.fullmatch(r"\d+\.\d+", python_requires):
+            python_requires = "~=" + python_requires
     else:
         pyreq_req = req_vars["__python_requires__"]
         pyreq_src = src_vars["__python_requires__"]
         if pyreq_req is not None and pyreq_src is not None:
             if SpecifierSet(pyreq_req) != SpecifierSet(pyreq_src):
                 raise click.UsageError(
-                    f'Two different Python requirements found:'
-                    f' {pyreq_req!r} and {pyreq_src!r}'
+                    f"Two different Python requirements found:"
+                    f" {pyreq_req!r} and {pyreq_src!r}"
                 )
             python_requires = pyreq_req
         elif pyreq_req is not None:
@@ -175,7 +178,7 @@ def cli(obj, **options):
         pyspec = SpecifierSet(python_requires)
     except ValueError:
         raise click.UsageError(
-            f'Invalid specifier for python_requires: {python_requires!r}'
+            f"Invalid specifier for python_requires: {python_requires!r}"
         )
     env["python_versions"] = list(pyspec.filter(obj.pyversions))
 
@@ -184,9 +187,7 @@ def cli(obj, **options):
     elif env["is_flat_module"]:
         env["commands"] = {options["command"]: f'{env["import_name"]}:main'}
     else:
-        env["commands"] = {
-            options["command"]: f'{env["import_name"]}.__main__:main'
-        }
+        env["commands"] = {options["command"]: f'{env["import_name"]}.__main__:main'}
 
     project = Project.from_inspection(Path(), env)
     project.write_template(".gitignore", jenv, force=False)
@@ -196,41 +197,42 @@ def cli(obj, **options):
     project.write_template("setup.cfg", jenv, force=False)
 
     if env["has_tests"] or env["has_docs"]:
-        project.write_template('tox.ini', jenv, force=False)
+        project.write_template("tox.ini", jenv, force=False)
     if env["has_typing"]:
         log.info("Creating src/%s/py.typed ...", env["import_name"])
         (project.directory / "src" / env["import_name"] / "py.typed").touch()
     if env["has_ci"]:
         if env["has_typing"]:
             project.extra_testenvs["typing"] = project.python_versions[0]
-        project.write_template('.github/workflows/test.yml', jenv, force=False)
+        project.write_template(".github/workflows/test.yml", jenv, force=False)
     if env["has_docs"]:
-        project.write_template('.readthedocs.yml', jenv, force=False)
-        project.write_template('docs/index.rst', jenv, force=False)
-        project.write_template('docs/conf.py', jenv, force=False)
-        project.write_template('docs/requirements.txt', jenv, force=False)
+        project.write_template(".readthedocs.yml", jenv, force=False)
+        project.write_template("docs/index.rst", jenv, force=False)
+        project.write_template("docs/conf.py", jenv, force=False)
+        project.write_template("docs/requirements.txt", jenv, force=False)
 
-    if Path('LICENSE').exists():
+    if Path("LICENSE").exists():
         log.info("Setting copyright year in LICENSE ...")
-        ensure_license_years('LICENSE', env["copyright_years"])
+        ensure_license_years("LICENSE", env["copyright_years"])
     else:
         project.write_template("LICENSE", jenv, force=False)
 
     log.info("Adding intro block to initfile ...")
-    with InPlace(initfile, mode='t', encoding='utf-8') as fp:
+    with InPlace(initfile, mode="t", encoding="utf-8") as fp:
         started = False
         for line in fp:
-            if line.startswith('#!') \
-                or (line.lstrip().startswith('#')
-                    and re.search(r'coding[=:]\s*([-\w.]+)', line)):
+            if line.startswith("#!") or (
+                line.lstrip().startswith("#")
+                and re.search(r"coding[=:]\s*([-\w.]+)", line)
+            ):
                 pass
             elif not started:
-                print(jenv.get_template('init.j2').render(env), file=fp)
+                print(jenv.get_template("init.j2").render(env), file=fp)
                 print(file=fp)
                 started = True
-            print(line, file=fp, end='')
+            print(line, file=fp, end="")
         if not started:  # if initfile is empty
-            print(jenv.get_template('init.j2').render(env), file=fp)
+            print(jenv.get_template("init.j2").render(env), file=fp)
 
     with suppress(FileNotFoundError):
-        Path('requirements.txt').unlink()
+        Path("requirements.txt").unlink()

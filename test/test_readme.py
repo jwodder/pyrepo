@@ -1,19 +1,19 @@
 import json
-from   operator      import attrgetter
-from   pathlib       import Path
+from operator import attrgetter
+from pathlib import Path
 import pytest
-from   pyrepo.readme import Readme
+from pyrepo.readme import Readme
 
-DATA_DIR = Path(__file__).with_name('data')
+DATA_DIR = Path(__file__).with_name("data")
+
 
 @pytest.mark.parametrize(
-    'filepath',
-    (DATA_DIR / 'readme').glob("*.rst"),
+    "filepath",
+    (DATA_DIR / "readme").glob("*.rst"),
     ids=attrgetter("name"),
 )
 def test_readme(filepath):
-    with filepath.open(encoding='utf-8') as fp:
+    with filepath.open(encoding="utf-8") as fp:
         rme = Readme.parse(fp)
-    assert rme.for_json() \
-        == json.loads(filepath.with_suffix('.json').read_text())
-    assert str(rme) == filepath.read_text(encoding='utf-8')
+    assert rme.for_json() == json.loads(filepath.with_suffix(".json").read_text())
+    assert str(rme) == filepath.read_text(encoding="utf-8")
