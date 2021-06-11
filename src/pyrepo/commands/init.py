@@ -191,6 +191,7 @@ def cli(obj, **options):
 
     project = Project.from_inspection(Path(), env)
     project.write_template(".gitignore", jenv, force=False)
+    project.write_template(".pre-commit-config.yaml", jenv, force=False)
     project.write_template("MANIFEST.in", jenv, force=False)
     project.write_template("README.rst", jenv, force=False)
     project.write_template("pyproject.toml", jenv, force=False)

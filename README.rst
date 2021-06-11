@@ -106,6 +106,7 @@ so that the command's effects can easily be reverted should anything go wrong.
 already) and creates the following files if they do not already exist:
 
 - ``.gitignore``
+- ``.pre-commit-config.yaml``
 - ``MANIFEST.in``
 - ``README.rst``
 - ``pyproject.toml``
