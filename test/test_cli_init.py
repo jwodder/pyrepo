@@ -5,7 +5,6 @@ from shutil import copytree
 from click.testing import CliRunner
 import pytest
 import responses
-from pyrepo import inspecting
 from pyrepo.__main__ import main
 from test_helpers import DATA_DIR, assert_dirtrees_eq, show_result
 
@@ -26,10 +25,11 @@ def test_pyrepo_init(caplog, dirpath, mocker, tmp_path):
         cfg = dirpath / "config.cfg"
     else:
         cfg = CONFIG
-    mocker.patch(
+    get_commit_years = mocker.patch(
         "pyrepo.inspecting.get_commit_years",
         return_value=[2016, 2018, 2019],
     )
+    runcmd = mocker.patch("pyrepo.commands.init.runcmd")
     with responses.RequestsMock() as rsps:
         # Don't step on pyversion-info:
         rsps.add_passthru("https://raw.githubusercontent.com")
@@ -49,7 +49,8 @@ def test_pyrepo_init(caplog, dirpath, mocker, tmp_path):
         )
     if not (dirpath / "errmsg.txt").exists():
         assert r.exit_code == 0, show_result(r)
-        inspecting.get_commit_years.assert_called_once_with(Path())
+        get_commit_years.assert_called_once_with(Path())
+        runcmd.assert_called_once_with("pre-commit", "install")
         assert_dirtrees_eq(tmp_path, dirpath / "after")
     else:
         assert r.exit_code != 0 and r.exception is not None, show_result(r)

@@ -9,7 +9,7 @@ from packaging.specifiers import SpecifierSet
 from packaging.utils import canonicalize_name as normalize
 from .. import inspecting
 from ..project import Project
-from ..util import ensure_license_years, get_jinja_env, optional
+from ..util import ensure_license_years, get_jinja_env, optional, runcmd
 
 log = logging.getLogger(__name__)
 
@@ -203,6 +203,7 @@ def cli(obj, **options):
         log.info("Creating src/%s/py.typed ...", env["import_name"])
         (project.directory / "src" / env["import_name"] / "py.typed").touch()
     if env["has_ci"]:
+        project.extra_testenvs["lint"] = project.python_versions[0]
         if env["has_typing"]:
             project.extra_testenvs["typing"] = project.python_versions[0]
         project.write_template(".github/workflows/test.yml", jenv, force=False)
@@ -237,3 +238,6 @@ def cli(obj, **options):
 
     with suppress(FileNotFoundError):
         Path("requirements.txt").unlink()
+
+    runcmd("pre-commit", "install")
+    log.info("TODO: Run `pre-commit run -a` after adding new files")

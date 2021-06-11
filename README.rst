@@ -128,6 +128,9 @@ the project's ``install_requires`` in the ``setup.cfg`` and then deleted.  If
 both sources of requirements are present, the two lists are combined, erroring
 if the same package is given two different requirement specifications.
 
+Finally, ``pre-commit install`` is run, and a message is printed instructing
+the user to run ``pre-commit run -a`` after adding new files to the index.
+
 
 Options
 ^^^^^^^

@@ -134,7 +134,7 @@ def update_mypy(dirpath, git):
     if (dirpath / "tox.ini").exists():
         with InPlace(dirpath / "tox.ini") as fp:
             for line in fp:
-                fp.write(re.sub(r"^    mypy\s*~=", "    mypy~=0.900", line))
+                fp.write(re.sub(r"^    mypy\s*~=.*", "    mypy~=0.900", line))
         if git:
             runcmd("git", "add", "tox.ini", cwd=dirpath)
             commit(dirpath, "Update mypy version")

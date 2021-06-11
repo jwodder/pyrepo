@@ -20,7 +20,7 @@ jobs:
           - 'pypy3'
         toxenv: [py]
         include:
-          - python-version: '3.6'
+          - python-version: '3.5'
             toxenv: lint
           - python-version: '3.5'
             toxenv: typing
