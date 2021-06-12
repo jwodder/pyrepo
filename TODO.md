@@ -1,3 +1,4 @@
+- Move doctests to test dir
 - Write tests
 - Add type annotations
 - Fill in `--help` strings and command docstrings
@@ -23,6 +24,8 @@
 - Support reading project-specific configuration from `pyproject.toml` and/or
   some dotfile?
 - Use pydantic to validate types of attributes of `Project`?
+- Figure out how to rewrite the dynamic module loading in `__main__.py` using
+  `pkgutil.iter_modules()`
 
 - `pyrepo init`:
     - Support `project_name`, `repo_name`, and `rtfd_name` as Jinja2 templates

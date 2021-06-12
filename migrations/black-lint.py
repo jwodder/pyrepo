@@ -64,6 +64,7 @@ repos:
 
 def blacken(dirpath, git):
     if (dirpath / "tox.ini").exists():
+        log("Updating ignore rules in tox.ini ...")
         in_ignore = False
         after_select = False
         with InPlace(dirpath / "tox.ini") as fp:
@@ -83,11 +84,13 @@ def blacken(dirpath, git):
                     else:
                         in_ignore = False
                 fp.write(line)
-    (dirpath / ".pre-commit-config.yaml").write_text(PRE_COMMIT_CONFIG)
+    if not (dirpath / ".pre-commit-config.yaml").exists():
+        log("Adding .pre-commit-config.yaml ...")
+        (dirpath / ".pre-commit-config.yaml").write_text(PRE_COMMIT_CONFIG)
     if git:
         runcmd("pre-commit", "install", cwd=dirpath)
-        # No check, in case of long lines etc.:
-        subprocess.run(["pre-commit", "run", "-a"])
+        # No check, as it fails when black reformats:
+        subprocess.run(["pre-commit", "run", "-a"], cwd=dirpath)
         runcmd("git", "add", "-u", cwd=dirpath)
         runcmd("git", "add", ".pre-commit-config.yaml", cwd=dirpath)
         commit(dirpath, "Go black")
@@ -95,6 +98,7 @@ def blacken(dirpath, git):
 
 def separate_lint(dirpath, git):
     if (dirpath / "tox.ini").exists():
+        log("Splitting off lint environment in tox.ini ...")
         has_flakes = False
         in_testenv = False
         with InPlace(dirpath / "tox.ini") as fp:
@@ -124,6 +128,7 @@ def separate_lint(dirpath, git):
         if git:
             runcmd("git", "add", "tox.ini", cwd=dirpath)
     if (dirpath / ".github" / "workflows" / "test.yml").exists():
+        log("Adding lint environment to test.yml ...")
         runcmd("pyrepo", "add-ci-testenv", "lint", "3.6", cwd=dirpath)
         if git:
             runcmd("git", "add", ".github/workflows/test.yml", cwd=dirpath)
@@ -133,6 +138,7 @@ def separate_lint(dirpath, git):
 
 def update_mypy(dirpath, git):
     if (dirpath / "tox.ini").exists():
+        log("Updating mypy version ...")
         with InPlace(dirpath / "tox.ini") as fp:
             for line in fp:
                 fp.write(re.sub(r"^    mypy\s*~=.*", "    mypy~=0.900", line))
@@ -142,16 +148,24 @@ def update_mypy(dirpath, git):
 
 
 def commit(dirpath, msg):
-    if runcmd("git", "diff", "--cached", "--exit-code", cwd=dirpath).returncode != 0:
+    if (
+        subprocess.run(["git", "diff", "--cached", "--quiet"], cwd=dirpath).returncode
+        != 0
+    ):
         runcmd("git", "commit", "-m", msg, cwd=dirpath)
     else:
-        click.secho("Nothing to commit", err=True, bold=True)
+        log("Nothing to commit")
 
 
 def runcmd(*args, **kwargs):
+    click.secho("+" + " ".join(args), err=True, fg="green")
     r = subprocess.run(args, **kwargs)
     if r.returncode != 0:
         sys.exit(r.returncode)
+
+
+def log(msg):
+    click.secho(msg, err=True, bold=True)
 
 
 if __name__ == "__main__":
