@@ -34,14 +34,15 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip wheel
-          python -m pip install --upgrade --upgrade-strategy=eager coverage tox
+          python -m pip install --upgrade --upgrade-strategy=eager tox
 
-      - name: Run tests
-        run: tox -e ${{ matrix.toxenv }}
-
-      - name: Generate XML coverage report
+      - name: Run tests with coverage
         if: matrix.toxenv == 'py'
-        run: coverage xml
+        run: tox -e py -- --cov-report=xml
+
+      - name: Run generic tests
+        if: matrix.toxenv != 'py'
+        run: tox -e ${{ matrix.toxenv }}
 
       - name: Upload coverage to Codecov
         if: matrix.toxenv == 'py'
