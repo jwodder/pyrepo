@@ -1,4 +1,3 @@
-- Move doctests to test dir
 - Write tests
 - Add type annotations
 - Fill in `--help` strings and command docstrings

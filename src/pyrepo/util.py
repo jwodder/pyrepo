@@ -42,23 +42,11 @@ def years2str(years):
     return str(intspan(years)).replace(",", ", ")
 
 
-def update_years2str(year_str, years=None):
+def update_years2str(year_str: str, years: Optional[List[int]] = None) -> str:
     """
     Given a string of years of the form ``"2014, 2016-2017"``, update the
     string if necessary to include the given years (default: the current year).
 
-    >>> update_years2str('2015', [2015])
-    '2015'
-    >>> update_years2str('2015', [2016])
-    '2015-2016'
-    >>> update_years2str('2015', [2017])
-    '2015, 2017'
-    >>> update_years2str('2014-2015', [2016])
-    '2014-2016'
-    >>> update_years2str('2013, 2015', [2016])
-    '2013, 2015-2016'
-    >>> update_years2str('2013, 2015', [2017, 2014])
-    '2013-2015, 2017'
     """
     if years is None:
         years = [time.localtime().tm_year]
@@ -144,15 +132,7 @@ def yield_lines(fp):
 
 
 def sort_specifier(specset):
-    """
-    Stringify a `SpecifierSet`, sorting by each specifier's version
-
-    >>> from packaging.specifiers import SpecifierSet
-    >>> sort_specifier(SpecifierSet(
-    ...     '>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <4'
-    ... ))
-    '>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <4'
-    """
+    """Stringify a `SpecifierSet`, sorting by each specifier's version"""
     return ", ".join(map(str, sorted(specset, key=attrgetter("version"))))
 
 

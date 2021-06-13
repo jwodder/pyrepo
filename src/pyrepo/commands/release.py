@@ -364,26 +364,10 @@ def cli(obj, version, **options):
     ).run()
 
 
-def next_version(v):
+def next_version(v: str) -> str:
     """
-    >>> next_version('0.5.0')
-    '0.6.0'
-    >>> next_version('0.5.1')
-    '0.6.0'
-    >>> next_version('0.5.0.post1')
-    '0.6.0'
-    >>> next_version('0.5.1.post1')
-    '0.6.0'
-    >>> next_version('0.5.0a1')
-    '0.5.0'
-    >>> next_version('0.5.1a1')
-    '0.5.1'
-    >>> next_version('0.5.0.dev1')
-    '0.5.0'
-    >>> next_version('0.5.1.dev1')
-    '0.5.1'
-    >>> next_version('1!0.5.0')
-    '1!0.6.0'
+    If ``v`` is a prerelease version, returns the base version.  Otherwise,
+    returns the next minor version after the base version.
     """
     vobj = Version(v)
     if vobj.is_prerelease:
