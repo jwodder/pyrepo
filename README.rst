@@ -58,6 +58,14 @@ Global Options
 -C DIR, --chdir DIR     Change to directory ``DIR`` before taking any further
                         actions
 
+-l LEVEL, --log-level LEVEL
+                        Set the `logging level`_ to the given value; default:
+                        ``INFO``.  The level can be given as a case-insensitive
+                        level name or as a numeric value.
+
+.. _logging level: https://docs.python.org/3/library/logging.html
+                   #logging-levels
+
 
 Configuration File
 ------------------

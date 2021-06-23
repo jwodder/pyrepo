@@ -1,8 +1,8 @@
 from importlib import import_module
-import logging
 import os
 from pathlib import Path
 import click
+from click_loglevel import LogLevel
 import colorlog
 from . import __version__
 from .config import DEFAULT_CFG, configure
@@ -24,6 +24,14 @@ from .config import DEFAULT_CFG, configure
     help="Change directory before running",
     metavar="DIR",
 )
+@click.option(
+    "-l",
+    "--log-level",
+    type=LogLevel(),
+    default="INFO",
+    help="Set logging level",
+    show_default=True,
+)
 @click.version_option(
     __version__,
     "-V",
@@ -31,7 +39,7 @@ from .config import DEFAULT_CFG, configure
     message="jwodder-pyrepo %(version)s",
 )
 @click.pass_context
-def main(ctx, chdir, config):
+def main(ctx, chdir, config, log_level):
     """Manage Python packaging boilerplate"""
     configure(ctx, config)
     if chdir is not None:
@@ -45,7 +53,7 @@ def main(ctx, chdir, config):
             "ERROR": "red",
             "CRITICAL": "bold_red",
         },
-        level=logging.INFO,
+        level=log_level,
     )
 
 

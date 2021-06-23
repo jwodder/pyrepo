@@ -13,7 +13,7 @@
 - Change `__python_requires__` to `__requires_python__` to match PEP 621?
 - Rename `supports_pypy3` to `supports_pypy` and determine what versions of
   PyPy to support based on the supported Python versions
-- Make `inspect_project()` log at DEBUG level
+- Make `inspect_project()` and `init` log at DEBUG level
 - Require default `init` config values to be in `[options.init]` in the config
   file instead of under just `[options]`?  I.e., don't copy values from
   `[options]` to other sections?
