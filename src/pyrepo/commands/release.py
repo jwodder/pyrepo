@@ -24,20 +24,14 @@ import time
 import attr
 import click
 from in_place import InPlace
+from linesep import read_paragraphs
 from packaging.version import Version
 from uritemplate import expand
 from ..changelog import Changelog, ChangelogSection
 from ..gh import ACCEPT, GitHub
 from ..inspecting import InvalidProjectError, get_commit_years
 from ..project import Project
-from ..util import (
-    ensure_license_years,
-    optional,
-    read_paragraphs,
-    readcmd,
-    runcmd,
-    update_years2str,
-)
+from ..util import ensure_license_years, optional, readcmd, runcmd, update_years2str
 
 log = logging.getLogger(__name__)
 

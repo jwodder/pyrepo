@@ -1,7 +1,7 @@
 from enum import Enum
 import re
 import attr
-from .util import read_paragraphs
+from linesep import read_paragraphs
 
 ParserState = Enum("ParserState", "BADGES POST_LINKS POST_CONTENTS INTRO SECTIONS")
 

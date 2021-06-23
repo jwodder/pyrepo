@@ -4,7 +4,7 @@ import re
 import shlex
 import subprocess
 import sys
-from textwrap import wrap
+from textwrap import fill
 import time
 from typing import List, Optional, Tuple
 import click
@@ -73,16 +73,14 @@ def get_jinja_env():
 
 
 def rewrap(s):
-    return "\n".join(
-        wrap(
-            s.replace("\n", " "),
-            break_long_words=False,
-            break_on_hyphens=False,
-            expand_tabs=False,
-            fix_sentence_endings=True,
-            replace_whitespace=False,
-            width=79,
-        )
+    return fill(
+        s.replace("\n", " "),
+        break_long_words=False,
+        break_on_hyphens=False,
+        expand_tabs=False,
+        fix_sentence_endings=True,
+        replace_whitespace=False,
+        width=79,
     )
 
 
@@ -109,22 +107,6 @@ def optional(*decls, nilstr=False, **attrs):
     if not attrs.get("multiple"):
         attrs["default"] = None
     return click.option(*decls, callback=callback, expose_value=False, **attrs)
-
-
-def is_blank(line):
-    return line in ("\n", "\r\n")
-
-
-def read_paragraphs(fp):
-    para = []
-    for line in fp:
-        if not is_blank(line) and para and is_blank(para[-1]):
-            yield "".join(para)
-            para = [line]
-        else:
-            para.append(line)
-    if para:
-        yield "".join(para)
 
 
 def yield_lines(fp):
