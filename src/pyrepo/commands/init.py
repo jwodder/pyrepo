@@ -91,6 +91,7 @@ def cli(obj, **options):
         "version": "0.1.0.dev1",
         "supports_pypy3": True,
         "extra_testenvs": {},
+        "default_branch": inspecting.get_default_branch(Path()),
     }
 
     log.info("Determining Python module ...")

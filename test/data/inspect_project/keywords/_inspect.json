@@ -36,5 +36,6 @@
     "supports_pypy3": true,
     "extra_testenvs": {},
     "has_typing": false,
-    "name": "foobar"
+    "name": "foobar",
+    "default_branch": "master"
 }

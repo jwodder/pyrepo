@@ -62,6 +62,7 @@ class Project:
     has_ci: bool
     has_pypi: bool
     copyright_years: List[int]
+    default_branch: str
 
     @classmethod
     def from_directory(cls, dirpath=None):

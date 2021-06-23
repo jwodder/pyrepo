@@ -10,6 +10,7 @@ from pyrepo.inspecting import (
     extract_requires,
     find_module,
     get_commit_years,
+    get_default_branch,
     inspect_project,
     parse_requirements,
 )
@@ -137,13 +138,44 @@ def test_parse_requirements(reqfile):
     sorted((DATA_DIR / "inspect_project").iterdir()),
     ids=attrgetter("name"),
 )
-def test_inspect_project(dirpath):
+def test_inspect_project(dirpath, mocker):
+    get_default_branch = mocker.patch(
+        "pyrepo.inspecting.get_default_branch",
+        return_value="master",
+    )
     if (dirpath / "_errmsg.txt").exists():
         with pytest.raises(Exception) as excinfo:
             inspect_project(dirpath)
         assert str(excinfo.value) == (dirpath / "_errmsg.txt").read_text().strip()
     else:
         env = inspect_project(dirpath)
+        get_default_branch.assert_called_once_with(dirpath)
         assert env == json.loads((dirpath / "_inspect.json").read_text())
         project = Project.from_inspection(dirpath, env)
         assert project.get_template_context() == env
+
+
+@pytest.mark.parametrize(
+    "gitoutput,result",
+    [
+        ("foo\nmaster\nquux", "master"),
+        ("foo\nmain\nquux", "main"),
+        ("foo\nmain\nmaster\nquux", "main"),
+    ],
+)
+def test_get_default_branch(gitoutput, result, mocker):
+    mocker.patch("pyrepo.util.readcmd", return_value=gitoutput)
+    assert get_default_branch(Path()) == result
+    util.readcmd.assert_called_once_with(
+        "git", "--no-pager", "branch", "--format=%(refname:short)", cwd=Path()
+    )
+
+
+def test_get_default_branch_error(mocker):
+    mocker.patch("pyrepo.util.readcmd", return_value="foo\nquux")
+    with pytest.raises(InvalidProjectError) as excinfo:
+        get_default_branch(Path())
+    assert str(excinfo.value) == "Could not determine default Git branch"
+    util.readcmd.assert_called_once_with(
+        "git", "--no-pager", "branch", "--format=%(refname:short)", cwd=Path()
+    )

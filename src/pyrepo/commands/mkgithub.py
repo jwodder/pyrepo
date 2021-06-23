@@ -34,4 +34,4 @@ def cli(obj, repo_name, private):
     if "origin" in readcmd("git", "remote").splitlines():
         runcmd("git", "remote", "rm", "origin")
     runcmd("git", "remote", "add", "origin", repo["ssh_url"])
-    runcmd("git", "push", "-u", "origin", "master")
+    runcmd("git", "push", "-u", "origin", env["default_branch"])

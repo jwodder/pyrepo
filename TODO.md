@@ -11,8 +11,6 @@
     - This will require changing the precedence order of `pyrepo init
       --python-requires` (unless Click 8 comes out in the interim)
 - Change `__python_requires__` to `__requires_python__` to match PEP 621?
-- Add a `default_branch` variable (for use by badges and mkgithub) in
-  anticipation of `main` becoming the default branch
 - Rename `supports_pypy3` to `supports_pypy` and determine what versions of
   PyPy to support based on the supported Python versions
 - Make `inspect_project()` log at DEBUG level

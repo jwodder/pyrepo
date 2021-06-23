@@ -30,5 +30,6 @@
     "supports_pypy3": true,
     "extra_testenvs": {},
     "has_typing": false,
-    "name": "py-foo_bar"
+    "name": "py-foo_bar",
+    "default_branch": "master"
 }

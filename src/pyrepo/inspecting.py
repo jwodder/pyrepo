@@ -42,6 +42,7 @@ def inspect_project(dirpath=None):
         # "version": cfg["metadata"].get("version"),
         "keywords": cfg["metadata"].get("keywords", []),
         "supports_pypy3": False,
+        "default_branch": get_default_branch(dirpath),
     }
 
     # if env["version"] is None:
@@ -253,6 +254,18 @@ def parse_extra_testenvs(filepath: Path):
         return {}
     includes = workflow["jobs"]["test"]["strategy"]["matrix"].get("include", [])
     return {inc["toxenv"]: inc["python-version"] for inc in includes}
+
+
+def get_default_branch(dirpath):
+    branches = set(
+        util.readcmd(
+            "git", "--no-pager", "branch", "--format=%(refname:short)", cwd=dirpath
+        ).splitlines()
+    )
+    for guess in ["main", "master"]:
+        if guess in branches:
+            return guess
+    raise InvalidProjectError("Could not determine default Git branch")
 
 
 class InvalidProjectError(Exception):
