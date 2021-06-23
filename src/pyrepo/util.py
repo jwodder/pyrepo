@@ -17,14 +17,14 @@ log = logging.getLogger(__name__)
 
 
 def runcmd(*args, **kwargs):
-    log.debug("Running: %s", " ".join(map(shlex.quote, args)))
+    log.debug("Running: %s", " ".join(shlex.quote(str(a)) for a in args))
     r = subprocess.run(args, **kwargs)
     if r.returncode != 0:
         sys.exit(r.returncode)
 
 
 def readcmd(*args, **kwargs):
-    log.debug("Running: %s", " ".join(map(shlex.quote, args)))
+    log.debug("Running: %s", " ".join(shlex.quote(str(a)) for a in args))
     try:
         return subprocess.check_output(args, universal_newlines=True, **kwargs).strip()
     except subprocess.CalledProcessError as e:
