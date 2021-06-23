@@ -1,5 +1,7 @@
+import logging
 from operator import attrgetter
 import re
+import shlex
 import subprocess
 import sys
 from textwrap import wrap
@@ -11,14 +13,18 @@ from intspan import intspan
 from jinja2 import Environment, PackageLoader
 from linesep import split_preceded
 
+log = logging.getLogger(__name__)
+
 
 def runcmd(*args, **kwargs):
+    log.debug("Running: %s", " ".join(map(shlex.quote, args)))
     r = subprocess.run(args, **kwargs)
     if r.returncode != 0:
         sys.exit(r.returncode)
 
 
 def readcmd(*args, **kwargs):
+    log.debug("Running: %s", " ".join(map(shlex.quote, args)))
     try:
         return subprocess.check_output(args, universal_newlines=True, **kwargs).strip()
     except subprocess.CalledProcessError as e:
@@ -46,7 +52,6 @@ def update_years2str(year_str: str, years: Optional[List[int]] = None) -> str:
     """
     Given a string of years of the form ``"2014, 2016-2017"``, update the
     string if necessary to include the given years (default: the current year).
-
     """
     if years is None:
         years = [time.localtime().tm_year]
