@@ -83,8 +83,6 @@ def isort(dirpath, git):
             for line in fp:
                 if line.strip() == "flake8-import-order-jwodder":
                     continue
-                if line.strip() == "[flake8]":
-                    in_flake8 = True
                 if line.strip() == "import-order-style = jwodder":
                     continue
                 if m := re.fullmatch(
@@ -92,8 +90,10 @@ def isort(dirpath, git):
                 ):
                     known_first_party = m[1]
                     continue
-                if in_flake8 and not line.strip():
-                    insertion = "\n" + ISORT_CFG
+                if line.strip() == "[flake8]":
+                    in_flake8 = True
+                elif in_flake8 and line.startswith("["):
+                    insertion = ISORT_CFG + "\n"
                     if known_first_party:
                         insertion = re.sub(
                             r"^(?=lines_between_sections)",
@@ -121,6 +121,7 @@ def isort(dirpath, git):
         # No check, as it fails when isort modifies:
         subprocess.run(["pre-commit", "run", "-a"], cwd=dirpath)
         runcmd("git", "add", "-u", cwd=dirpath)
+        runcmd("git", "add", "tox.ini", cwd=dirpath)
         commit(dirpath, "Switch to isort for ordering imports")
 
 
