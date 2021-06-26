@@ -73,6 +73,7 @@ exclude_lines =
     if TYPE_CHECKING:
     \.\.\.
 
+{% endif %}
 [flake8]
 doctests = True
 exclude = .*/,build/,dist/,test/data,venv/
@@ -92,11 +93,8 @@ profile = black
 reverse_relative = True
 sort_relative_in_force_sorted_sections = True
 src_paths = src
-{% endif %}
-{% if has_tests and has_docs %}
-
-{% endif %}
 {% if has_docs %}
+
 [testenv:docs]
 basepython = python3
 deps = -rdocs/requirements.txt

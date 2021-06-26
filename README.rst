@@ -119,6 +119,7 @@ already) and creates the following files if they do not already exist:
 - ``README.rst``
 - ``pyproject.toml``
 - ``setup.cfg``
+- ``tox.ini``
 
 If a ``LICENSE`` file does not exist, one is created; otherwise, the copyright
 years in the ``LICENSE`` file are updated.  In both cases, the copyright years

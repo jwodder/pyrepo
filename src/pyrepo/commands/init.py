@@ -197,9 +197,8 @@ def cli(obj, **options):
     project.write_template("README.rst", jenv, force=False)
     project.write_template("pyproject.toml", jenv, force=False)
     project.write_template("setup.cfg", jenv, force=False)
+    project.write_template("tox.ini", jenv, force=False)
 
-    if env["has_tests"] or env["has_docs"]:
-        project.write_template("tox.ini", jenv, force=False)
     if env["has_typing"]:
         log.info("Creating src/%s/py.typed ...", env["import_name"])
         (project.directory / "src" / env["import_name"] / "py.typed").touch()
