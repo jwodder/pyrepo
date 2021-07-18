@@ -5,6 +5,7 @@ from ..project import Project
 
 @click.command()
 def cli():
+    """Convert a "flat" project to a "non-flat"/"package" project"""
     try:
         project = Project.from_directory()
     except InvalidProjectError as e:

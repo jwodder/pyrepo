@@ -1,6 +1,5 @@
 - Write tests
 - Add type annotations
-- Fill in `--help` strings and command docstrings
 - Autodetect project root by recursing upwards, looking for a `pyproject.toml`
   or `setup.py` file, thereby allowing commands to be run from deeper in a
   project

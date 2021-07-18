@@ -334,10 +334,11 @@ class Releaser:
 
 @click.command()
 @optional("--tox/--no-tox", help="Run tox before building")
-@optional("--sign-assets/--no-sign-assets")
+@optional("--sign-assets/--no-sign-assets", help="Sign built assets with PGP")
 @click.argument("version", required=False)
 @click.pass_obj
 def cli(obj, version, **options):
+    """Make a new release of the project"""
     try:
         project = Project.from_directory()
     except InvalidProjectError as e:

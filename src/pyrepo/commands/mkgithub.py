@@ -7,10 +7,11 @@ TOPICS_ACCEPT = f"application/vnd.github.mercy-preview,{ACCEPT}"
 
 
 @click.command()
-@click.option("-P", "--private", is_flag=True)
-@click.option("--repo-name", metavar="NAME")
+@click.option("-P", "--private", is_flag=True, help="Make the new repo private")
+@click.option("--repo-name", metavar="NAME", help="Set the name of the repository")
 @click.pass_obj
 def cli(obj, repo_name, private):
+    """Create a repository on GitHub for the local project and upload it"""
     try:
         env = inspect_project()
     except InvalidProjectError as e:
