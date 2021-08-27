@@ -1,4 +1,5 @@
 from importlib import import_module
+import logging
 import os
 from pathlib import Path
 import click
@@ -28,8 +29,8 @@ from .config import DEFAULT_CFG, configure
     "-l",
     "--log-level",
     type=LogLevel(),
-    default="INFO",
-    help="Set logging level",
+    default=logging.INFO,
+    help="Set logging level  [default: INFO]",
     show_default=True,
 )
 @click.version_option(
