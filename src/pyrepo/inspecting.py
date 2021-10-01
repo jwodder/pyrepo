@@ -98,7 +98,7 @@ def inspect_project(dirpath=None):
         env["rtfd_name"] = env["name"]
 
     toxcfg = ConfigParser(interpolation=None)
-    toxcfg.read(str(dirpath / "tox.ini"))  # No-op when tox.ini doesn't exist
+    toxcfg.read(dirpath / "tox.ini")  # No-op when tox.ini doesn't exist
     env["has_tests"] = toxcfg.has_section("testenv")
 
     env["has_doctests"] = False
