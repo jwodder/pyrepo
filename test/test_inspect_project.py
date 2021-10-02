@@ -9,6 +9,8 @@ from pytest_mock import MockerFixture
 from pyrepo import util
 from pyrepo.inspecting import (
     InvalidProjectError,
+    ModuleInfo,
+    Requirements,
     extract_requires,
     find_module,
     get_commit_years,
@@ -72,11 +74,11 @@ def test_get_commit_years_no_include_now(
     ids=attrgetter("name"),
 )
 def test_find_module(dirpath: Path) -> None:
-    assert find_module(dirpath) == {
-        "import_name": "foobar",
-        "is_flat_module": dirpath.name.endswith("flat"),
-        "src_layout": False,
-    }
+    assert find_module(dirpath) == ModuleInfo(
+        import_name="foobar",
+        is_flat_module=dirpath.name.endswith("flat"),
+        src_layout=False,
+    )
 
 
 @pytest.mark.parametrize(
@@ -85,11 +87,11 @@ def test_find_module(dirpath: Path) -> None:
     ids=attrgetter("name"),
 )
 def test_find_module_src(dirpath: Path) -> None:
-    assert find_module(dirpath) == {
-        "import_name": "foobar",
-        "is_flat_module": dirpath.name.endswith("flat"),
-        "src_layout": True,
-    }
+    assert find_module(dirpath) == ModuleInfo(
+        import_name="foobar",
+        is_flat_module=dirpath.name.endswith("flat"),
+        src_layout=True,
+    )
 
 
 @pytest.mark.parametrize(
@@ -123,8 +125,7 @@ def test_extract_requires(dirpath: Path, tmp_path: Path) -> None:
     dest = tmp_path / "foobar.py"
     copyfile(dirpath / "before.py", dest)
     variables = extract_requires(dest)
-    with (dirpath / "variables.json").open() as fp:
-        assert variables == json.load(fp)
+    assert variables == Requirements.parse_file(dirpath / "variables.json")
     assert (dirpath / "after.py").read_text() == dest.read_text()
 
 
@@ -135,7 +136,7 @@ def test_extract_requires(dirpath: Path, tmp_path: Path) -> None:
 )
 def test_parse_requirements(reqfile: Path) -> None:
     variables = parse_requirements(reqfile)
-    assert variables == json.loads(reqfile.with_suffix(".json").read_text())
+    assert variables == Requirements.parse_file(reqfile.with_suffix(".json"))
 
 
 @pytest.mark.parametrize(

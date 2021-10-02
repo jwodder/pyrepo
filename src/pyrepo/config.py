@@ -1,9 +1,9 @@
 from configparser import ConfigParser
 from pathlib import Path
 import platform
+from typing import List, Tuple
 import attr
 import click
-from config import List, Tuple
 from pyversion_info import get_pyversion_info
 import requests
 from pyrepo import __url__, __version__

@@ -141,7 +141,7 @@ def cli(obj: Config, **options: Any) -> None:
     src_vars = inspecting.extract_requires(initfile)
 
     requirements = {}
-    for r in (req_vars["__requires__"] or []) + (src_vars["__requires__"] or []):
+    for r in (req_vars.requires or []) + (src_vars.requires or []):
         req = Requirement(r)
         name = normalize(req.name)
         # `Requirement` objects don't have an `__eq__`, so we need to convert
@@ -161,8 +161,8 @@ def cli(obj: Config, **options: Any) -> None:
         if re.fullmatch(r"\d+\.\d+", python_requires):
             python_requires = "~=" + python_requires
     else:
-        pyreq_req = req_vars["__python_requires__"]
-        pyreq_src = src_vars["__python_requires__"]
+        pyreq_req = req_vars.python_requires
+        pyreq_src = src_vars.python_requires
         if pyreq_req is not None and pyreq_src is not None:
             if SpecifierSet(pyreq_req) != SpecifierSet(pyreq_src):
                 raise click.UsageError(
