@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from typing import Any, Iterator, Optional
 import requests
 
 ACCEPT = "application/vnd.github.v3+json"
@@ -12,11 +13,11 @@ DEFAULT_TOKEN_FILE = Path.home() / ".github"
 class GitHub:
     def __init__(
         self,
-        url=API_ENDPOINT,
-        token=None,
-        token_file=DEFAULT_TOKEN_FILE,
-        session=None,
-        _method=None,
+        url: str = API_ENDPOINT,
+        token: str = None,
+        token_file: str = DEFAULT_TOKEN_FILE,
+        session: Optional[requests.Session] = None,
+        _method: Optional[str] = None,
     ):
         self._url = url
         if session is None:
@@ -29,10 +30,10 @@ class GitHub:
         self._session = session
         self._method = _method
 
-    def __getattr__(self, key):
+    def __getattr__(self, key: str) -> "GitHub":
         return self[key]
 
-    def __getitem__(self, name):
+    def __getitem__(self, name: str) -> "GitHub":
         url = self._url
         if self._method is not None:
             p = str(self._method)
@@ -42,7 +43,7 @@ class GitHub:
                 url = url.rstrip("/") + "/" + p.lstrip("/")
         return GitHub(url=url, session=self._session, _method=name)
 
-    def __call__(self, raw=False, **kwargs):
+    def __call__(self, raw: bool = False, **kwargs: Any) -> Any:
         r = self._session.request(self._method, self._url, **kwargs)
         if raw:
             return r
@@ -57,10 +58,10 @@ class GitHub:
 
 
 class GitHubException(Exception):
-    def __init__(self, response):
+    def __init__(self, response: requests.Response):
         self.response = response
 
-    def __str__(self):
+    def __str__(self) -> str:
         if 400 <= self.response.status_code < 500:
             msg = "{0.status_code} Client Error: {0.reason} for URL: {0.url}\n"
         elif 500 <= self.response.status_code < 600:
@@ -77,7 +78,7 @@ class GitHubException(Exception):
         return msg
 
 
-def paginate(session, r):
+def paginate(session: requests.Session, r: requests.Response) -> Iterator:
     while True:
         if not r.ok:
             raise GitHubException(r)

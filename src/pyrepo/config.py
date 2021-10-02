@@ -1,8 +1,9 @@
 from configparser import ConfigParser
 from pathlib import Path
 import platform
-from types import SimpleNamespace
+import attr
 import click
+from config import List, Tuple
 from pyversion_info import get_pyversion_info
 import requests
 from pyrepo import __url__, __version__
@@ -29,7 +30,14 @@ MAJOR_PYTHON_VERSIONS = [3]
 PYVER_TEMPLATE = '"3.X"'
 
 
-def configure(ctx, filename):
+@attr.s(auto_attribs=True)
+class Config:
+    defaults: dict
+    pyversions: List[str]
+    gh: GitHub
+
+
+def configure(ctx: click.Context, filename: str) -> None:
     cfg = ConfigParser(interpolation=None)
     cfg.optionxform = lambda s: s.lower().replace("-", "_")
     cfg.read_dict(DEFAULTS)
@@ -64,10 +72,6 @@ def configure(ctx, filename):
             "Config option pyversions.minimum cannot be greater than"
             " pyversions.maximum"
         )
-    ctx.obj = SimpleNamespace(
-        defaults={},
-        pyversions=pyver_range(min_pyversion, max_pyversion),
-    )
 
     s = requests.Session()
     s.headers["Accept"] = ACCEPT
@@ -78,7 +82,11 @@ def configure(ctx, filename):
         auth_gh = {}
     if "token" in auth_gh:
         s.headers["Authorization"] = "token " + auth_gh["token"]
-    ctx.obj.gh = GitHub(session=s)
+    ctx.obj = Config(
+        defaults={},
+        pyversions=pyver_range(min_pyversion, max_pyversion),
+        gh=GitHub(session=s),
+    )
 
     if not cfg.has_option("options", "python_requires"):
         cfg["options"]["python_requires"] = "~={}.{}".format(*min_pyversion)
@@ -100,16 +108,21 @@ def configure(ctx, filename):
         ctx.obj.defaults[cmdname] = defaults
 
 
-def parse_pyversion(s):
+def parse_pyversion(s: str) -> Tuple[int, int]:
     major, _, minor = s.partition(".")
     major = int(major)
     minor = int(minor)
     if major not in MAJOR_PYTHON_VERSIONS:
-        raise ValueError
+        raise NotImplementedError(
+            "Only the following major Python versions are supported:"
+            f" {', '.join(MAJOR_PYTHON_VERSIONS)}"
+        )
     return (major, minor)
 
 
-def pyver_range(min_pyversion, max_pyversion):
+def pyver_range(
+    min_pyversion: Tuple[int, int], max_pyversion: Tuple[int, int]
+) -> List[str]:
     minmajor, minminor = min_pyversion
     maxmajor, maxminor = max_pyversion
     if minmajor != maxmajor:

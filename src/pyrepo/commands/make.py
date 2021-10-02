@@ -21,7 +21,7 @@ from ..project import Project
     default=True,
     help="Whether to build a wheel [default: true]",
 )
-def cli(clean, sdist, wheel):
+def cli(clean: bool, sdist: bool, wheel: bool) -> None:
     """Build an sdist and/or wheel for a project"""
     try:
         project = Project.from_directory()

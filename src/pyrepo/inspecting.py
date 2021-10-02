@@ -3,7 +3,10 @@ from configparser import ConfigParser
 from pathlib import Path
 import re
 import time
+from typing import Any, Dict, List, Optional, Union
+import attr
 from intspan import intspan
+from pydantic import BaseModel, Field
 from read_version import read_version
 from setuptools.config import read_configuration
 import yaml
@@ -12,15 +15,15 @@ from .readme import Readme
 from .util import PyVersion
 
 
-def inspect_project(dirpath=None):
+def inspect_project(dirpath: Optional[Union[str, Path]] = None) -> dict:
     """Fetch various information about an already-initialized project"""
     if dirpath is None:
-        dirpath = Path()
+        directory = Path()
     else:
-        dirpath = Path(dirpath)
+        directory = Path(dirpath)
 
-    def exists(*fname):
-        return Path(dirpath, *fname).exists()
+    def exists(*fname: str) -> bool:
+        return Path(directory, *fname).exists()
 
     if not exists("pyproject.toml"):
         raise InvalidProjectError("Project is missing pyproject.toml file")
@@ -29,7 +32,7 @@ def inspect_project(dirpath=None):
     if not exists("src"):
         raise InvalidProjectError("Project does not have src/ layout")
 
-    cfg = read_configuration(str(dirpath / "setup.cfg"))
+    cfg = read_configuration(str(directory / "setup.cfg"))
     env = {
         "name": cfg["metadata"]["name"],
         "short_description": cfg["metadata"]["description"],
@@ -43,7 +46,7 @@ def inspect_project(dirpath=None):
         # "version": cfg["metadata"].get("version"),
         "keywords": cfg["metadata"].get("keywords", []),
         "supports_pypy3": False,
-        "default_branch": get_default_branch(dirpath),
+        "default_branch": get_default_branch(directory),
     }
 
     # if env["version"] is None:
@@ -53,13 +56,13 @@ def inspect_project(dirpath=None):
         env["is_flat_module"] = False
         env["import_name"] = cfg["options"]["packages"][0]
         env["version"] = read_version(
-            (dirpath / "src" / env["import_name"] / "__init__.py").resolve()
+            (directory / "src" / env["import_name"] / "__init__.py").resolve()
         )
     else:
         env["is_flat_module"] = True
         env["import_name"] = cfg["options"]["py_modules"][0]
         env["version"] = read_version(
-            (dirpath / "src" / (env["import_name"] + ".py")).resolve()
+            (directory / "src" / (env["import_name"] + ".py")).resolve()
         )
 
     env["python_versions"] = []
@@ -99,11 +102,11 @@ def inspect_project(dirpath=None):
         env["rtfd_name"] = env["name"]
 
     toxcfg = ConfigParser(interpolation=None)
-    toxcfg.read(dirpath / "tox.ini")  # No-op when tox.ini doesn't exist
+    toxcfg.read(directory / "tox.ini")  # No-op when tox.ini doesn't exist
     env["has_tests"] = toxcfg.has_section("testenv")
 
     env["has_doctests"] = False
-    for pyfile in (dirpath / "src").rglob("*.py"):
+    for pyfile in (directory / "src").rglob("*.py"):
         if re.search(r"^\s*>>>\s+", pyfile.read_text(), flags=re.M):
             env["has_doctests"] = True
             break
@@ -114,7 +117,7 @@ def inspect_project(dirpath=None):
 
     env["codecov_user"] = env["github_user"]
     try:
-        with (dirpath / "README.rst").open(encoding="utf-8") as fp:
+        with (directory / "README.rst").open(encoding="utf-8") as fp:
             rdme = Readme.parse(fp)
     except FileNotFoundError:
         env["has_pypi"] = False
@@ -128,7 +131,7 @@ def inspect_project(dirpath=None):
                 env["codecov_user"] = m.group(1)
         env["has_pypi"] = any(link["label"] == "PyPI" for link in rdme.header_links)
 
-    with (dirpath / "LICENSE").open(encoding="utf-8") as fp:
+    with (directory / "LICENSE").open(encoding="utf-8") as fp:
         for line in fp:
             m = re.match(r"^Copyright \(c\) (\d[-,\d\s]+\d) \w+", line)
             if m:
@@ -138,7 +141,7 @@ def inspect_project(dirpath=None):
             raise InvalidProjectError("Copyright years not found in LICENSE")
 
     env["extra_testenvs"] = parse_extra_testenvs(
-        dirpath / ".github" / "workflows" / "test.yml"
+        directory / ".github" / "workflows" / "test.yml"
     )
 
     return env
@@ -158,8 +161,15 @@ def get_commit_years(dirpath, include_now=True):
     return sorted(years)
 
 
-def find_module(dirpath: Path):
-    results = []
+@attr.s(auto_attribs=True)
+class ModuleInfo:
+    import_name: str
+    is_flat_module: bool
+    src_layout: bool
+
+
+def find_module(dirpath: Path) -> ModuleInfo:
+    results: List[ModuleInfo] = []
     if (dirpath / "src").exists():
         dirpath /= "src"
         src_layout = True
@@ -169,21 +179,21 @@ def find_module(dirpath: Path):
         name = flat.stem
         if name.isidentifier() and name != "setup":
             results.append(
-                {
-                    "import_name": name,
-                    "is_flat_module": True,
-                    "src_layout": src_layout,
-                }
+                ModuleInfo(
+                    import_name=name,
+                    is_flat_module=True,
+                    src_layout=src_layout,
+                )
             )
     for pkg in dirpath.glob("*/__init__.py"):
         name = pkg.parent.name
         if name.isidentifier():
             results.append(
-                {
-                    "import_name": name,
-                    "is_flat_module": False,
-                    "src_layout": src_layout,
-                }
+                ModuleInfo(
+                    import_name=name,
+                    is_flat_module=False,
+                    src_layout=src_layout,
+                )
             )
     if len(results) > 1:
         raise InvalidProjectError("Multiple Python modules in repository")
@@ -193,17 +203,21 @@ def find_module(dirpath: Path):
         return results[0]
 
 
-def extract_requires(filename):
+class Requirements(BaseModel):
+    python_requires: Optional[str] = Field(None, alias="__python_requires__")
+    requires: Optional[List[str]] = Field(None, alias="__requires__")
+
+
+def extract_requires(filename: Path) -> Requirements:
     ### TODO: Split off the destructive functionality so that this can be run
     ### idempotently/in a read-only manner
-    variables = {
+    variables: Dict[str, Any] = {
         "__python_requires__": None,
         "__requires__": None,
     }
-    with open(filename, "rb") as fp:
-        src = fp.read()
+    src = filename.read_bytes()
     lines = src.splitlines(keepends=True)
-    dellines = []
+    dellines: List[slice] = []
     tree = ast.parse(src)
     for i, node in enumerate(tree.body):
         if (
@@ -219,18 +233,15 @@ def extract_requires(filename):
                 dellines.append(slice(node.lineno - 1))
     for sl in reversed(dellines):
         del lines[sl]
-    with open(filename, "wb") as fp:
+    with filename.open("wb") as fp:
         fp.writelines(lines)
-    return variables
+    return Requirements.parse_obj(variables)
 
 
-def parse_requirements(filepath):
-    variables = {
-        "__python_requires__": None,
-        "__requires__": None,
-    }
+def parse_requirements(filepath: Path) -> Requirements:
+    reqs = Requirements()
     try:
-        with open(filepath, encoding="utf-8") as fp:
+        with filepath.open(encoding="utf-8") as fp:
             for line in fp:
                 m = re.fullmatch(
                     r"\s*#\s*python\s*((?:[=<>!~]=|[<>]|===)\s*\S(?:.*\S)?)\s*",
@@ -238,16 +249,16 @@ def parse_requirements(filepath):
                     flags=re.I,
                 )
                 if m:
-                    variables["__python_requires__"] = m.group(1)
+                    reqs.python_requires = m[1]
                     break
             fp.seek(0)
-            variables["__requires__"] = list(util.yield_lines(fp))
+            reqs.requires = list(util.yield_lines(fp))
     except FileNotFoundError:
         pass
-    return variables
+    return reqs
 
 
-def parse_extra_testenvs(filepath: Path):
+def parse_extra_testenvs(filepath: Path) -> Dict[str, str]:
     try:
         with filepath.open(encoding="utf-8") as fp:
             workflow = yaml.safe_load(fp)
@@ -257,7 +268,7 @@ def parse_extra_testenvs(filepath: Path):
     return {inc["toxenv"]: inc["python-version"] for inc in includes}
 
 
-def get_default_branch(dirpath):
+def get_default_branch(dirpath: Path) -> str:
     branches = set(
         util.readcmd(
             "git", "--no-pager", "branch", "--format=%(refname:short)", cwd=dirpath

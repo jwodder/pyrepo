@@ -4,7 +4,7 @@ from ..project import Project
 
 
 @click.command()
-def cli():
+def cli() -> None:
     """Add configuration for type annotations and the checking thereof"""
     try:
         project = Project.from_directory()

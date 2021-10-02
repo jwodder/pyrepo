@@ -1,3 +1,4 @@
+from typing import Sequence
 import click
 from ..inspecting import InvalidProjectError
 from ..project import Project
@@ -6,7 +7,7 @@ from ..util import PyVersion
 
 @click.command()
 @click.argument("pyversions", type=PyVersion.parse, nargs=-1)
-def cli(pyversions):
+def cli(pyversions: Sequence[str]) -> None:
     """Declare support for a given Python version"""
     try:
         project = Project.from_directory()

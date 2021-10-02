@@ -2,6 +2,7 @@ from importlib import import_module
 import logging
 import os
 from pathlib import Path
+from typing import Optional
 import click
 from click_loglevel import LogLevel
 import colorlog
@@ -40,7 +41,7 @@ from .config import DEFAULT_CFG, configure
     message="jwodder-pyrepo %(version)s",
 )
 @click.pass_context
-def main(ctx, chdir, config, log_level):
+def main(ctx: click.Context, chdir: Optional[str], config: str, log_level: int) -> None:
     """Manage Python packaging boilerplate"""
     configure(ctx, config)
     if chdir is not None:

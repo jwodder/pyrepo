@@ -3,14 +3,14 @@ from typing import IO, List
 import attr
 
 
-@attr.s
+@attr.s(auto_attribs=True)
 class Changelog:
     """
     See <https://github.com/jwodder/pyrepo/wiki/CHANGELOG-Format> for a
     description of the format parsed & emitted by this class
     """
 
-    intro: str = attr.ib()
+    intro: str
     sections: List["ChangelogSection"] = attr.ib(converter=list)
 
     @classmethod
@@ -71,11 +71,11 @@ class Changelog:
         return attr.asdict(self)
 
 
-@attr.s
+@attr.s(auto_attribs=True)
 class ChangelogSection:
-    version: str = attr.ib()
-    date: str = attr.ib()
-    content: str = attr.ib()  # has trailing newlines stripped
+    version: str
+    date: str
+    content: str  # has trailing newlines stripped
 
     def __str__(self) -> str:
         s = self.version

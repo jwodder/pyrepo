@@ -4,7 +4,7 @@ from ..inspecting import InvalidProjectError, inspect_project
 
 
 @click.command()
-def cli():
+def cli() -> None:
     """Extract template variables from a project"""
     try:
         data = inspect_project()

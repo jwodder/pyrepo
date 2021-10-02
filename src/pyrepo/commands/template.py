@@ -1,3 +1,4 @@
+from typing import Optional, Sequence, TextIO
 import click
 from ..inspecting import InvalidProjectError
 from ..project import Project
@@ -7,7 +8,7 @@ from ..util import get_jinja_env
 @click.command()
 @click.option("-o", "--outfile", type=click.File("w", encoding="utf-8"))
 @click.argument("template", nargs=-1)
-def cli(template, outfile):
+def cli(template: Sequence[str], outfile: Optional[TextIO]) -> None:
     """Replace files with their re-evaluated templates"""
     try:
         project = Project.from_directory()

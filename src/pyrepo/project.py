@@ -4,8 +4,9 @@ from pathlib import Path
 import re
 from shutil import rmtree
 import sys
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 from in_place import InPlace
+from jinja2 import Environment
 from lineinfile import AfterLast, add_line_to_file
 from packaging.specifiers import SpecifierSet
 from pydantic import BaseModel, DirectoryPath
@@ -69,7 +70,7 @@ class Project(BaseModel):
         self.python_versions.sort()
 
     @classmethod
-    def from_directory(cls, dirpath=None):
+    def from_directory(cls, dirpath: Optional[Path] = None) -> "Project":
         if dirpath is None:
             directory = Path()
         else:
@@ -77,7 +78,7 @@ class Project(BaseModel):
         return cls.from_inspection(directory, inspect_project(directory))
 
     @classmethod
-    def from_inspection(cls, directory, context):
+    def from_inspection(cls, directory: Path, context: dict) -> "Project":
         return cls.parse_obj({"directory": directory.resolve(), **context})
 
     @property
@@ -87,10 +88,10 @@ class Project(BaseModel):
         else:
             return self.directory / "src" / self.import_name / "__init__.py"
 
-    def get_template_context(self):
+    def get_template_context(self) -> dict:
         return self.dict(exclude={"directory"})
 
-    def render_template(self, template_path, jinja_env):
+    def render_template(self, template_path: str, jinja_env: Environment) -> str:
         return (
             jinja_env.get_template(template_path + ".j2")
             .render(self.get_template_context())
@@ -98,9 +99,15 @@ class Project(BaseModel):
             + "\n"
         )
 
-    def write_template(self, template_path, jinja_env, force=True):
+    def write_template(
+        self,
+        template_path: Union[str, Path],
+        jinja_env: Environment,
+        force: bool = True,
+    ) -> None:
         outpath = self.directory / template_path
         if not force and outpath.exists():
+            log.info("File %s already exists; not templating", template_path)
             return
         log.info("Writing %s ...", template_path)
         outpath.parent.mkdir(parents=True, exist_ok=True)
@@ -109,12 +116,14 @@ class Project(BaseModel):
             encoding="utf-8",
         )
 
-    def get_template_block(self, template_name, block_name, jinja_env):
+    def get_template_block(
+        self, template_name: str, block_name: str, jinja_env: Environment
+    ) -> str:
         tmpl = jinja_env.get_template(template_name)
         context = tmpl.new_context()
         return "".join(tmpl.blocks[block_name](context))
 
-    def set_version(self, version):
+    def set_version(self, version: str) -> None:
         log.info("Setting __version__ to %r ...", version)
         with InPlace(self.initfile, mode="t", encoding="utf-8") as fp:
             for line in fp:
@@ -164,7 +173,7 @@ class Project(BaseModel):
             with fpath.open("w", encoding="utf-8") as fp:
                 value.save(fp)
 
-    def build(self, sdist=True, wheel=True, clean=False):
+    def build(self, sdist=True, wheel=True, clean=False) -> None:
         if clean:
             with suppress(FileNotFoundError):
                 rmtree(self.directory / "build")
@@ -217,7 +226,7 @@ class Project(BaseModel):
                 print("where = src", file=fp)
         self.is_flat_module = False
 
-    def add_typing(self):
+    def add_typing(self) -> None:
         log.info("Adding typing configuration ...")
         self.unflatten()
         log.info("Creating src/%s/py.typed ...", self.import_name)

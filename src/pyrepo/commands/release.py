@@ -21,6 +21,7 @@ import re
 import sys
 from tempfile import NamedTemporaryFile
 import time
+from typing import List, Optional, Sequence
 import attr
 import click
 from in_place import InPlace
@@ -28,6 +29,7 @@ from linesep import read_paragraphs
 from packaging.version import Version
 from uritemplate import expand
 from ..changelog import Changelog, ChangelogSection
+from ..config import Config
 from ..gh import ACCEPT, GitHub
 from ..inspecting import InvalidProjectError, get_commit_years
 from ..project import Project
@@ -49,35 +51,44 @@ ACTIVE_BADGE = """\
 TOPICS_ACCEPT = f"application/vnd.github.mercy-preview,{ACCEPT}"
 
 
-@attr.s
+@attr.s(auto_attribs=True)
 class Releaser:
-    project = attr.ib()
-    version = attr.ib()
-    ghrepo = attr.ib()
-    tox = attr.ib()
-    sign_assets = attr.ib()
-    assets = attr.ib(factory=list)
-    assets_asc = attr.ib(factory=list)
+    project: Project
+    version: str
+    ghrepo: GitHub
+    tox: bool
+    sign_asset: bool
+    assets: List[str] = attr.ib(factory=list)
+    assets_asc: List[str] = attr.ib(factory=list)
 
     @classmethod
-    def from_project(cls, project, version=None, gh=None, tox=False, sign_assets=False):
+    def from_project(
+        cls,
+        project: Project,
+        version: Optional[str] = None,
+        gh: Optional[GitHub] = None,
+        tox: bool = False,
+        sign_assets: bool = False,
+    ) -> "Releaser":
         if version is None:
             # Remove prerelease & dev release from __version__
             ### TODO: Just use Version.base_version instead?
-            version = re.sub(r"(a|b|rc)\d+|\.dev\d+", "", project.version)
+            v = re.sub(r"(a|b|rc)\d+|\.dev\d+", "", project.version)
         else:
-            version = version.lstrip("v")
+            v = version.lstrip("v")
         if gh is None:
-            gh = GitHub()
+            g = GitHub()
+        else:
+            g = gh
         return cls(
             project=project,
-            version=version,
-            ghrepo=gh.repos[project.github_user][project.repo_name],
+            version=v,
+            ghrepo=g.repos[project.github_user][project.repo_name],
             tox=tox,
             sign_assets=sign_assets,
         )
 
-    def run(self):
+    def run(self) -> None:
         self.end_dev()
         if self.tox:
             self.tox_check()
@@ -88,17 +99,17 @@ class Releaser:
         self.upload()
         self.begin_dev()
 
-    def tox_check(self):  # Idempotent
+    def tox_check(self) -> None:  # Idempotent
         if (self.project.directory / "tox.ini").exists():
             log.info("Running tox ...")
             runcmd("tox", cwd=self.project.directory)
 
-    def twine_check(self):  # Idempotent
+    def twine_check(self) -> None:  # Idempotent
         log.info("Running twine check ...")
         assert self.assets, "Nothing to check"
         runcmd(sys.executable, "-m", "twine", "check", "--strict", *self.assets)
 
-    def commit_version(self):  ### Not idempotent
+    def commit_version(self) -> None:  ### Not idempotent
         log.info("Committing & tagging ...")
         # We need to create a temporary file instead of just passing the commit
         # message on stdin because `git commit`'s `--template` option doesn't
@@ -147,7 +158,7 @@ class Releaser:
         )
         runcmd("git", "push", "--follow-tags", cwd=self.project.directory)
 
-    def mkghrelease(self):  ### Not idempotent
+    def mkghrelease(self) -> None:  ### Not idempotent
         log.info("Creating GitHub release ...")
         subject, body = readcmd(
             "git",
@@ -167,7 +178,7 @@ class Releaser:
         )
         self.release_upload_url = reldata["upload_url"]
 
-    def build(self, sign_assets=False):  ### Not idempotent
+    def build(self, sign_assets: bool = False) -> None:  ### Not idempotent
         log.info("Building artifacts ...")
         self.project.build(clean=True)
         self.assets = []
@@ -178,13 +189,13 @@ class Releaser:
                 runcmd(GPG, "--detach-sign", "-a", str(distfile))
                 self.assets_asc.append(str(distfile) + ".asc")
 
-    def upload(self):
+    def upload(self) -> None:
         log.info("Uploading artifacts ...")
         assert self.assets, "Nothing to upload"
         self.upload_pypi()
         self.upload_github()
 
-    def upload_pypi(self):  # Idempotent
+    def upload_pypi(self) -> None:  # Idempotent
         log.info("Uploading artifacts to PyPI ...")
         runcmd(
             sys.executable,
@@ -195,7 +206,7 @@ class Releaser:
             *(self.assets + self.assets_asc),
         )
 
-    def upload_github(self):  ### Not idempotent
+    def upload_github(self) -> None:  ### Not idempotent
         log.info("Uploading artifacts to GitHub release ...")
         assert (
             getattr(self, "release_upload_url", None) is not None
@@ -209,7 +220,7 @@ class Releaser:
                     data=fp.read(),
                 )
 
-    def begin_dev(self):  # Not idempotent
+    def begin_dev(self) -> None:  # Not idempotent
         log.info("Preparing for work on next version ...")
         # Set __version__ to the next version number plus ".dev1"
         old_version = self.project.version
@@ -245,7 +256,7 @@ class Releaser:
                 )
             self.project.set_changelog(chlog, docs=docs)
 
-    def end_dev(self):  # Idempotent
+    def end_dev(self) -> None:  # Idempotent
         log.info("Finalizing version ...")
         self.project.set_version(self.version)
         # Set release date in CHANGELOGs
@@ -281,7 +292,7 @@ class Releaser:
             # Initial release
             self.end_initial_dev()
 
-    def end_initial_dev(self):  # Idempotent
+    def end_initial_dev(self) -> None:  # Idempotent
         # Set repostatus to "Active":
         log.info("Advancing repostatus ...")
         ### TODO: Use the Readme class for this:
@@ -322,7 +333,9 @@ class Releaser:
             remove=["work-in-progress"],
         )
 
-    def update_gh_topics(self, add=(), remove=()):
+    def update_gh_topics(
+        self, add: Sequence[str] = (), remove: Sequence[str] = ()
+    ) -> None:
         topics = set(self.ghrepo.get(headers={"Accept": TOPICS_ACCEPT})["topics"])
         new_topics = topics.union(add).difference(remove)
         if new_topics != topics:
@@ -337,16 +350,15 @@ class Releaser:
 @optional("--sign-assets/--no-sign-assets", help="Sign built assets with PGP")
 @click.argument("version", required=False)
 @click.pass_obj
-def cli(obj, version, **options):
+def cli(obj: Config, version: Optional[str], tox: bool, sign_assets: bool) -> None:
     """Make a new release of the project"""
     try:
         project = Project.from_directory()
     except InvalidProjectError as e:
         raise click.UsageError(str(e))
     defaults = obj.defaults["release"]
-    options = dict(defaults, **options)
-    sign_assets = options.get("sign_assets", False)
-    tox = options.get("tox", False)
+    sign_assets = defaults.get("sign_assets", sign_assets)
+    tox = defaults.get("tox", tox)
     # GPG_TTY has to be set so that GPG can be run through Git.
     os.environ["GPG_TTY"] = os.ttyname(0)
     add_type("application/zip", ".whl", False)
@@ -376,11 +388,11 @@ def next_version(v: str) -> str:
     return s
 
 
-def today():
+def today() -> str:
     return time.strftime("%Y-%m-%d")
 
 
-def mime_type(filename):
+def mime_type(filename: str) -> str:
     """
     Like `mimetypes.guess_type()`, except that if the file is compressed, the
     MIME type for the compression is returned

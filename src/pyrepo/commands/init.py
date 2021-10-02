@@ -2,12 +2,15 @@ from contextlib import suppress
 import logging
 from pathlib import Path
 import re
+from typing import Any
+import attr
 import click
 from in_place import InPlace
 from packaging.requirements import Requirement
 from packaging.specifiers import SpecifierSet
 from packaging.utils import canonicalize_name as normalize
 from .. import inspecting
+from ..config import Config
 from ..project import Project
 from ..util import PyVersion, ensure_license_years, get_jinja_env, optional, runcmd
 
@@ -59,7 +62,7 @@ log = logging.getLogger(__name__)
     help="Whether to configure for type annotations",
 )
 @click.pass_obj
-def cli(obj, **options):
+def cli(obj: Config, **options: Any) -> None:
     """Create packaging boilerplate for a new project"""
     if Path("setup.py").exists():
         raise click.UsageError("setup.py already exists")
@@ -96,7 +99,7 @@ def cli(obj, **options):
 
     log.info("Determining Python module ...")
     # "import_name", "is_flat_module", and "src_layout"
-    env.update(inspecting.find_module(Path()))
+    env.update(attr.asdict(inspecting.find_module(Path())))
     if env["is_flat_module"]:
         log.info("Found flat module %s.py", env["import_name"])
     else:
@@ -128,7 +131,7 @@ def cli(obj, **options):
     )
 
     log.info("Checking for requirements.txt ...")
-    req_vars = inspecting.parse_requirements("requirements.txt")
+    req_vars = inspecting.parse_requirements(Path("requirements.txt"))
 
     if env["is_flat_module"]:
         initfile = Path("src", env["import_name"] + ".py")

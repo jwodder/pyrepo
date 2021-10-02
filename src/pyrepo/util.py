@@ -1,18 +1,20 @@
 from functools import total_ordering
 import logging
 from operator import attrgetter
+from pathlib import Path
 import re
 import shlex
 import subprocess
 import sys
 from textwrap import fill
 import time
-from typing import TYPE_CHECKING, Any, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Iterator, List, Optional, TextIO, Tuple, Union
 import click
 from in_place import InPlace
 from intspan import intspan
 from jinja2 import Environment, PackageLoader
 from linesep import split_preceded
+from packaging.specifiers import SpecifierSet
 from pydantic import parse_obj_as
 from pydantic.validators import str_validator
 
@@ -64,14 +66,14 @@ class PyVersion(str):
         return f"py{self.major}{self.minor}"
 
 
-def runcmd(*args, **kwargs):
+def runcmd(*args: str, **kwargs: Any) -> bool:
     log.debug("Running: %s", " ".join(shlex.quote(str(a)) for a in args))
     r = subprocess.run(args, **kwargs)
     if r.returncode != 0:
         sys.exit(r.returncode)
 
 
-def readcmd(*args, **kwargs):
+def readcmd(*args: str, **kwargs: Any) -> str:
     log.debug("Running: %s", " ".join(shlex.quote(str(a)) for a in args))
     try:
         return subprocess.check_output(args, universal_newlines=True, **kwargs).strip()
@@ -79,7 +81,7 @@ def readcmd(*args, **kwargs):
         sys.exit(e.returncode)
 
 
-def ensure_license_years(filepath, years: List[int]) -> None:
+def ensure_license_years(filepath: Union[str, Path], years: List[int]) -> None:
     with InPlace(filepath, mode="t", encoding="utf-8") as fp:
         for line in fp:
             m = re.match(r"^Copyright \(c\) (\d[-,\d\s]+\d) \w+", line)
@@ -92,7 +94,7 @@ def ensure_license_years(filepath, years: List[int]) -> None:
             print(line, file=fp, end="")
 
 
-def years2str(years):
+def years2str(years: List[int]) -> str:
     return str(intspan(years)).replace(",", ", ")
 
 
@@ -108,7 +110,7 @@ def update_years2str(year_str: str, years: Optional[List[int]] = None) -> str:
     return years2str(yearspan)
 
 
-def get_jinja_env():
+def get_jinja_env() -> Environment:
     jenv = Environment(
         loader=PackageLoader("pyrepo", "templates"),
         trim_blocks=True,
@@ -120,7 +122,7 @@ def get_jinja_env():
     return jenv
 
 
-def rewrap(s):
+def rewrap(s: str) -> str:
     return fill(
         s.replace("\n", " "),
         break_long_words=False,
@@ -132,7 +134,7 @@ def rewrap(s):
     )
 
 
-def optional(*decls, nilstr=False, **attrs):
+def optional(*decls: str, nilstr: bool = False, **attrs: Any) -> click.Option:
     """
     Like `click.option`, but no value (not even `None`) is passed to the
     command callback if the user doesn't use the option.  If ``nilstr`` is
@@ -140,7 +142,7 @@ def optional(*decls, nilstr=False, **attrs):
     ``[]``.
     """
 
-    def callback(ctx, param, value):
+    def callback(ctx: click.Context, param: click.Parameter, value: Any) -> None:
         if attrs.get("multiple"):
             if nilstr and value == ("",):
                 ctx.params[param.name] = []
@@ -157,7 +159,7 @@ def optional(*decls, nilstr=False, **attrs):
     return click.option(*decls, callback=callback, expose_value=False, **attrs)
 
 
-def yield_lines(fp):
+def yield_lines(fp: TextIO) -> Iterator[str]:
     # Like pkg_resources.yield_lines(fp), but without the dependency on
     # pkg_resources
     for line in fp:
@@ -166,7 +168,7 @@ def yield_lines(fp):
             yield line
 
 
-def sort_specifier(specset):
+def sort_specifier(specset: SpecifierSet) -> str:
     """Stringify a `SpecifierSet`, sorting by each specifier's version"""
     return ", ".join(map(str, sorted(specset, key=attrgetter("version"))))
 

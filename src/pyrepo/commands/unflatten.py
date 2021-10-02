@@ -4,7 +4,7 @@ from ..project import Project
 
 
 @click.command()
-def cli():
+def cli() -> None:
     """Convert a "flat" project to a "non-flat"/"package" project"""
     try:
         project = Project.from_directory()

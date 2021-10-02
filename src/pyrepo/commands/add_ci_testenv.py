@@ -10,7 +10,7 @@ log = logging.getLogger(__name__)
 @click.command()
 @click.argument("testenv")
 @click.argument("pyver")
-def cli(testenv, pyver):
+def cli(testenv: str, pyver: str) -> None:
     """Add a TESTENV job with the given PYVER to the CI configuration"""
     try:
         project = Project.from_directory()
