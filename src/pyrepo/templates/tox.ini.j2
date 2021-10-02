@@ -1,6 +1,6 @@
 {% if has_tests %}
 [tox]
-envlist = lint,{% if has_typing %}typing,{% endif %}{% for v in python_versions %}py{{v|replace('.', '')}},{% endfor %}pypy3
+envlist = lint,{% if has_typing %}typing,{% endif %}{% for v in python_versions %}{{v.pyenv}},{% endfor %}pypy3
 skip_missing_interpreters = True
 isolated_build = True
 minversion = 3.3.0

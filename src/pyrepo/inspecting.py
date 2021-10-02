@@ -9,6 +9,7 @@ from setuptools.config import read_configuration
 import yaml
 from . import util  # Import module to keep mocking easy
 from .readme import Readme
+from .util import PyVersion
 
 
 def inspect_project(dirpath=None):
@@ -65,7 +66,7 @@ def inspect_project(dirpath=None):
     for clsfr in cfg["metadata"]["classifiers"]:
         m = re.fullmatch(r"Programming Language :: Python :: (\d+\.\d+)", clsfr)
         if m:
-            env["python_versions"].append(m.group(1))
+            env["python_versions"].append(PyVersion.parse(m.group(1)))
         if clsfr == "Programming Language :: Python :: Implementation :: PyPy":
             env["supports_pypy3"] = True
 

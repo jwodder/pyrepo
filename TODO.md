@@ -19,7 +19,6 @@
 - Is `codecov_user` ever not the same as `github_user`?
 - Support reading project-specific configuration from `pyproject.toml` and/or
   some dotfile?
-- Use pydantic to validate types of attributes of `Project`?
 - Figure out how to rewrite the dynamic module loading in `__main__.py` using
   `pkgutil.iter_modules()`
 

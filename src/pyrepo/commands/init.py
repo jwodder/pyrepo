@@ -9,7 +9,7 @@ from packaging.specifiers import SpecifierSet
 from packaging.utils import canonicalize_name as normalize
 from .. import inspecting
 from ..project import Project
-from ..util import ensure_license_years, get_jinja_env, optional, runcmd
+from ..util import PyVersion, ensure_license_years, get_jinja_env, optional, runcmd
 
 log = logging.getLogger(__name__)
 
@@ -181,7 +181,11 @@ def cli(obj, **options):
         raise click.UsageError(
             f"Invalid specifier for python_requires: {python_requires!r}"
         )
-    env["python_versions"] = list(pyspec.filter(obj.pyversions))
+    env["python_versions"] = list(map(PyVersion.parse, pyspec.filter(obj.pyversions)))
+    if not env["python_versions"]:
+        raise click.UsageError(
+            f"No Python versions in pyversions range matching {python_requires!r}"
+        )
 
     if "command" not in options:
         env["commands"] = {}
@@ -203,9 +207,9 @@ def cli(obj, **options):
         log.info("Creating src/%s/py.typed ...", env["import_name"])
         (project.directory / "src" / env["import_name"] / "py.typed").touch()
     if env["has_ci"]:
-        project.extra_testenvs["lint"] = project.python_versions[0]
+        project.extra_testenvs["lint"] = str(project.python_versions[0])
         if env["has_typing"]:
-            project.extra_testenvs["typing"] = project.python_versions[0]
+            project.extra_testenvs["typing"] = str(project.python_versions[0])
         project.write_template(".github/workflows/test.yml", jenv, force=False)
     if env["has_docs"]:
         project.write_template(".readthedocs.yml", jenv, force=False)

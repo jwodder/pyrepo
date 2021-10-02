@@ -4,21 +4,20 @@ from pathlib import Path
 import re
 from shutil import rmtree
 import sys
-from typing import Dict, List, Optional
-import attr
+from typing import Any, Dict, List, Optional
 from in_place import InPlace
+from pydantic import BaseModel, DirectoryPath
 from .changelog import Changelog
 from .inspecting import inspect_project
-from .util import get_jinja_env, runcmd, split_ini_sections
+from .util import PyVersion, get_jinja_env, runcmd, split_ini_sections
 
 log = logging.getLogger(__name__)
 
 CHANGELOG_NAMES = ("CHANGELOG.md", "CHANGELOG.rst")
 
 
-@attr.s(auto_attribs=True)
-class Project:
-    directory: Path
+class Project(BaseModel):
+    directory: DirectoryPath
 
     # All attributes from this point on are also context variables used by the
     # Jinja2 templates.
@@ -41,8 +40,8 @@ class Project:
     is_flat_module: bool
     import_name: str
 
-    #: List of `"X.Y"` strings in ascending order
-    python_versions: List[str]
+    #: Sorted list of supported Python versions
+    python_versions: List[PyVersion]
 
     #: Calculated from `python_versions`
     python_requires: str
@@ -64,6 +63,10 @@ class Project:
     copyright_years: List[int]
     default_branch: str
 
+    def __init__(self, **data: Any) -> None:
+        super().__init__(**data)
+        self.python_versions.sort()
+
     @classmethod
     def from_directory(cls, dirpath=None):
         if dirpath is None:
@@ -74,19 +77,17 @@ class Project:
 
     @classmethod
     def from_inspection(cls, directory, context):
-        return cls(directory=directory.resolve(), **context)
+        return cls.parse_obj({"directory": directory.resolve(), **context})
 
     @property
-    def initfile(self):
+    def initfile(self) -> Path:
         if self.is_flat_module:
             return self.directory / "src" / (self.import_name + ".py")
         else:
             return self.directory / "src" / self.import_name / "__init__.py"
 
     def get_template_context(self):
-        context = attr.asdict(self)
-        context.pop("directory")
-        return context
+        return self.dict(exclude={"directory"})
 
     def render_template(self, template_path, jinja_env):
         return (
@@ -269,6 +270,6 @@ class Project:
         if self.has_ci:
             pyver = self.python_versions[0]
             log.info("Adding testenv %r with Python version %r", "typing", pyver)
-            self.extra_testenvs["typing"] = pyver
+            self.extra_testenvs["typing"] = str(pyver)
             self.write_template(".github/workflows/test.yml", jenv)
         self.has_typing = True

@@ -1,3 +1,4 @@
+from functools import total_ordering
 import logging
 from operator import attrgetter
 import re
@@ -6,14 +7,61 @@ import subprocess
 import sys
 from textwrap import fill
 import time
-from typing import List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, List, Optional, Tuple
 import click
 from in_place import InPlace
 from intspan import intspan
 from jinja2 import Environment, PackageLoader
 from linesep import split_preceded
+from pydantic import parse_obj_as
+from pydantic.validators import str_validator
+
+if TYPE_CHECKING:
+    from pydantic.typing import CallableGenerator
 
 log = logging.getLogger(__name__)
+
+
+@total_ordering
+class PyVersion(str):
+    major: int
+    minor: int
+
+    def __init__(self, s: str) -> None:
+        major, _, minor = s.partition(".")
+        self.major = int(major)
+        self.minor = int(minor)
+
+    @classmethod
+    def __get_validators__(cls) -> "CallableGenerator":
+        yield str_validator
+        yield cls._validate
+        yield cls
+
+    @classmethod
+    def _validate(cls, s: str) -> str:
+        if re.fullmatch(r"(\d+)\.(\d+)", s):
+            return s
+        else:
+            raise ValueError(f"Invalid Python series: {s!r}")
+
+    def __repr__(self) -> str:
+        return f"PyVersion({super().__repr__()})"
+
+    def __lt__(self, other: Any) -> bool:
+        if isinstance(other, PyVersion):
+            return (self.major, self.minor) < (other.major, other.minor)
+        else:
+            return NotImplemented
+
+    @classmethod
+    def parse(cls, s: Any) -> "PyVersion":
+        return parse_obj_as(cls, s)
+
+    @property
+    def pyenv(self) -> str:
+        ### TODO: How will tox handle 3.10?
+        return f"py{self.major}{self.minor}"
 
 
 def runcmd(*args, **kwargs):
