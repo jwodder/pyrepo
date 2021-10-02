@@ -1,4 +1,5 @@
 from contextlib import suppress
+from functools import partial
 import logging
 from pathlib import Path
 import re
@@ -12,7 +13,14 @@ from packaging.specifiers import SpecifierSet
 from pydantic import BaseModel, DirectoryPath
 from .changelog import Changelog
 from .inspecting import inspect_project
-from .util import PyVersion, get_jinja_env, replace_group, runcmd, split_ini_sections
+from .util import (
+    PyVersion,
+    get_jinja_env,
+    map_lines,
+    replace_group,
+    runcmd,
+    split_ini_sections,
+)
 
 log = logging.getLogger(__name__)
 
@@ -125,16 +133,16 @@ class Project(BaseModel):
 
     def set_version(self, version: str) -> None:
         log.info("Setting __version__ to %r ...", version)
-        with InPlace(self.initfile, mode="t", encoding="utf-8") as fp:
-            for line in fp:
+        map_lines(
+            self.initfile,
+            partial(
+                replace_group,
                 # Preserve quotation marks around version:
-                line = replace_group(
-                    r'^__version__\s*=\s*([\x27"])(?P<version>.+)\1\s*$',
-                    lambda _: version,
-                    line,
-                    group="version",
-                )
-                print(line, file=fp, end="")
+                r'^__version__\s*=\s*([\x27"])(?P<version>.+)\1\s*$',
+                lambda _: version,
+                group="version",
+            ),
+        )
         self.version = version
 
     def get_changelog(self, docs: bool = False) -> Optional[Changelog]:
@@ -304,17 +312,14 @@ class Project(BaseModel):
         )
         if self.has_tests:
             log.info("Updating tox.ini ...")
-            with InPlace(self.directory / "tox.ini", mode="t", encoding="utf-8") as fp:
-                for line in fp:
-                    if m := re.match(r"envlist\s*=", line):
-                        envs = line[m.end() :].strip().split(",")
-                        if envs[-1:] == ["pypy3"]:
-                            envs.insert(-1, pyv.pyenv)
-                        else:
-                            envs.append(pyv.pyenv)
-                        print("envlist =", ",".join(envs), file=fp)
-                    else:
-                        fp.write(line)
+            map_lines(
+                self.directory / "tox.ini",
+                partial(
+                    replace_group,
+                    re.compile(r"^envlist\s*=[ \t]*(.+)$", flags=re.M),
+                    partial(add_py_env, pyv),
+                ),
+            )
         if self.has_ci:
             log.info("Updating .github/workflows/test.yml ...")
             add_line_to_file(
@@ -326,6 +331,15 @@ class Project(BaseModel):
 
 
 def add_typing_env(envlist: str) -> str:
-    envs = envlist.split(",")
+    envs = envlist.strip().split(",")
     envs.insert(envs[:1] == ["lint"], "typing")
+    return ",".join(envs)
+
+
+def add_py_env(pyv: PyVersion, envlist: str) -> str:
+    envs = envlist.strip().split(",")
+    if envs[-1:] == ["pypy3"]:
+        envs.insert(-1, pyv.pyenv)
+    else:
+        envs.append(pyv.pyenv)
     return ",".join(envs)

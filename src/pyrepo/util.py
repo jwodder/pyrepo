@@ -1,4 +1,4 @@
-from functools import total_ordering
+from functools import partial, total_ordering
 import logging
 from operator import attrgetter
 from pathlib import Path
@@ -99,14 +99,14 @@ def readcmd(*args: Union[str, Path], **kwargs: Any) -> str:
 
 
 def ensure_license_years(filepath: Union[str, Path], years: List[int]) -> None:
-    with InPlace(filepath, mode="t", encoding="utf-8") as fp:
-        for line in fp:
-            line = replace_group(
-                r"^Copyright \(c\) (\d[-,\d\s]+\d) \w+",
-                lambda ys: update_years2str(ys, years),
-                line,
-            )
-            print(line, file=fp, end="")
+    map_lines(
+        filepath,
+        partial(
+            replace_group,
+            r"^Copyright \(c\) (\d[-,\d\s]+\d) \w+",
+            lambda ys: update_years2str(ys, years),
+        ),
+    )
 
 
 def years2str(years: List[int]) -> str:
@@ -216,3 +216,9 @@ def replace_group(
     if m := re.search(rgx, s):
         s = s[: m.start(group)] + replacer(m[group]) + s[m.end(group) :]
     return s
+
+
+def map_lines(filepath: Union[str, Path], func: Callable[[str], str]) -> None:
+    with InPlace(filepath, mode="t", encoding="utf-8") as fp:
+        for line in fp:
+            print(func(line), file=fp, end="")

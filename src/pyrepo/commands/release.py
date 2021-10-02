@@ -13,6 +13,7 @@
 # - The version is set as `__version__` in `packagename/__init__.py` or
 #   `packagename.py`.
 
+from functools import partial
 import logging
 from mimetypes import add_type, guess_type
 import os
@@ -35,6 +36,7 @@ from ..inspecting import InvalidProjectError, get_commit_years
 from ..project import Project
 from ..util import (
     ensure_license_years,
+    map_lines,
     optional,
     readcmd,
     replace_group,
@@ -287,14 +289,14 @@ class Releaser(BaseModel):
         docs_conf = self.project.directory / "docs" / "conf.py"
         if docs_conf.exists():
             log.info("Ensuring docs/conf.py copyright is up to date ...")
-            with InPlace(docs_conf, mode="t", encoding="utf-8") as fp:
-                for line in fp:
-                    line = replace_group(
-                        r'^copyright\s*=\s*[\x27"](\d[-,\d\s]+\d) \w+',
-                        lambda ys: update_years2str(ys, years),
-                        line,
-                    )
-                    print(line, file=fp, end="")
+            map_lines(
+                docs_conf,
+                partial(
+                    replace_group,
+                    r'^copyright\s*=\s*[\x27"](\d[-,\d\s]+\d) \w+',
+                    lambda ys: update_years2str(ys, years),
+                ),
+            )
         if self.project.get_changelog() is None:
             # Initial release
             self.end_initial_dev()
