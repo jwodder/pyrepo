@@ -1,7 +1,7 @@
 from configparser import ConfigParser
 from pathlib import Path
 import platform
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Tuple, Union
 import attr
 import click
 from pyversion_info import get_pyversion_info
@@ -37,13 +37,12 @@ class Config:
     gh: GitHub
 
 
-def configure(ctx: click.Context, filename: str) -> None:
+def configure(ctx: click.Context, filename: Union[str, Path]) -> None:
     cfg = ConfigParser(interpolation=None)
     cfg.optionxform = lambda s: s.lower().replace("-", "_")  # type: ignore[assignment]
     cfg.read_dict(DEFAULTS)
-    if filename is not None:
-        cfg.read(filename)
-        ### TODO: Check the return value and raise an exception if it's empty
+    cfg.read(filename)
+    ### TODO: Check the return value and raise an exception if it's empty
     supported_series = [
         v for v in get_pyversion_info().supported_series() if not v.startswith("2.")
     ]

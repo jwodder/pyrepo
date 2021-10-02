@@ -7,7 +7,7 @@
 - Rename the actual Python import package to `jwodder_pyrepo`?
 - Make `configure()` store the config file values in `ctx.default_map`
     - This will require changing the precedence order of `pyrepo init
-      --python-requires` (unless Click 8 comes out in the interim)
+      --python-requires` (Use Click 8's new features for this)
 - Change `__python_requires__` to `__requires_python__` to match PEP 621?
     - Accept both forms as synonyms?
 - Rename `supports_pypy3` to `supports_pypy` and determine what versions of

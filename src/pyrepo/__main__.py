@@ -14,7 +14,7 @@ from .config import DEFAULT_CFG, configure
 @click.option(
     "-c",
     "--config",
-    type=click.Path(dir_okay=False),
+    type=click.Path(dir_okay=False, path_type=Path),
     default=DEFAULT_CFG,
     show_default=True,
     help="Use the specified configuration file",
@@ -22,7 +22,7 @@ from .config import DEFAULT_CFG, configure
 @click.option(
     "-C",
     "--chdir",
-    type=click.Path(exists=True, file_okay=False, dir_okay=True),
+    type=click.Path(exists=True, file_okay=False, dir_okay=True, path_type=Path),
     help="Change directory before running",
     metavar="DIR",
 )
@@ -41,7 +41,9 @@ from .config import DEFAULT_CFG, configure
     message="jwodder-pyrepo %(version)s",
 )
 @click.pass_context
-def main(ctx: click.Context, chdir: Optional[str], config: str, log_level: int) -> None:
+def main(
+    ctx: click.Context, chdir: Optional[Path], config: Path, log_level: int
+) -> None:
     """Manage Python packaging boilerplate"""
     configure(ctx, config)
     if chdir is not None:
