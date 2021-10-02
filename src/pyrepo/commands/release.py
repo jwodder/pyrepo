@@ -33,7 +33,14 @@ from ..config import Config
 from ..gh import ACCEPT, GitHub
 from ..inspecting import InvalidProjectError, get_commit_years
 from ..project import Project
-from ..util import ensure_license_years, optional, readcmd, runcmd, update_years2str
+from ..util import (
+    ensure_license_years,
+    optional,
+    readcmd,
+    replace_group,
+    runcmd,
+    update_years2str,
+)
 
 log = logging.getLogger(__name__)
 
@@ -282,14 +289,11 @@ class Releaser(BaseModel):
             log.info("Ensuring docs/conf.py copyright is up to date ...")
             with InPlace(docs_conf, mode="t", encoding="utf-8") as fp:
                 for line in fp:
-                    if m := re.match(
-                        r'^copyright\s*=\s*[\x27"](\d[-,\d\s]+\d) \w+', line
-                    ):
-                        line = (
-                            line[: m.start(1)]
-                            + update_years2str(m[1], years)
-                            + line[m.end(1) :]
-                        )
+                    line = replace_group(
+                        r'^copyright\s*=\s*[\x27"](\d[-,\d\s]+\d) \w+',
+                        lambda ys: update_years2str(ys, years),
+                        line,
+                    )
                     print(line, file=fp, end="")
         if self.project.get_changelog() is None:
             # Initial release

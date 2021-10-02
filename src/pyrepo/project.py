@@ -12,7 +12,7 @@ from packaging.specifiers import SpecifierSet
 from pydantic import BaseModel, DirectoryPath
 from .changelog import Changelog
 from .inspecting import inspect_project
-from .util import PyVersion, get_jinja_env, runcmd, split_ini_sections
+from .util import PyVersion, get_jinja_env, replace_group, runcmd, split_ini_sections
 
 log = logging.getLogger(__name__)
 
@@ -128,15 +128,12 @@ class Project(BaseModel):
         with InPlace(self.initfile, mode="t", encoding="utf-8") as fp:
             for line in fp:
                 # Preserve quotation marks around version:
-                if m := re.fullmatch(
-                    r'__version__\s*=\s*([\x27"])(?P<version>.+)\1\s*',
+                line = replace_group(
+                    r'^__version__\s*=\s*([\x27"])(?P<version>.+)\1\s*$',
+                    lambda _: version,
                     line,
-                ):
-                    line = (
-                        line[: m.start("version")]
-                        + str(version)
-                        + line[m.end("version") :]
-                    )
+                    group="version",
+                )
                 print(line, file=fp, end="")
         self.version = version
 
@@ -265,14 +262,14 @@ class Project(BaseModel):
             with toxfile.open("w", encoding="utf-8") as fp:
                 for sectname, sect in sections:
                     if sectname == "tox":
-                        if m := re.search(r"^envlist\s*=[ \t]*(.+)$", sect, flags=re.M):
-                            envs = m[1].split(",")
-                            envs.insert(envs[:1] == ["lint"], "typing")
-                            sect = (
-                                sect[: m.start(1)] + ",".join(envs) + sect[m.end(1) :]
-                            )
-                        else:
+                        sect2 = replace_group(
+                            re.compile(r"^envlist\s*=[ \t]*(.+)$", flags=re.M),
+                            add_typing_env,
+                            sect,
+                        )
+                        if sect == sect2:
                             raise RuntimeError("Could not find [tox]envlist in tox.ini")
+                        sect = sect2
                     if sectname == "pytest":
                         print(
                             self.get_template_block(
@@ -326,3 +323,9 @@ class Project(BaseModel):
                 inserter=AfterLast(fr"^{' ' * 10}- ['\x22]?\d+\.\d+['\x22]?$"),
                 encoding="utf-8",
             )
+
+
+def add_typing_env(envlist: str) -> str:
+    envs = envlist.split(",")
+    envs.insert(envs[:1] == ["lint"], "typing")
+    return ",".join(envs)

@@ -15,6 +15,7 @@ from typing import (
     Iterator,
     List,
     Optional,
+    Pattern,
     TextIO,
     Tuple,
     TypeVar,
@@ -100,12 +101,11 @@ def readcmd(*args: Union[str, Path], **kwargs: Any) -> str:
 def ensure_license_years(filepath: Union[str, Path], years: List[int]) -> None:
     with InPlace(filepath, mode="t", encoding="utf-8") as fp:
         for line in fp:
-            if m := re.match(r"^Copyright \(c\) (\d[-,\d\s]+\d) \w+", line):
-                line = (
-                    line[: m.start(1)]
-                    + update_years2str(m[1], years)
-                    + line[m.end(1) :]
-                )
+            line = replace_group(
+                r"^Copyright \(c\) (\d[-,\d\s]+\d) \w+",
+                lambda ys: update_years2str(ys, years),
+                line,
+            )
             print(line, file=fp, end="")
 
 
@@ -205,3 +205,14 @@ def split_ini_sections(s: str) -> Iterator[Tuple[Optional[str], str]]:
         else:
             sect_name = None
         yield (sect_name, sect)
+
+
+def replace_group(
+    rgx: Union[str, Pattern[str]],
+    replacer: Callable[[str], str],
+    s: str,
+    group: Union[int, str] = 1,
+) -> str:
+    if m := re.search(rgx, s):
+        s = s[: m.start(group)] + replacer(m[group]) + s[m.end(group) :]
+    return s
