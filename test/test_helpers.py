@@ -21,6 +21,7 @@ def assert_dirtrees_eq(tree1: Path, tree2: Path) -> None:
 
 def show_result(r: Result) -> str:
     if r.exception is not None:
+        assert isinstance(r.exc_info, tuple)
         return "".join(format_exception(*r.exc_info))
     else:
         return r.output

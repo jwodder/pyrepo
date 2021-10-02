@@ -8,7 +8,19 @@ import subprocess
 import sys
 from textwrap import fill
 import time
-from typing import TYPE_CHECKING, Any, Iterator, List, Optional, TextIO, Tuple, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Iterator,
+    List,
+    Optional,
+    TextIO,
+    Tuple,
+    TypeVar,
+    Union,
+    cast,
+)
 import click
 from in_place import InPlace
 from intspan import intspan
@@ -20,6 +32,8 @@ from pydantic.validators import str_validator
 
 if TYPE_CHECKING:
     from pydantic.typing import CallableGenerator
+
+FC = TypeVar("FC", Callable[..., Any], click.Command)
 
 log = logging.getLogger(__name__)
 
@@ -66,17 +80,21 @@ class PyVersion(str):
         return f"py{self.major}{self.minor}"
 
 
-def runcmd(*args: str, **kwargs: Any) -> bool:
-    log.debug("Running: %s", " ".join(shlex.quote(str(a)) for a in args))
-    r = subprocess.run(args, **kwargs)
+def runcmd(*args: Union[str, Path], **kwargs: Any) -> None:
+    argstrs = [str(a) for a in args]
+    log.debug("Running: %s", " ".join(map(shlex.quote, argstrs)))
+    r = subprocess.run(argstrs, **kwargs)
     if r.returncode != 0:
         sys.exit(r.returncode)
 
 
-def readcmd(*args: str, **kwargs: Any) -> str:
-    log.debug("Running: %s", " ".join(shlex.quote(str(a)) for a in args))
+def readcmd(*args: Union[str, Path], **kwargs: Any) -> str:
+    argstrs = [str(a) for a in args]
+    log.debug("Running: %s", " ".join(map(shlex.quote, argstrs)))
     try:
-        return subprocess.check_output(args, universal_newlines=True, **kwargs).strip()
+        return cast(
+            str, subprocess.check_output(argstrs, universal_newlines=True, **kwargs)
+        ).strip()
     except subprocess.CalledProcessError as e:
         sys.exit(e.returncode)
 
@@ -134,7 +152,7 @@ def rewrap(s: str) -> str:
     )
 
 
-def optional(*decls: str, nilstr: bool = False, **attrs: Any) -> click.Option:
+def optional(*decls: str, nilstr: bool = False, **attrs: Any) -> Callable[[FC], FC]:
     """
     Like `click.option`, but no value (not even `None`) is passed to the
     command callback if the user doesn't use the option.  If ``nilstr`` is
@@ -143,6 +161,7 @@ def optional(*decls: str, nilstr: bool = False, **attrs: Any) -> click.Option:
     """
 
     def callback(ctx: click.Context, param: click.Parameter, value: Any) -> None:
+        assert param.name is not None
         if attrs.get("multiple"):
             if nilstr and value == ("",):
                 ctx.params[param.name] = []
@@ -173,7 +192,7 @@ def sort_specifier(specset: SpecifierSet) -> str:
     return ", ".join(map(str, sorted(specset, key=attrgetter("version"))))
 
 
-def split_ini_sections(s: str) -> List[Tuple[Optional[str], str]]:
+def split_ini_sections(s: str) -> Iterator[Tuple[Optional[str], str]]:
     """
     Splits an INI file into a list of (section name, sections) pairs.  A given
     section name is `None` iff the "section" is leading whitespace and/or
@@ -183,5 +202,9 @@ def split_ini_sections(s: str) -> List[Tuple[Optional[str], str]]:
     sect_rgx = re.compile(r"^\[([^]]+)\]$", flags=re.M)
     for sect in split_preceded(s, sect_rgx, retain=True):
         m = sect_rgx.match(sect)
-        sect_name = m and m[1]
+        sect_name: Optional[str]
+        if m:
+            sect_name = m[1]
+        else:
+            sect_name = None
         yield (sect_name, sect)

@@ -4,7 +4,7 @@ from pathlib import Path
 import re
 from shutil import rmtree
 import sys
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 from in_place import InPlace
 from jinja2 import Environment
 from lineinfile import AfterLast, add_line_to_file
@@ -101,7 +101,7 @@ class Project(BaseModel):
 
     def write_template(
         self,
-        template_path: Union[str, Path],
+        template_path: str,
         jinja_env: Environment,
         force: bool = True,
     ) -> None:
@@ -142,8 +142,9 @@ class Project(BaseModel):
         self.version = version
 
     def get_changelog(self, docs: bool = False) -> Optional[Changelog]:
+        paths: Tuple[Union[str, Path], ...]
         if docs:
-            paths = [Path("docs", "changelog.rst")]
+            paths = (Path("docs", "changelog.rst"),)
         else:
             paths = CHANGELOG_NAMES
         for p in paths:
@@ -155,8 +156,9 @@ class Project(BaseModel):
         return None
 
     def set_changelog(self, value: Optional[Changelog], docs: bool = False) -> None:
+        paths: Tuple[Union[str, Path], ...]
         if docs:
-            paths = [Path("docs", "changelog.rst")]
+            paths = (Path("docs", "changelog.rst"),)
         else:
             paths = CHANGELOG_NAMES
         for p in paths:
@@ -173,7 +175,9 @@ class Project(BaseModel):
             with fpath.open("w", encoding="utf-8") as fp:
                 value.save(fp)
 
-    def build(self, sdist=True, wheel=True, clean=False) -> None:
+    def build(
+        self, sdist: bool = True, wheel: bool = True, clean: bool = False
+    ) -> None:
         if clean:
             with suppress(FileNotFoundError):
                 rmtree(self.directory / "build")
@@ -187,7 +191,7 @@ class Project(BaseModel):
                 args.append("--wheel")
             runcmd(sys.executable, "-m", "build", *args, self.directory)
 
-    def unflatten(self):
+    def unflatten(self) -> None:
         if not self.is_flat_module:
             log.info("Project is already a package; no need to unflatten")
             return

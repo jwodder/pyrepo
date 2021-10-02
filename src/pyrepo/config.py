@@ -1,7 +1,7 @@
 from configparser import ConfigParser
 from pathlib import Path
 import platform
-from typing import List, Tuple
+from typing import Any, Dict, List, Tuple
 import attr
 import click
 from pyversion_info import get_pyversion_info
@@ -39,7 +39,7 @@ class Config:
 
 def configure(ctx: click.Context, filename: str) -> None:
     cfg = ConfigParser(interpolation=None)
-    cfg.optionxform = lambda s: s.lower().replace("-", "_")
+    cfg.optionxform = lambda s: s.lower().replace("-", "_")  # type: ignore[assignment]
     cfg.read_dict(DEFAULTS)
     if filename is not None:
         cfg.read(filename)
@@ -76,8 +76,9 @@ def configure(ctx: click.Context, filename: str) -> None:
     s = requests.Session()
     s.headers["Accept"] = ACCEPT
     s.headers["User-Agent"] = USER_AGENT
+    auth_gh: Dict[str, str]
     try:
-        auth_gh = cfg["auth.github"]
+        auth_gh = dict(cfg["auth.github"])
     except KeyError:
         auth_gh = {}
     if "token" in auth_gh:
@@ -93,7 +94,7 @@ def configure(ctx: click.Context, filename: str) -> None:
     from .__main__ import main
 
     for cmdname, cmdobj in main.commands.items():
-        defaults = dict(cfg["options"])
+        defaults: Dict[str, Any] = dict(cfg["options"])
         if cfg.has_section("options." + cmdname):
             defaults.update(cfg["options." + cmdname])
         for p in cmdobj.params:
@@ -109,13 +110,13 @@ def configure(ctx: click.Context, filename: str) -> None:
 
 
 def parse_pyversion(s: str) -> Tuple[int, int]:
-    major, _, minor = s.partition(".")
-    major = int(major)
-    minor = int(minor)
+    m1, _, m2 = s.partition(".")
+    major = int(m1)
+    minor = int(m2)
     if major not in MAJOR_PYTHON_VERSIONS:
         raise NotImplementedError(
             "Only the following major Python versions are supported:"
-            f" {', '.join(MAJOR_PYTHON_VERSIONS)}"
+            f" {', '.join(map(str, MAJOR_PYTHON_VERSIONS))}"
         )
     return (major, minor)
 

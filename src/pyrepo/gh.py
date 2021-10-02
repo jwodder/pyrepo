@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import Any, Iterator, Optional
+from typing import Any, Iterator, Optional, Union
 import requests
 
 ACCEPT = "application/vnd.github.v3+json"
@@ -14,8 +14,8 @@ class GitHub:
     def __init__(
         self,
         url: str = API_ENDPOINT,
-        token: str = None,
-        token_file: str = DEFAULT_TOKEN_FILE,
+        token: Optional[str] = None,
+        token_file: Union[str, Path] = DEFAULT_TOKEN_FILE,
         session: Optional[requests.Session] = None,
         _method: Optional[str] = None,
     ):
@@ -44,6 +44,8 @@ class GitHub:
         return GitHub(url=url, session=self._session, _method=name)
 
     def __call__(self, raw: bool = False, **kwargs: Any) -> Any:
+        if self._method is None:
+            raise ValueError("Cannot call request method on base GitHub instance")
         r = self._session.request(self._method, self._url, **kwargs)
         if raw:
             return r

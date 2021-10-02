@@ -1,6 +1,5 @@
 - Drop support for 3.6 and 3.7
 - Write tests
-- Add type annotations
 - Autodetect project root by recursing upwards, looking for a `pyproject.toml`
   or `setup.py` file, thereby allowing commands to be run from deeper in a
   project

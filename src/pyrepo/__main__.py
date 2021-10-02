@@ -71,7 +71,10 @@ for fpath in Path(__file__).with_name("commands").iterdir():
         )
     ):
         submod = import_module("." + modname, "pyrepo.commands")
-        main.add_command(submod.cli, modname.replace("_", "-"))
+        main.add_command(
+            submod.cli,  # type: ignore[attr-defined]
+            modname.replace("_", "-"),
+        )
 
 if __name__ == "__main__":
     main()

@@ -6,7 +6,6 @@ import time
 from typing import List
 import pytest
 from pytest_mock import MockerFixture
-from pyrepo import util
 from pyrepo.inspecting import (
     InvalidProjectError,
     ModuleInfo,
@@ -36,13 +35,13 @@ def test_get_commit_years_include_now(
     gitoutput: str, result: List[int], mocker: MockerFixture
 ) -> None:
     # Set current time to 2019-04-16T18:17:14Z:
-    mocker.patch("time.localtime", return_value=time.localtime(1555438634))
-    mocker.patch("pyrepo.util.readcmd", return_value=gitoutput)
+    mlocaltime = mocker.patch("time.localtime", return_value=time.localtime(1555438634))
+    mreadcmd = mocker.patch("pyrepo.util.readcmd", return_value=gitoutput)
     assert get_commit_years(Path()) == result
-    util.readcmd.assert_called_once_with(
+    mreadcmd.assert_called_once_with(
         "git", "log", "--format=%ad", "--date=format:%Y", cwd=Path()
     )
-    time.localtime.assert_called_once_with()
+    mlocaltime.assert_called_once_with()
 
 
 @pytest.mark.parametrize(
@@ -59,13 +58,13 @@ def test_get_commit_years_no_include_now(
     gitoutput: str, result: List[int], mocker: MockerFixture
 ) -> None:
     # Set current time to 2019-04-16T18:17:14Z:
-    mocker.patch("time.localtime", return_value=time.localtime(1555438634))
-    mocker.patch("pyrepo.util.readcmd", return_value=gitoutput)
+    mlocaltime = mocker.patch("time.localtime", return_value=time.localtime(1555438634))
+    mreadcmd = mocker.patch("pyrepo.util.readcmd", return_value=gitoutput)
     assert get_commit_years(Path(), include_now=False) == result
-    util.readcmd.assert_called_once_with(
+    mreadcmd.assert_called_once_with(
         "git", "log", "--format=%ad", "--date=format:%Y", cwd=Path()
     )
-    time.localtime.assert_not_called()
+    mlocaltime.assert_not_called()
 
 
 @pytest.mark.parametrize(
@@ -170,18 +169,18 @@ def test_inspect_project(dirpath: Path, mocker: MockerFixture) -> None:
     ],
 )
 def test_get_default_branch(gitoutput: str, result: str, mocker: MockerFixture) -> None:
-    mocker.patch("pyrepo.util.readcmd", return_value=gitoutput)
+    m = mocker.patch("pyrepo.util.readcmd", return_value=gitoutput)
     assert get_default_branch(Path()) == result
-    util.readcmd.assert_called_once_with(
+    m.assert_called_once_with(
         "git", "--no-pager", "branch", "--format=%(refname:short)", cwd=Path()
     )
 
 
 def test_get_default_branch_error(mocker: MockerFixture) -> None:
-    mocker.patch("pyrepo.util.readcmd", return_value="foo\nquux")
+    m = mocker.patch("pyrepo.util.readcmd", return_value="foo\nquux")
     with pytest.raises(InvalidProjectError) as excinfo:
         get_default_branch(Path())
     assert str(excinfo.value) == "Could not determine default Git branch"
-    util.readcmd.assert_called_once_with(
+    m.assert_called_once_with(
         "git", "--no-pager", "branch", "--format=%(refname:short)", cwd=Path()
     )

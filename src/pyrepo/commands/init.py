@@ -146,10 +146,10 @@ def cli(obj: Config, **options: Any) -> None:
         name = normalize(req.name)
         # `Requirement` objects don't have an `__eq__`, so we need to convert
         # them to `str` in order to compare them.
-        req = str(req)
+        reqstr = str(req)
         if name not in requirements:
-            requirements[name] = (r, req)
-        elif req != requirements[name][1]:
+            requirements[name] = (r, reqstr)
+        elif reqstr != requirements[name][1]:
             raise click.UsageError(
                 f"Two different requirements for {name} found:"
                 f" {requirements[name][0]!r} and {r!r}"

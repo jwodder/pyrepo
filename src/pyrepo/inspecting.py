@@ -147,7 +147,7 @@ def inspect_project(dirpath: Optional[Union[str, Path]] = None) -> dict:
     return env
 
 
-def get_commit_years(dirpath, include_now=True):
+def get_commit_years(dirpath: Path, include_now: bool = True) -> List[int]:
     years = set(
         map(
             int,

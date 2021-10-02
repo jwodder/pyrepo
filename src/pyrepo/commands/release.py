@@ -57,7 +57,7 @@ class Releaser:
     version: str
     ghrepo: GitHub
     tox: bool
-    sign_asset: bool
+    sign_assets: bool
     assets: List[str] = attr.ib(factory=list)
     assets_asc: List[str] = attr.ib(factory=list)
 
@@ -240,7 +240,7 @@ class Releaser:
             else:
                 log.info("Adding new section to CHANGELOG ...")
             chlog = self.project.get_changelog(docs=docs)
-            if chlog and chlog.sections:
+            if chlog is not None and chlog.sections:
                 chlog.sections.insert(0, new_sect)
             else:
                 chlog = Changelog(

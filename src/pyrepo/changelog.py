@@ -1,6 +1,22 @@
 import re
-from typing import IO, List
+from typing import IO, List, Optional
 import attr
+
+
+@attr.s(auto_attribs=True)
+class ChangelogSection:
+    version: str
+    date: str
+    content: str  # has trailing newlines stripped
+
+    def __str__(self) -> str:
+        s = self.version
+        if self.date is not None:
+            s += f" ({self.date})"
+        return s + "\n" + "-" * len(s) + ("\n" + self.content if self.content else "")
+
+    def _end(self) -> None:
+        self.content = self.content.rstrip("\r\n")
 
 
 @attr.s(auto_attribs=True)
@@ -11,13 +27,13 @@ class Changelog:
     """
 
     intro: str
-    sections: List["ChangelogSection"] = attr.ib(converter=list)
+    sections: List[ChangelogSection]
 
     @classmethod
     def load(cls, fp: IO[str]) -> "Changelog":
         intro = ""
-        prev = None
-        sections = []
+        prev: Optional[str] = None
+        sections: List[ChangelogSection] = []
         for line in fp:
             if re.match(r"^---+$", line):
                 if sections:
@@ -27,8 +43,7 @@ class Changelog:
                 m = re.match(r"^(?P<version>\S+)\s+\((?P<date>.+)\)$", prev)
                 if not m:
                     raise ValueError(
-                        'Section header not in "version (date)"'
-                        " format: " + repr(prev)
+                        f'Section header not in "version (date)" format: {prev!r}'
                     )
                 sections.append(
                     ChangelogSection(
@@ -69,19 +84,3 @@ class Changelog:
 
     def for_json(self) -> dict:
         return attr.asdict(self)
-
-
-@attr.s(auto_attribs=True)
-class ChangelogSection:
-    version: str
-    date: str
-    content: str  # has trailing newlines stripped
-
-    def __str__(self) -> str:
-        s = self.version
-        if self.date is not None:
-            s += f" ({self.date})"
-        return s + "\n" + "-" * len(s) + ("\n" + self.content if self.content else "")
-
-    def _end(self) -> None:
-        self.content = self.content.rstrip("\r\n")
