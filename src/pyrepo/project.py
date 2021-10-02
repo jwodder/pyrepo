@@ -312,6 +312,3 @@ class Project(BaseModel):
                 inserter=AfterLast(fr"^{' ' * 10}- ['\x22]?\d+\.\d+['\x22]?$"),
                 encoding="utf-8",
             )
-
-    ### def update_pyversions(self, supported_python_versions)
-    ### def rm_pyversion(self, v: PyVersion)
