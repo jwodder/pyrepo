@@ -13,7 +13,7 @@ from test_helpers import DATA_DIR, assert_dirtrees_eq, show_result
     sorted((DATA_DIR / "unflatten").iterdir()),
     ids=attrgetter("name"),
 )
-@pytest.mark.usefixtures("default_branch")
+@pytest.mark.usefixtures("mock_default_branch")
 def test_pyrepo_init(dirpath: Path, tmp_path: Path) -> None:
     tmp_path /= "tmp"  # copytree() can't copy to a dir that already exists
     copytree(dirpath / "before", tmp_path)

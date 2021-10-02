@@ -5,7 +5,7 @@ from pyrepo.project import Project
 from test_helpers import DATA_DIR, assert_dirtrees_eq
 
 
-@pytest.mark.usefixtures("default_branch")
+@pytest.mark.usefixtures("mock_default_branch")
 def test_add_pyversion(tmp_path: Path) -> None:
     CASE_DIR = DATA_DIR / "add_pyversion"
     tmp_path /= "tmp"  # copytree() can't copy to a dir that already exists

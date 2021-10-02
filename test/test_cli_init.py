@@ -1,6 +1,7 @@
 from operator import attrgetter
 from pathlib import Path
 from shutil import copytree
+from unittest.mock import MagicMock
 from click.testing import CliRunner
 import pytest
 from pytest_mock import MockerFixture
@@ -16,7 +17,9 @@ CONFIG = DATA_DIR / "config.cfg"
     sorted((DATA_DIR / "pyrepo_init").iterdir()),
     ids=attrgetter("name"),
 )
-def test_pyrepo_init(dirpath: Path, mocker: MockerFixture, tmp_path: Path) -> None:
+def test_pyrepo_init(
+    mock_default_branch: MagicMock, dirpath: Path, mocker: MockerFixture, tmp_path: Path
+) -> None:
     tmp_path /= "tmp"  # copytree() can't copy to a dir that already exists
     copytree(dirpath / "before", tmp_path)
     options = (dirpath / "options.txt").read_text().splitlines()
@@ -27,10 +30,6 @@ def test_pyrepo_init(dirpath: Path, mocker: MockerFixture, tmp_path: Path) -> No
     get_commit_years = mocker.patch(
         "pyrepo.inspecting.get_commit_years",
         return_value=[2016, 2018, 2019],
-    )
-    get_default_branch = mocker.patch(
-        "pyrepo.inspecting.get_default_branch",
-        return_value="master",
     )
     runcmd = mocker.patch("pyrepo.commands.init.runcmd")
     with responses.RequestsMock() as rsps:
@@ -53,7 +52,7 @@ def test_pyrepo_init(dirpath: Path, mocker: MockerFixture, tmp_path: Path) -> No
     if not (dirpath / "errmsg.txt").exists():
         assert r.exit_code == 0, show_result(r)
         get_commit_years.assert_called_once_with(Path())
-        get_default_branch.assert_called_once_with(Path())
+        mock_default_branch.assert_called_once_with(Path())
         runcmd.assert_called_once_with("pre-commit", "install")
         assert_dirtrees_eq(tmp_path, dirpath / "after")
     else:

@@ -4,6 +4,7 @@ from pathlib import Path
 from shutil import copyfile
 import time
 from typing import List
+from unittest.mock import MagicMock
 import pytest
 from pytest_mock import MockerFixture
 from pyrepo.inspecting import (
@@ -143,18 +144,14 @@ def test_parse_requirements(reqfile: Path) -> None:
     sorted((DATA_DIR / "inspect_project").iterdir()),
     ids=attrgetter("name"),
 )
-def test_inspect_project(dirpath: Path, mocker: MockerFixture) -> None:
-    get_default_branch = mocker.patch(
-        "pyrepo.inspecting.get_default_branch",
-        return_value="master",
-    )
+def test_inspect_project(mock_default_branch: MagicMock, dirpath: Path) -> None:
     if (dirpath / "_errmsg.txt").exists():
         with pytest.raises(Exception) as excinfo:
             inspect_project(dirpath)
         assert str(excinfo.value) == (dirpath / "_errmsg.txt").read_text().strip()
     else:
         env = inspect_project(dirpath)
-        get_default_branch.assert_called_once_with(dirpath)
+        mock_default_branch.assert_called_once_with(dirpath)
         assert env == json.loads((dirpath / "_inspect.json").read_text())
         project = Project.from_inspection(dirpath, env)
         assert project.get_template_context() == env

@@ -1,4 +1,5 @@
 import logging
+from unittest.mock import MagicMock
 import pytest
 from pytest_mock import MockerFixture
 
@@ -9,5 +10,5 @@ def capture_all_logs(caplog: pytest.LogCaptureFixture) -> None:
 
 
 @pytest.fixture
-def default_branch(mocker: MockerFixture) -> None:
-    mocker.patch("pyrepo.inspecting.get_default_branch", return_value="master")
+def mock_default_branch(mocker: MockerFixture) -> MagicMock:
+    return mocker.patch("pyrepo.inspecting.get_default_branch", return_value="master")
