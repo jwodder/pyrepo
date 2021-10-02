@@ -1,4 +1,3 @@
-import logging
 from operator import attrgetter
 from pathlib import Path
 from shutil import copytree
@@ -16,8 +15,7 @@ CONFIG = DATA_DIR / "config.cfg"
     sorted((DATA_DIR / "pyrepo_init").iterdir()),
     ids=attrgetter("name"),
 )
-def test_pyrepo_init(caplog, dirpath, mocker, tmp_path):
-    caplog.set_level(logging.INFO)  # to catch errors in logging statements
+def test_pyrepo_init(dirpath, mocker, tmp_path):
     tmp_path /= "tmp"  # copytree() can't copy to a dir that already exists
     copytree(dirpath / "before", tmp_path)
     options = (dirpath / "options.txt").read_text().splitlines()

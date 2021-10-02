@@ -5,11 +5,12 @@
   project
 - Support namespace packages?
 - Make this a package in the `jwodder` namespace?
-- Rename the actual Python package to `jwodder_pyrepo`?
+- Rename the actual Python import package to `jwodder_pyrepo`?
 - Make `configure()` store the config file values in `ctx.default_map`
     - This will require changing the precedence order of `pyrepo init
       --python-requires` (unless Click 8 comes out in the interim)
 - Change `__python_requires__` to `__requires_python__` to match PEP 621?
+    - Accept both forms as synonyms?
 - Rename `supports_pypy3` to `supports_pypy` and determine what versions of
   PyPy to support based on the supported Python versions
 - Make `inspect_project()` and `init` log at DEBUG level
@@ -21,6 +22,9 @@
   some dotfile?
 - Figure out how to rewrite the dynamic module loading in `__main__.py` using
   `pkgutil.iter_modules()`
+- Instead of filling up `test/data` with folders full of test cases, write a
+  function for generating a complete sample project from a set of parameters
+  (The function will still need folders full of test cases, though)
 
 - `pyrepo init`:
     - Support `project_name`, `repo_name`, and `rtfd_name` as Jinja2 templates

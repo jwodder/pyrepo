@@ -1,4 +1,3 @@
-import logging
 from operator import attrgetter
 import os
 from shutil import copytree
@@ -14,8 +13,7 @@ from test_helpers import DATA_DIR, assert_dirtrees_eq, show_result
     ids=attrgetter("name"),
 )
 @pytest.mark.usefixtures("default_branch")
-def test_pyrepo_add_ci_testenv(caplog, dirpath, tmp_path):
-    caplog.set_level(logging.INFO)  # to catch errors in logging statements
+def test_pyrepo_add_ci_testenv(dirpath, tmp_path):
     tmp_path /= "tmp"  # copytree() can't copy to a dir that already exists
     copytree(dirpath / "before", tmp_path)
     args = (dirpath / "args.txt").read_text().splitlines()

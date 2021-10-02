@@ -6,6 +6,8 @@ from shutil import rmtree
 import sys
 from typing import Any, Dict, List, Optional
 from in_place import InPlace
+from lineinfile import AfterLast, add_line_to_file
+from packaging.specifiers import SpecifierSet
 from pydantic import BaseModel, DirectoryPath
 from .changelog import Changelog
 from .inspecting import inspect_project
@@ -43,7 +45,6 @@ class Project(BaseModel):
     #: Sorted list of supported Python versions
     python_versions: List[PyVersion]
 
-    #: Calculated from `python_versions`
     python_requires: str
 
     #: Mapping from command (`console_scripts`) names to entry point
@@ -187,12 +188,12 @@ class Project(BaseModel):
         old_initfile = self.initfile
         new_initfile = pkgdir / "__init__.py"
         log.info(
-            "- Moving %s to %s ...",
+            "Moving %s to %s ...",
             old_initfile.relative_to(self.directory),
             new_initfile.relative_to(self.directory),
         )
         old_initfile.rename(new_initfile)
-        log.info("- Updating setup.cfg ...")
+        log.info("Updating setup.cfg ...")
         with InPlace(
             self.directory / "setup.cfg",
             mode="t",
@@ -273,3 +274,43 @@ class Project(BaseModel):
             self.extra_testenvs["typing"] = str(pyver)
             self.write_template(".github/workflows/test.yml", jenv)
         self.has_typing = True
+
+    def add_pyversion(self, v: str) -> None:
+        pyv = PyVersion.parse(v)
+        if str(pyv) not in SpecifierSet(self.python_requires):
+            raise ValueError(
+                f"Version {pyv} does not match python_requires ="
+                f" {self.python_requires!r}"
+            )
+        log.info("Adding %s to supported Python versions", pyv)
+        log.info("Updating setup.cfg ...")
+        add_line_to_file(
+            self.directory / "setup.cfg",
+            f"    Programming Language :: Python :: {pyv}\n",
+            inserter=AfterLast(r"^    Programming Language :: Python :: \d+\.\d+$"),
+            encoding="utf-8",
+        )
+        if self.has_tests:
+            log.info("Updating tox.ini ...")
+            with InPlace(self.directory / "tox.ini", mode="t", encoding="utf-8") as fp:
+                for line in fp:
+                    if m := re.match(r"envlist\s*=", line):
+                        envs = line[m.end() :].strip().split(",")
+                        if envs[-1:] == ["pypy3"]:
+                            envs.insert(-1, pyv.pyenv)
+                        else:
+                            envs.append(pyv.pyenv)
+                        print("envlist =", ",".join(envs), file=fp)
+                    else:
+                        fp.write(line)
+        if self.has_ci:
+            log.info("Updating .github/workflows/test.yml ...")
+            add_line_to_file(
+                self.directory / ".github" / "workflows" / "test.yml",
+                f"{' ' * 10}- '{pyv}'\n",
+                inserter=AfterLast(fr"^{' ' * 10}- ['\x22]?\d+\.\d+['\x22]?$"),
+                encoding="utf-8",
+            )
+
+    ### def update_pyversions(self, supported_python_versions)
+    ### def rm_pyversion(self, v: PyVersion)
