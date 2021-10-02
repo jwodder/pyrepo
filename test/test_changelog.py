@@ -3,8 +3,7 @@ from operator import attrgetter
 from pathlib import Path
 import pytest
 from pyrepo.changelog import Changelog
-
-DATA_DIR = Path(__file__).with_name("data")
+from test_helpers import DATA_DIR
 
 
 @pytest.mark.parametrize(
@@ -12,7 +11,7 @@ DATA_DIR = Path(__file__).with_name("data")
     [p for p in (DATA_DIR / "changelog").iterdir() if p.suffix in (".md", ".rst")],
     ids=attrgetter("name"),
 )
-def test_readme(filepath):
+def test_readme(filepath: Path) -> None:
     with filepath.open(encoding="utf-8") as fp:
         chlog = Changelog.load(fp)
     assert chlog.for_json() == json.loads(filepath.with_suffix(".json").read_text())

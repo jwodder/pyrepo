@@ -3,7 +3,9 @@ from operator import attrgetter
 from pathlib import Path
 from shutil import copyfile
 import time
+from typing import List
 import pytest
+from pytest_mock import MockerFixture
 from pyrepo import util
 from pyrepo.inspecting import (
     InvalidProjectError,
@@ -15,8 +17,7 @@ from pyrepo.inspecting import (
     parse_requirements,
 )
 from pyrepo.project import Project
-
-DATA_DIR = Path(__file__).with_name("data")
+from test_helpers import DATA_DIR
 
 
 @pytest.mark.parametrize(
@@ -29,7 +30,9 @@ DATA_DIR = Path(__file__).with_name("data")
         ("2018", [2018, 2019]),
     ],
 )
-def test_get_commit_years_include_now(gitoutput, result, mocker):
+def test_get_commit_years_include_now(
+    gitoutput: str, result: List[int], mocker: MockerFixture
+) -> None:
     # Set current time to 2019-04-16T18:17:14Z:
     mocker.patch("time.localtime", return_value=time.localtime(1555438634))
     mocker.patch("pyrepo.util.readcmd", return_value=gitoutput)
@@ -50,7 +53,9 @@ def test_get_commit_years_include_now(gitoutput, result, mocker):
         ("2018", [2018]),
     ],
 )
-def test_get_commit_years_no_include_now(gitoutput, result, mocker):
+def test_get_commit_years_no_include_now(
+    gitoutput: str, result: List[int], mocker: MockerFixture
+) -> None:
     # Set current time to 2019-04-16T18:17:14Z:
     mocker.patch("time.localtime", return_value=time.localtime(1555438634))
     mocker.patch("pyrepo.util.readcmd", return_value=gitoutput)
@@ -66,7 +71,7 @@ def test_get_commit_years_no_include_now(gitoutput, result, mocker):
     sorted((DATA_DIR / "find_module" / "valid").iterdir()),
     ids=attrgetter("name"),
 )
-def test_find_module(dirpath):
+def test_find_module(dirpath: Path) -> None:
     assert find_module(dirpath) == {
         "import_name": "foobar",
         "is_flat_module": dirpath.name.endswith("flat"),
@@ -79,7 +84,7 @@ def test_find_module(dirpath):
     sorted((DATA_DIR / "find_module" / "valid-src").iterdir()),
     ids=attrgetter("name"),
 )
-def test_find_module_src(dirpath):
+def test_find_module_src(dirpath: Path) -> None:
     assert find_module(dirpath) == {
         "import_name": "foobar",
         "is_flat_module": dirpath.name.endswith("flat"),
@@ -92,7 +97,7 @@ def test_find_module_src(dirpath):
     sorted((DATA_DIR / "find_module" / "extra").iterdir()),
     ids=attrgetter("name"),
 )
-def test_find_module_extra(dirpath):
+def test_find_module_extra(dirpath: Path) -> None:
     with pytest.raises(InvalidProjectError) as excinfo:
         find_module(dirpath)
     assert str(excinfo.value) == "Multiple Python modules in repository"
@@ -103,7 +108,7 @@ def test_find_module_extra(dirpath):
     sorted((DATA_DIR / "find_module" / "none").iterdir()),
     ids=attrgetter("name"),
 )
-def test_find_module_none(dirpath):
+def test_find_module_none(dirpath: Path) -> None:
     with pytest.raises(InvalidProjectError) as excinfo:
         find_module(dirpath)
     assert str(excinfo.value) == "No Python modules in repository"
@@ -114,7 +119,7 @@ def test_find_module_none(dirpath):
     sorted((DATA_DIR / "extract_requires").iterdir()),
     ids=attrgetter("name"),
 )
-def test_extract_requires(dirpath, tmp_path):
+def test_extract_requires(dirpath: Path, tmp_path: Path) -> None:
     dest = tmp_path / "foobar.py"
     copyfile(dirpath / "before.py", dest)
     variables = extract_requires(dest)
@@ -128,7 +133,7 @@ def test_extract_requires(dirpath, tmp_path):
     sorted((DATA_DIR / "parse_requirements").glob("*.txt")),
     ids=attrgetter("name"),
 )
-def test_parse_requirements(reqfile):
+def test_parse_requirements(reqfile: Path) -> None:
     variables = parse_requirements(reqfile)
     assert variables == json.loads(reqfile.with_suffix(".json").read_text())
 
@@ -138,7 +143,7 @@ def test_parse_requirements(reqfile):
     sorted((DATA_DIR / "inspect_project").iterdir()),
     ids=attrgetter("name"),
 )
-def test_inspect_project(dirpath, mocker):
+def test_inspect_project(dirpath: Path, mocker: MockerFixture) -> None:
     get_default_branch = mocker.patch(
         "pyrepo.inspecting.get_default_branch",
         return_value="master",
@@ -163,7 +168,7 @@ def test_inspect_project(dirpath, mocker):
         ("foo\nmain\nmaster\nquux", "main"),
     ],
 )
-def test_get_default_branch(gitoutput, result, mocker):
+def test_get_default_branch(gitoutput: str, result: str, mocker: MockerFixture) -> None:
     mocker.patch("pyrepo.util.readcmd", return_value=gitoutput)
     assert get_default_branch(Path()) == result
     util.readcmd.assert_called_once_with(
@@ -171,7 +176,7 @@ def test_get_default_branch(gitoutput, result, mocker):
     )
 
 
-def test_get_default_branch_error(mocker):
+def test_get_default_branch_error(mocker: MockerFixture) -> None:
     mocker.patch("pyrepo.util.readcmd", return_value="foo\nquux")
     with pytest.raises(InvalidProjectError) as excinfo:
         get_default_branch(Path())

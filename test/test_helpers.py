@@ -1,11 +1,12 @@
 from operator import attrgetter
 from pathlib import Path
 from traceback import format_exception
+from click.testing import Result
 
 DATA_DIR = Path(__file__).with_name("data")
 
 
-def assert_dirtrees_eq(tree1, tree2):
+def assert_dirtrees_eq(tree1: Path, tree2: Path) -> None:
     assert sorted(map(attrgetter("name"), tree1.iterdir())) == sorted(
         map(attrgetter("name"), tree2.iterdir())
     )
@@ -18,7 +19,7 @@ def assert_dirtrees_eq(tree1, tree2):
             assert p1.read_text() == p2.read_text()
 
 
-def show_result(r):
+def show_result(r: Result) -> str:
     if r.exception is not None:
         return "".join(format_exception(*r.exc_info))
     else:

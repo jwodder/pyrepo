@@ -1,5 +1,6 @@
 from operator import attrgetter
 import os
+from pathlib import Path
 from shutil import copytree
 from click.testing import CliRunner
 import pytest
@@ -13,7 +14,7 @@ from test_helpers import DATA_DIR, assert_dirtrees_eq, show_result
     ids=attrgetter("name"),
 )
 @pytest.mark.usefixtures("default_branch")
-def test_pyrepo_add_typing(dirpath, tmp_path):
+def test_pyrepo_add_typing(dirpath: Path, tmp_path: Path) -> None:
     tmp_path /= "tmp"  # copytree() can't copy to a dir that already exists
     copytree(dirpath / "before", tmp_path)
     r = CliRunner().invoke(
