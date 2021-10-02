@@ -1,10 +1,9 @@
 import re
 from typing import IO, List, Optional
-import attr
+from pydantic import BaseModel
 
 
-@attr.s(auto_attribs=True)
-class ChangelogSection:
+class ChangelogSection(BaseModel):
     version: str
     date: str
     content: str  # has trailing newlines stripped
@@ -19,8 +18,7 @@ class ChangelogSection:
         self.content = self.content.rstrip("\r\n")
 
 
-@attr.s(auto_attribs=True)
-class Changelog:
+class Changelog(BaseModel):
     """
     See <https://github.com/jwodder/pyrepo/wiki/CHANGELOG-Format> for a
     description of the format parsed & emitted by this class
@@ -67,7 +65,7 @@ class Changelog:
             sections[-1].content += prev
         if sections:
             sections[-1]._end()
-        return cls(intro, sections)
+        return cls(intro=intro, sections=sections)
 
     def save(self, fp: IO[str]) -> None:
         print(self, file=fp, end="")
@@ -83,4 +81,4 @@ class Changelog:
             return self.intro
 
     def for_json(self) -> dict:
-        return attr.asdict(self)
+        return self.dict()

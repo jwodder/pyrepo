@@ -22,11 +22,11 @@ import sys
 from tempfile import NamedTemporaryFile
 import time
 from typing import List, Optional, Sequence
-import attr
 import click
 from in_place import InPlace
 from linesep import read_paragraphs
 from packaging.version import Version
+from pydantic import BaseModel, Field
 from uritemplate import expand
 from ..changelog import Changelog, ChangelogSection
 from ..config import Config
@@ -51,15 +51,17 @@ ACTIVE_BADGE = """\
 TOPICS_ACCEPT = f"application/vnd.github.mercy-preview,{ACCEPT}"
 
 
-@attr.s(auto_attribs=True)
-class Releaser:
+class Releaser(BaseModel):
     project: Project
     version: str
     ghrepo: GitHub
     tox: bool
     sign_assets: bool
-    assets: List[str] = attr.ib(factory=list)
-    assets_asc: List[str] = attr.ib(factory=list)
+    assets: List[str] = Field(default_factory=list)
+    assets_asc: List[str] = Field(default_factory=list)
+
+    class Config:
+        arbitrary_types_allowed = True
 
     @classmethod
     def from_project(

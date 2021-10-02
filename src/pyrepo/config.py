@@ -2,8 +2,8 @@ from configparser import ConfigParser
 from pathlib import Path
 import platform
 from typing import Any, Dict, List, Tuple, Union
-import attr
 import click
+from pydantic import BaseModel
 from pyversion_info import get_pyversion_info
 import requests
 from pyrepo import __url__, __version__
@@ -30,11 +30,13 @@ MAJOR_PYTHON_VERSIONS = [3]
 PYVER_TEMPLATE = '"3.X"'
 
 
-@attr.s(auto_attribs=True)
-class Config:
+class Config(BaseModel):
     defaults: dict
     pyversions: List[str]
     gh: GitHub
+
+    class Config:
+        arbitrary_types_allowed = True
 
 
 def configure(ctx: click.Context, filename: Union[str, Path]) -> None:

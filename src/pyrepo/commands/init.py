@@ -3,7 +3,6 @@ import logging
 from pathlib import Path
 import re
 from typing import Any
-import attr
 import click
 from in_place import InPlace
 from packaging.requirements import Requirement
@@ -99,7 +98,7 @@ def cli(obj: Config, **options: Any) -> None:
 
     log.info("Determining Python module ...")
     # "import_name", "is_flat_module", and "src_layout"
-    env.update(attr.asdict(inspecting.find_module(Path())))
+    env.update(inspecting.find_module(Path()).dict())
     if env["is_flat_module"]:
         log.info("Found flat module %s.py", env["import_name"])
     else:

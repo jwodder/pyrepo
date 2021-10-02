@@ -4,7 +4,6 @@ from pathlib import Path
 import re
 import time
 from typing import Any, Dict, List, Optional, Union
-import attr
 from intspan import intspan
 from pydantic import BaseModel, Field
 from read_version import read_version
@@ -158,8 +157,7 @@ def get_commit_years(dirpath: Path, include_now: bool = True) -> List[int]:
     return sorted(years)
 
 
-@attr.s(auto_attribs=True)
-class ModuleInfo:
+class ModuleInfo(BaseModel):
     import_name: str
     is_flat_module: bool
     src_layout: bool
