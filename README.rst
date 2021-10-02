@@ -28,7 +28,7 @@ structuring Python projects, and so it is not suitable for general use.
 
 Installation
 ============
-``jwodder-pyrepo`` requires Python 3.6 or higher to run and `pip
+``jwodder-pyrepo`` requires Python 3.8 or higher to run and `pip
 <https://pip.pypa.io>`_ 19.0 or higher to install.  You can install
 ``jwodder-pyrepo`` and its dependencies by running::
 
