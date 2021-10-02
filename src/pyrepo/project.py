@@ -128,11 +128,10 @@ class Project(BaseModel):
         with InPlace(self.initfile, mode="t", encoding="utf-8") as fp:
             for line in fp:
                 # Preserve quotation marks around version:
-                m = re.fullmatch(
+                if m := re.fullmatch(
                     r'__version__\s*=\s*([\x27"])(?P<version>.+)\1\s*',
                     line,
-                )
-                if m:
+                ):
                     line = (
                         line[: m.start("version")]
                         + str(version)
@@ -266,8 +265,7 @@ class Project(BaseModel):
             with toxfile.open("w", encoding="utf-8") as fp:
                 for sectname, sect in sections:
                     if sectname == "tox":
-                        m = re.search(r"^envlist\s*=[ \t]*(.+)$", sect, flags=re.M)
-                        if m:
+                        if m := re.search(r"^envlist\s*=[ \t]*(.+)$", sect, flags=re.M):
                             envs = m[1].split(",")
                             envs.insert(envs[:1] == ["lint"], "typing")
                             sect = (
@@ -311,8 +309,7 @@ class Project(BaseModel):
             log.info("Updating tox.ini ...")
             with InPlace(self.directory / "tox.ini", mode="t", encoding="utf-8") as fp:
                 for line in fp:
-                    m = re.match(r"envlist\s*=", line)
-                    if m:
+                    if m := re.match(r"envlist\s*=", line):
                         envs = line[m.end() :].strip().split(",")
                         if envs[-1:] == ["pypy3"]:
                             envs.insert(-1, pyv.pyenv)

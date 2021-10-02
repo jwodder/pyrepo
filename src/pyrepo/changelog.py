@@ -40,18 +40,18 @@ class Changelog:
                     sections[-1]._end()
                 if prev is None:
                     raise ValueError("File begins with hrule")
-                m = re.match(r"^(?P<version>\S+)\s+\((?P<date>.+)\)$", prev)
-                if not m:
+                if m := re.match(r"^(?P<version>\S+)\s+\((?P<date>.+)\)$", prev):
+                    sections.append(
+                        ChangelogSection(
+                            version=m["version"],
+                            date=m["date"],
+                            content="",
+                        )
+                    )
+                else:
                     raise ValueError(
                         f'Section header not in "version (date)" format: {prev!r}'
                     )
-                sections.append(
-                    ChangelogSection(
-                        version=m.group("version"),
-                        date=m.group("date"),
-                        content="",
-                    )
-                )
                 prev = None
             elif prev is not None:
                 if sections:

@@ -67,9 +67,8 @@ def inspect_project(dirpath: Optional[Union[str, Path]] = None) -> dict:
 
     env["python_versions"] = []
     for clsfr in cfg["metadata"]["classifiers"]:
-        m = re.fullmatch(r"Programming Language :: Python :: (\d+\.\d+)", clsfr)
-        if m:
-            env["python_versions"].append(PyVersion.parse(m.group(1)))
+        if m := re.fullmatch(r"Programming Language :: Python :: (\d+\.\d+)", clsfr):
+            env["python_versions"].append(PyVersion.parse(m[1]))
         if clsfr == "Programming Language :: Python :: Implementation :: PyPy":
             env["supports_pypy3"] = True
 
@@ -88,8 +87,8 @@ def inspect_project(dirpath: Optional[Union[str, Path]] = None) -> dict:
         cfg["metadata"]["url"],
     )
     assert m, "Project URL is not a GitHub URL"
-    env["github_user"] = m.group(1)
-    env["repo_name"] = m.group(2)
+    env["github_user"] = m[1]
+    env["repo_name"] = m[2]
 
     if "Documentation" in cfg["metadata"]["project_urls"]:
         m = re.fullmatch(
@@ -97,7 +96,7 @@ def inspect_project(dirpath: Optional[Union[str, Path]] = None) -> dict:
             cfg["metadata"]["project_urls"]["Documentation"],
         )
         assert m, "Documentation URL is not a Read the Docs URL"
-        env["rtfd_name"] = m.group(1)
+        env["rtfd_name"] = m[1]
     else:
         env["rtfd_name"] = env["name"]
 
@@ -123,19 +122,17 @@ def inspect_project(dirpath: Optional[Union[str, Path]] = None) -> dict:
         env["has_pypi"] = False
     else:
         for badge in rdme.badges:
-            m = re.fullmatch(
+            if m := re.fullmatch(
                 r"https://codecov\.io/gh/([^/]+)/[^/]+/branch/.+" r"/graph/badge\.svg",
                 badge.href,
-            )
-            if m:
-                env["codecov_user"] = m.group(1)
+            ):
+                env["codecov_user"] = m[1]
         env["has_pypi"] = any(link["label"] == "PyPI" for link in rdme.header_links)
 
     with (directory / "LICENSE").open(encoding="utf-8") as fp:
         for line in fp:
-            m = re.match(r"^Copyright \(c\) (\d[-,\d\s]+\d) \w+", line)
-            if m:
-                env["copyright_years"] = list(intspan(m.group(1)))
+            if m := re.match(r"^Copyright \(c\) (\d[-,\d\s]+\d) \w+", line):
+                env["copyright_years"] = list(intspan(m[1]))
                 break
         else:
             raise InvalidProjectError("Copyright years not found in LICENSE")
@@ -243,12 +240,11 @@ def parse_requirements(filepath: Path) -> Requirements:
     try:
         with filepath.open(encoding="utf-8") as fp:
             for line in fp:
-                m = re.fullmatch(
+                if m := re.fullmatch(
                     r"\s*#\s*python\s*((?:[=<>!~]=|[<>]|===)\s*\S(?:.*\S)?)\s*",
                     line,
                     flags=re.I,
-                )
-                if m:
+                ):
                     reqs.python_requires = m[1]
                     break
             fp.seek(0)

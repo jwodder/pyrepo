@@ -92,9 +92,7 @@ def readcmd(*args: Union[str, Path], **kwargs: Any) -> str:
     argstrs = [str(a) for a in args]
     log.debug("Running: %s", " ".join(map(shlex.quote, argstrs)))
     try:
-        return cast(
-            str, subprocess.check_output(argstrs, universal_newlines=True, **kwargs)
-        ).strip()
+        return cast(str, subprocess.check_output(argstrs, text=True, **kwargs)).strip()
     except subprocess.CalledProcessError as e:
         sys.exit(e.returncode)
 
@@ -102,11 +100,10 @@ def readcmd(*args: Union[str, Path], **kwargs: Any) -> str:
 def ensure_license_years(filepath: Union[str, Path], years: List[int]) -> None:
     with InPlace(filepath, mode="t", encoding="utf-8") as fp:
         for line in fp:
-            m = re.match(r"^Copyright \(c\) (\d[-,\d\s]+\d) \w+", line)
-            if m:
+            if m := re.match(r"^Copyright \(c\) (\d[-,\d\s]+\d) \w+", line):
                 line = (
                     line[: m.start(1)]
-                    + update_years2str(m.group(1), years)
+                    + update_years2str(m[1], years)
                     + line[m.end(1) :]
                 )
             print(line, file=fp, end="")

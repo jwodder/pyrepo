@@ -29,9 +29,8 @@ class Image(BaseModel):
         opt_name: Optional[str] = None
         opt_value: Optional[str] = None
         for ln in lines[1:]:
-            m = re.match(r"^\s*:(\w+):\s*", ln)
-            if m:
-                label = m.group(1)
+            if m := re.match(r"^\s*:(\w+):\s*", ln):
+                label = m[1]
                 if label not in options:
                     raise ValueError(f"Unknown image option: ':{label}:'")
                 elif options[label] is not None or label == opt_name:
@@ -93,10 +92,10 @@ class Readme(BaseModel):
                     badges.append(Image.parse_string(para))
                 elif re.match(HEADER_LINK_RGX, para):
                     for hlink in re.split(r"^\|", para.strip(), flags=re.M):
-                        m = re.fullmatch(HEADER_LINK_RGX, hlink.strip())
-                        if not m:
+                        if m := re.fullmatch(HEADER_LINK_RGX, hlink.strip()):
+                            header_links.append(m.groupdict())
+                        else:
                             raise ValueError(f"Invalid header link: {hlink!r}")
-                        header_links.append(m.groupdict())
                     state = ParserState.POST_LINKS
                 else:
                     raise ValueError(
