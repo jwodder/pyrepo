@@ -26,6 +26,14 @@
   function for generating a complete sample project from a set of parameters
   (The function will still need folders full of test cases, though)
 
+- Support projects supporting multiple major versions of Python
+    - Make `Project.add_pyversion()` add a "Programming Language :: Python ::
+      X" classifier when adding the first minor version of a major version.
+    - Make `Project.add_pyversion()` remove a "Programming Language :: Python
+      :: X :: Only" classifier when it no longer applies
+    - Support versions with different major versions in the config file's
+      "[pyversions]"
+
 - `pyrepo init`:
     - Support `project_name`, `repo_name`, and `rtfd_name` as Jinja2 templates
       with access to `import_name` and (except for `project_name` itself)
@@ -110,17 +118,7 @@
       versions
     - Make `supports_pypy3` affect the envlist in `tox.ini`
 
-- Prior art to investigate and compare against:
-    - https://pypi.python.org/pypi/octopusapi
-    - https://github.com/audreyr/cookiecutter
-    - https://github.com/audreyr/cookiecutter-pypackage
-    - https://github.com/pypa/sampleproject
-    - https://github.com/jaraco/skeleton
-    - https://github.com/ionelmc/cookiecutter-pylibrary
-
-- Write scripts for adding new repositories to Read the Docs and Codecov.io via
-  their APIs
-    - Read the Docs: not possible?
-        - Double-check <https://docs.readthedocs.io/en/stable/api/v3.html>
-        - Write a module with `mechanicalsoup` to do this?
-    - Codecov.io: done automatically when test results are submitted
+- Write a command for adding new repositories to Read the Docs
+    - Not possible?  Double-check
+      <https://docs.readthedocs.io/en/stable/api/v3.html>
+    - Write a module with `mechanicalsoup` to do this?
