@@ -75,6 +75,10 @@ class PyVersion(str):
     def parse(cls, s: Any) -> "PyVersion":
         return parse_obj_as(cls, s)
 
+    @classmethod
+    def construct(cls, major: int, minor: int) -> "PyVersion":
+        return cls.parse(f"{major}.{minor}")
+
     @property
     def pyenv(self) -> str:
         ### TODO: How will tox handle 3.10?

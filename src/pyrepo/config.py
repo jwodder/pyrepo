@@ -1,13 +1,14 @@
 from configparser import ConfigParser
 from pathlib import Path
 import platform
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, List, Union
 import click
 from pydantic import BaseModel
 from pyversion_info import get_pyversion_info
 import requests
 from pyrepo import __url__, __version__
 from .gh import ACCEPT, GitHub
+from .util import PyVersion
 
 DEFAULT_CFG = str(Path.home() / ".config" / "pyrepo.cfg")
 
@@ -32,7 +33,7 @@ PYVER_TEMPLATE = '"3.X"'
 
 class Config(BaseModel):
     defaults: dict
-    pyversions: List[str]
+    pyversions: List[PyVersion]
     gh: GitHub
 
     class Config:
@@ -43,8 +44,8 @@ def configure(ctx: click.Context, filename: Union[str, Path]) -> None:
     cfg = ConfigParser(interpolation=None)
     cfg.optionxform = lambda s: s.lower().replace("-", "_")  # type: ignore[assignment]
     cfg.read_dict(DEFAULTS)
+    ### TODO: Check the return value and raise an exception if it's empty:
     cfg.read(filename)
-    ### TODO: Check the return value and raise an exception if it's empty
     supported_series = [
         v for v in get_pyversion_info().supported_series() if not v.startswith("2.")
     ]
@@ -91,7 +92,7 @@ def configure(ctx: click.Context, filename: Union[str, Path]) -> None:
     )
 
     if not cfg.has_option("options", "python_requires"):
-        cfg["options"]["python_requires"] = "~={}.{}".format(*min_pyversion)
+        cfg["options"]["python_requires"] = f"~={min_pyversion}"
     from .__main__ import main
 
     for cmdname, cmdobj in main.commands.items():
@@ -110,23 +111,21 @@ def configure(ctx: click.Context, filename: Union[str, Path]) -> None:
         ctx.obj.defaults[cmdname] = defaults
 
 
-def parse_pyversion(s: str) -> Tuple[int, int]:
-    m1, _, m2 = s.partition(".")
-    major = int(m1)
-    minor = int(m2)
-    if major not in MAJOR_PYTHON_VERSIONS:
+def parse_pyversion(s: str) -> PyVersion:
+    v = PyVersion.parse(s)
+    if v.major not in MAJOR_PYTHON_VERSIONS:
         raise NotImplementedError(
             "Only the following major Python versions are supported:"
             f" {', '.join(map(str, MAJOR_PYTHON_VERSIONS))}"
         )
-    return (major, minor)
+    return v
 
 
-def pyver_range(
-    min_pyversion: Tuple[int, int], max_pyversion: Tuple[int, int]
-) -> List[str]:
-    minmajor, minminor = min_pyversion
-    maxmajor, maxminor = max_pyversion
-    if minmajor != maxmajor:
-        raise NotImplementedError
-    return [f"{minmajor}.{i}" for i in range(minminor, maxminor + 1)]
+def pyver_range(minv: PyVersion, maxv: PyVersion) -> List[PyVersion]:
+    if minv.major != maxv.major:
+        raise NotImplementedError(
+            "Python versions with different major versions not supported"
+        )
+    return [
+        PyVersion.construct(minv.major, i) for i in range(minv.minor, maxv.minor + 1)
+    ]

@@ -11,7 +11,7 @@ from packaging.utils import canonicalize_name as normalize
 from .. import inspecting
 from ..config import Config
 from ..project import Project
-from ..util import PyVersion, ensure_license_years, get_jinja_env, optional, runcmd
+from ..util import ensure_license_years, get_jinja_env, optional, runcmd
 
 log = logging.getLogger(__name__)
 
@@ -183,7 +183,7 @@ def cli(obj: Config, **options: Any) -> None:
         raise click.UsageError(
             f"Invalid specifier for python_requires: {python_requires!r}"
         )
-    env["python_versions"] = list(map(PyVersion.parse, pyspec.filter(obj.pyversions)))
+    env["python_versions"] = list(pyspec.filter(obj.pyversions))
     if not env["python_versions"]:
         raise click.UsageError(
             f"No Python versions in pyversions range matching {python_requires!r}"
