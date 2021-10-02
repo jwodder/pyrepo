@@ -253,13 +253,16 @@ class Project(BaseModel):
             with toxfile.open("w", encoding="utf-8") as fp:
                 for sectname, sect in sections:
                     if sectname == "tox":
-                        m = re.search(r"^envlist\s*=\s*", sect, flags=re.M)
+                        m = re.search(r"^envlist\s*=[ \t]*(.+)$", sect, flags=re.M)
                         if m:
-                            sect = sect[: m.end()] + "typing," + sect[m.end() :]
+                            envs = m[1].split(",")
+                            envs.insert(envs[:1] == ["lint"], "typing")
+                            sect = (
+                                sect[: m.start(1)] + ",".join(envs) + sect[m.end(1) :]
+                            )
                         else:
                             raise RuntimeError("Could not find [tox]envlist in tox.ini")
-                    print(sect, end="", file=fp)
-                    if sectname == "testenv":
+                    if sectname == "pytest":
                         print(
                             self.get_template_block(
                                 "tox.ini.j2",
@@ -268,6 +271,7 @@ class Project(BaseModel):
                             ),
                             file=fp,
                         )
+                    print(sect, end="", file=fp)
         if self.has_ci:
             pyver = self.python_versions[0]
             log.info("Adding testenv %r with Python version %r", "typing", pyver)
