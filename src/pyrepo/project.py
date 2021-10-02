@@ -294,7 +294,8 @@ class Project(BaseModel):
             log.info("Updating tox.ini ...")
             with InPlace(self.directory / "tox.ini", mode="t", encoding="utf-8") as fp:
                 for line in fp:
-                    if m := re.match(r"envlist\s*=", line):
+                    m = re.match(r"envlist\s*=", line)
+                    if m:
                         envs = line[m.end() :].strip().split(",")
                         if envs[-1:] == ["pypy3"]:
                             envs.insert(-1, pyv.pyenv)
