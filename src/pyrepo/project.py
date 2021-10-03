@@ -179,12 +179,12 @@ class Project(BaseModel):
                 p.unlink()
             else:
                 with p.open("w", encoding="utf-8") as fp:
-                    value.save(fp)
+                    value.dump(fp)
             return
         if value is not None:
             p = next(self.get_changelog_paths(docs, extant=False))
             with p.open("w", encoding="utf-8") as fp:
-                value.save(fp)
+                value.dump(fp)
 
     def build(
         self, sdist: bool = True, wheel: bool = True, clean: bool = False

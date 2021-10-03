@@ -1,10 +1,10 @@
-- Write tests
+- Write more tests
 - Support namespace packages?
 - Make this a package in the `jwodder` namespace?
 - Rename the actual Python import package to `jwodder_pyrepo`?
 - Make `configure()` store the config file values in `ctx.default_map`
-    - This will require changing the precedence order of `pyrepo init
-      --python-requires` (Use Click 8's new features for this)
+    - Use Click 8's new features to handle the precedence order of `pyrepo init
+      --python-requires`
 - Change `__python_requires__` to `__requires_python__` to match PEP 621?
     - Accept both forms as synonyms?
 - Rename `supports_pypy3` to `supports_pypy` and determine what versions of
@@ -53,7 +53,7 @@
       project?
 
 - `pyrepo release`:
-    - Support configuring the following via the config file:
+    - Support configuring the following via the config file and command line:
         - whether to sign the version tag
         - whether to create a GitHub release
         - whether to upload to GitHub

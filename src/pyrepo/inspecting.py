@@ -118,7 +118,7 @@ def inspect_project(dirpath: Optional[Union[str, Path]] = None) -> dict:
     env["codecov_user"] = env["github_user"]
     try:
         with (directory / "README.rst").open(encoding="utf-8") as fp:
-            rdme = Readme.parse(fp)
+            rdme = Readme.load(fp)
     except FileNotFoundError:
         env["has_pypi"] = False
     else:

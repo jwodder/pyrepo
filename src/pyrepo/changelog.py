@@ -67,7 +67,7 @@ class Changelog(BaseModel):
             sections[-1]._end()
         return cls(intro=intro, sections=sections)
 
-    def save(self, fp: IO[str]) -> None:
+    def dump(self, fp: IO[str]) -> None:
         print(self, file=fp, end="")
 
     def __str__(self) -> str:

@@ -17,7 +17,7 @@ class Image(BaseModel):
     alt: Optional[str]
 
     @classmethod
-    def parse_string(cls, s: str) -> "Image":
+    def parse(cls, s: str) -> "Image":
         if not s.startswith(IMAGE_START):
             raise ValueError(f"Not an RST image: {s!r}")
         lines = s.splitlines(keepends=True)
@@ -77,7 +77,7 @@ class Readme(BaseModel):
     sections: List[Section]
 
     @classmethod
-    def parse(cls, fp: TextIO) -> "Readme":
+    def load(cls, fp: TextIO) -> "Readme":
         state = ParserState.BADGES
         badges: List[Image] = []
         header_links: List[dict] = []
@@ -89,7 +89,7 @@ class Readme(BaseModel):
         for para in read_paragraphs(fp):
             if state == ParserState.BADGES:
                 if para.startswith(IMAGE_START):
-                    badges.append(Image.parse_string(para))
+                    badges.append(Image.parse(para))
                 elif re.match(HEADER_LINK_RGX, para):
                     for hlink in re.split(r"^\|", para.strip(), flags=re.M):
                         if m := re.fullmatch(HEADER_LINK_RGX, hlink.strip()):

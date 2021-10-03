@@ -13,6 +13,6 @@ from test_helpers import DATA_DIR
 )
 def test_readme(filepath: Path) -> None:
     with filepath.open(encoding="utf-8") as fp:
-        rme = Readme.parse(fp)
+        rme = Readme.load(fp)
     assert rme.for_json() == json.loads(filepath.with_suffix(".json").read_text())
     assert str(rme) == filepath.read_text(encoding="utf-8")
