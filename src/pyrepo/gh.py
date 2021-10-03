@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import Any, Dict, Iterator, Optional, Sequence, Union
+from typing import Any, Dict, Iterable, Iterator, Optional, Union
 import requests
 
 ACCEPT = ("application/vnd.github.v3+json",)
@@ -17,7 +17,7 @@ class GitHub:
         token: Optional[str] = None,
         token_file: Union[str, Path] = DEFAULT_TOKEN_FILE,
         session: Optional[requests.Session] = None,
-        extra_accept: Sequence[str] = (),
+        extra_accept: Iterable[str] = (),
         headers: Optional[Dict[str, str]] = None,
         _method: Optional[str] = None,
     ):
