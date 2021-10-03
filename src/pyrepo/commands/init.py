@@ -60,14 +60,19 @@ log = logging.getLogger(__name__)
     "--typing/--no-typing",
     help="Whether to configure for type annotations",
 )
+@click.argument(
+    "dirpath",
+    type=click.Path(exists=True, file_okay=False, dir_okay=True, path_type=Path),
+    default=Path(),
+)
 @click.pass_obj
-def cli(obj: Config, **options: Any) -> None:
+def cli(obj: Config, dirpath: Path, **options: Any) -> None:
     """Create packaging boilerplate for a new project"""
-    if Path("setup.py").exists():
+    if (dirpath / "setup.py").exists():
         raise click.UsageError("setup.py already exists")
-    if Path("setup.cfg").exists():
+    if (dirpath / "setup.cfg").exists():
         raise click.UsageError("setup.cfg already exists")
-    if Path("pyproject.toml").exists():
+    if (dirpath / "pyproject.toml").exists():
         raise click.UsageError("pyproject.toml already exists")
 
     defaults = obj.defaults["init"]
@@ -80,7 +85,7 @@ def cli(obj: Config, **options: Any) -> None:
     env = {
         "author": options["author"],
         "short_description": options["description"],
-        "copyright_years": inspecting.get_commit_years(Path()),
+        "copyright_years": inspecting.get_commit_years(dirpath),
         "has_doctests": options.get("doctests", False),
         "has_tests": options.get("tests", False) or options.get("ci", False),
         "has_typing": options.get("typing", False),
@@ -93,12 +98,12 @@ def cli(obj: Config, **options: Any) -> None:
         "version": "0.1.0.dev1",
         "supports_pypy3": True,
         "extra_testenvs": {},
-        "default_branch": inspecting.get_default_branch(Path()),
+        "default_branch": inspecting.get_default_branch(dirpath),
     }
 
     log.info("Determining Python module ...")
     # "import_name", "is_flat_module", and "src_layout"
-    env.update(inspecting.find_module(Path()).dict())
+    env.update(inspecting.find_module(dirpath).dict())
     if env["is_flat_module"]:
         log.info("Found flat module %s.py", env["import_name"])
     else:
@@ -106,17 +111,19 @@ def cli(obj: Config, **options: Any) -> None:
 
     if not env.pop("src_layout", False):
         log.info("Moving code to src/ directory ...")
-        Path("src").mkdir(exist_ok=True)
+        (dirpath / "src").mkdir(exist_ok=True)
         code_path = env["import_name"]
         if env["is_flat_module"]:
             code_path += ".py"
-        Path(code_path).rename(Path("src", code_path))
+        (dirpath / code_path).rename(dirpath / "src" / code_path)
 
     if env["is_flat_module"] and env["has_typing"]:
         log.info("Unflattening for py.typed file ...")
-        pkgdir = Path("src", env["import_name"])
+        pkgdir = dirpath / "src" / env["import_name"]
         pkgdir.mkdir(parents=True, exist_ok=True)
-        Path("src", env["import_name"] + ".py").rename(pkgdir / "__init__.py")
+        (dirpath / "src" / (env["import_name"] + ".py")).rename(
+            dirpath / pkgdir / "__init__.py"
+        )
         env["is_flat_module"] = False
 
     env["name"] = options.get("project_name", env["import_name"])
@@ -130,12 +137,12 @@ def cli(obj: Config, **options: Any) -> None:
     )
 
     log.info("Checking for requirements.txt ...")
-    req_vars = inspecting.parse_requirements(Path("requirements.txt"))
+    req_vars = inspecting.parse_requirements(dirpath / "requirements.txt")
 
     if env["is_flat_module"]:
-        initfile = Path("src", env["import_name"] + ".py")
+        initfile = dirpath / "src" / (env["import_name"] + ".py")
     else:
-        initfile = Path("src", env["import_name"], "__init__.py")
+        initfile = dirpath / "src" / env["import_name"] / "__init__.py"
     log.info("Checking for __requires__ ...")
     src_vars = inspecting.extract_requires(initfile)
 
@@ -196,7 +203,7 @@ def cli(obj: Config, **options: Any) -> None:
     else:
         env["commands"] = {options["command"]: f'{env["import_name"]}.__main__:main'}
 
-    project = Project.from_inspection(Path(), env)
+    project = Project.from_inspection(dirpath, env)
     project.write_template(".gitignore", jenv, force=False)
     project.write_template(".pre-commit-config.yaml", jenv, force=False)
     project.write_template("MANIFEST.in", jenv, force=False)
@@ -219,9 +226,9 @@ def cli(obj: Config, **options: Any) -> None:
         project.write_template("docs/conf.py", jenv, force=False)
         project.write_template("docs/requirements.txt", jenv, force=False)
 
-    if Path("LICENSE").exists():
+    if (dirpath / "LICENSE").exists():
         log.info("Setting copyright year in LICENSE ...")
-        ensure_license_years("LICENSE", env["copyright_years"])
+        ensure_license_years(dirpath / "LICENSE", env["copyright_years"])
     else:
         project.write_template("LICENSE", jenv, force=False)
 
@@ -243,7 +250,7 @@ def cli(obj: Config, **options: Any) -> None:
             print(jenv.get_template("init.j2").render(env), file=fp)
 
     with suppress(FileNotFoundError):
-        Path("requirements.txt").unlink()
+        (dirpath / "requirements.txt").unlink()
 
-    runcmd("pre-commit", "install")
+    runcmd("pre-commit", "install", cwd=dirpath)
     log.info("TODO: Run `pre-commit run -a` after adding new files")

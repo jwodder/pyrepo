@@ -43,7 +43,7 @@ def test_pyrepo_init(
             )
         r = CliRunner().invoke(
             main,
-            ["-c", str(cfg), "-C", str(tmp_path), "init"] + options,
+            ["-c", str(cfg), "init"] + options + [str(tmp_path)],
             # Standalone mode needs to be disabled so that `ClickException`s
             # (e.g., `UsageError`) will be returned in `r.exception` instead of
             # a `SystemExit`
@@ -51,9 +51,9 @@ def test_pyrepo_init(
         )
     if not (dirpath / "errmsg.txt").exists():
         assert r.exit_code == 0, show_result(r)
-        get_commit_years.assert_called_once_with(Path())
-        mock_default_branch.assert_called_once_with(Path())
-        runcmd.assert_called_once_with("pre-commit", "install")
+        get_commit_years.assert_called_once_with(tmp_path)
+        mock_default_branch.assert_called_once_with(tmp_path)
+        runcmd.assert_called_once_with("pre-commit", "install", cwd=tmp_path)
         assert_dirtrees_eq(tmp_path, dirpath / "after")
     else:
         assert r.exit_code != 0 and r.exception is not None, show_result(r)
