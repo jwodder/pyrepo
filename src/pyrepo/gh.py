@@ -26,9 +26,13 @@ class GitHub:
             session = requests.Session()
             session.headers["Accept"] = ",".join(tuple(extra_accept) + ACCEPT)
             if token is None:
-                with open(token_file) as fp:
-                    token = fp.read().strip()
-            session.headers["Authorization"] = "token " + token
+                try:
+                    with open(token_file) as fp:
+                        token = fp.read().strip()
+                except FileNotFoundError:
+                    pass
+            if token is not None:
+                session.headers["Authorization"] = "token " + token
             if headers is not None:
                 session.headers.update(headers)
         self._session = session
