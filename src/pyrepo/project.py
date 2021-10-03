@@ -5,7 +5,7 @@ from pathlib import Path
 import re
 from shutil import rmtree
 import sys
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, Iterator, List, Optional, Union
 import click
 from in_place import InPlace
 from jinja2 import Environment
@@ -25,8 +25,6 @@ from .util import (
 )
 
 log = logging.getLogger(__name__)
-
-CHANGELOG_NAMES = ("CHANGELOG.md", "CHANGELOG.rst")
 
 
 class Project(BaseModel):
@@ -156,38 +154,36 @@ class Project(BaseModel):
         )
         self.version = version
 
-    def get_changelog(self, docs: bool = False) -> Optional[Changelog]:
-        paths: Tuple[Union[str, Path], ...]
+    def get_changelog_paths(
+        self, docs: bool = False, extant: bool = True
+    ) -> Iterator[Path]:
+        paths: List[Union[str, Path]]
         if docs:
-            paths = (Path("docs", "changelog.rst"),)
+            paths = [Path("docs", "changelog.rst")]
         else:
-            paths = CHANGELOG_NAMES
+            paths = ["CHANGELOG.md", "CHANGELOG.rst"]
         for p in paths:
-            try:
-                with (self.directory / p).open(encoding="utf-8") as fp:
-                    return Changelog.load(fp)
-            except FileNotFoundError:
-                continue
+            fpath = self.directory / p
+            if not extant or fpath.exists():
+                yield fpath
+
+    def get_changelog(self, docs: bool = False) -> Optional[Changelog]:
+        for p in self.get_changelog_paths(docs):
+            with p.open(encoding="utf-8") as fp:
+                return Changelog.load(fp)
         return None
 
     def set_changelog(self, value: Optional[Changelog], docs: bool = False) -> None:
-        paths: Tuple[Union[str, Path], ...]
-        if docs:
-            paths = (Path("docs", "changelog.rst"),)
-        else:
-            paths = CHANGELOG_NAMES
-        for p in paths:
-            fpath = self.directory / p
-            if fpath.exists():
-                if value is None:
-                    fpath.unlink()
-                else:
-                    with fpath.open("w", encoding="utf-8") as fp:
-                        value.save(fp)
-                return
+        for p in self.get_changelog_paths(docs):
+            if value is None:
+                p.unlink()
+            else:
+                with p.open("w", encoding="utf-8") as fp:
+                    value.save(fp)
+            return
         if value is not None:
-            fpath = self.directory / paths[0]
-            with fpath.open("w", encoding="utf-8") as fp:
+            p = next(self.get_changelog_paths(docs, extant=False))
+            with p.open("w", encoding="utf-8") as fp:
                 value.save(fp)
 
     def build(
