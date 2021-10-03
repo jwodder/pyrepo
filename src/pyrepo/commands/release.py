@@ -18,6 +18,7 @@ import logging
 from mimetypes import add_type, guess_type
 import os
 import os.path
+from pathlib import Path
 import re
 import sys
 from tempfile import NamedTemporaryFile
@@ -64,8 +65,9 @@ class Releaser(BaseModel):
     ghrepo: GitHub
     tox: bool
     sign_assets: bool
-    assets: List[str] = Field(default_factory=list)
-    assets_asc: List[str] = Field(default_factory=list)
+    assets: List[Path] = Field(default_factory=list)
+    assets_asc: List[Path] = Field(default_factory=list)
+    release_upload_url: Optional[str] = None
 
     class Config:
         arbitrary_types_allowed = True
@@ -189,10 +191,10 @@ class Releaser(BaseModel):
         self.assets = []
         self.assets_asc = []
         for distfile in (self.project.directory / "dist").iterdir():
-            self.assets.append(str(distfile))
+            self.assets.append(distfile)
             if sign_assets:
-                runcmd(GPG, "--detach-sign", "-a", str(distfile))
-                self.assets_asc.append(str(distfile) + ".asc")
+                runcmd(GPG, "--detach-sign", "-a", distfile)
+                self.assets_asc.append(distfile.with_name(distfile.name + ".asc"))
 
     def upload(self) -> None:
         log.info("Uploading artifacts ...")
@@ -214,16 +216,14 @@ class Releaser(BaseModel):
     def upload_github(self) -> None:  ### Not idempotent
         log.info("Uploading artifacts to GitHub release ...")
         assert (
-            getattr(self, "release_upload_url", None) is not None
+            self.release_upload_url is not None
         ), "Cannot upload to GitHub before creating release"
         for asset in self.assets:
-            name = os.path.basename(asset)
-            url = expand(self.release_upload_url, name=name, label=None)
-            with open(asset, "rb") as fp:
-                self.ghrepo[url].post(
-                    headers={"Content-Type": mime_type(name)},
-                    data=fp.read(),
-                )
+            url = expand(self.release_upload_url, name=asset.name, label=None)
+            self.ghrepo[url].post(
+                headers={"Content-Type": mime_type(asset.name)},
+                data=asset.read_bytes(),
+            )
 
     def begin_dev(self) -> None:  # Not idempotent
         log.info("Preparing for work on next version ...")
