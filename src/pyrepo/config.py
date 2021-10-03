@@ -48,9 +48,15 @@ def configure(ctx: click.Context, filename: Union[str, Path]) -> None:
     cfg.read_dict(DEFAULTS)
     ### TODO: Check the return value and raise an exception if it's empty:
     cfg.read(filename)
+
+    pyvinfo = get_pyversion_info()
     supported_series = [
-        v for v in get_pyversion_info().supported_series() if not v.startswith("2.")
+        v
+        for m in map(str, MAJOR_PYTHON_VERSIONS)
+        for v in pyvinfo.subversions(m)
+        if pyvinfo.is_supported(v)
     ]
+
     try:
         min_pyversion = parse_pyversion(cfg["pyversions"]["minimum"])
     except KeyError:
