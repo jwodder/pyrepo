@@ -86,18 +86,16 @@ class PyVersion(str):
 
 
 def runcmd(*args: Union[str, Path], **kwargs: Any) -> None:
-    argstrs = [str(a) for a in args]
-    log.debug("Running: %s", " ".join(map(shlex.quote, argstrs)))
-    r = subprocess.run(argstrs, **kwargs)
+    log.debug("Running: %s", shlex.join(map(str, args)))
+    r = subprocess.run(args, **kwargs)
     if r.returncode != 0:
         sys.exit(r.returncode)
 
 
 def readcmd(*args: Union[str, Path], **kwargs: Any) -> str:
-    argstrs = [str(a) for a in args]
-    log.debug("Running: %s", " ".join(map(shlex.quote, argstrs)))
+    log.debug("Running: %s", shlex.join(map(str, args)))
     try:
-        return cast(str, subprocess.check_output(argstrs, text=True, **kwargs)).strip()
+        return cast(str, subprocess.check_output(args, text=True, **kwargs)).strip()
     except subprocess.CalledProcessError as e:
         sys.exit(e.returncode)
 
