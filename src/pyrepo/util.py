@@ -1,4 +1,4 @@
-from functools import partial, total_ordering
+from functools import partial, total_ordering, wraps
 import logging
 from operator import attrgetter
 from pathlib import Path
@@ -20,7 +20,6 @@ from typing import (
     Tuple,
     TypeVar,
     Union,
-    cast,
 )
 import click
 from in_place import InPlace
@@ -85,19 +84,17 @@ class PyVersion(str):
         return f"py{self.major}{self.minor}"
 
 
-def runcmd(*args: Union[str, Path], **kwargs: Any) -> None:
+def runcmd(*args: Union[str, Path], **kwargs: Any) -> subprocess.CompletedProcess:
     log.debug("Running: %s", shlex.join(map(str, args)))
-    r = subprocess.run(args, **kwargs)
-    if r.returncode != 0:
-        sys.exit(r.returncode)
+    kwargs.setdefault("check", True)
+    return subprocess.run(args, **kwargs)
 
 
 def readcmd(*args: Union[str, Path], **kwargs: Any) -> str:
-    log.debug("Running: %s", shlex.join(map(str, args)))
-    try:
-        return cast(str, subprocess.check_output(args, text=True, **kwargs)).strip()
-    except subprocess.CalledProcessError as e:
-        sys.exit(e.returncode)
+    kwargs["check"] = True
+    r = runcmd(*args, stdout=subprocess.PIPE, text=True, **kwargs)
+    assert isinstance(r.stdout, str)
+    return r.stdout.strip()
 
 
 def ensure_license_years(filepath: Union[str, Path], years: List[int]) -> None:
@@ -224,3 +221,14 @@ def map_lines(filepath: Union[str, Path], func: Callable[[str], str]) -> None:
     with InPlace(filepath, mode="t", encoding="utf-8") as fp:
         for line in fp:
             print(func(line), file=fp, end="")
+
+
+def cpe_no_tb(func: Callable) -> Callable:
+    @wraps(func)
+    def wrapped(*args: Any, **kwargs: Any) -> Any:
+        try:
+            return func(*args, **kwargs)
+        except subprocess.CalledProcessError as e:
+            sys.exit(e.returncode)
+
+    return wrapped

@@ -11,7 +11,7 @@ from packaging.utils import canonicalize_name as normalize
 from .. import inspecting
 from ..config import Config
 from ..project import Project
-from ..util import ensure_license_years, get_jinja_env, optional, runcmd
+from ..util import cpe_no_tb, ensure_license_years, get_jinja_env, optional, runcmd
 
 log = logging.getLogger(__name__)
 
@@ -66,6 +66,7 @@ log = logging.getLogger(__name__)
     default=Path(),
 )
 @click.pass_obj
+@cpe_no_tb
 def cli(obj: Config, dirpath: Path, **options: Any) -> None:
     """Create packaging boilerplate for a new project"""
     if (dirpath / "setup.py").exists():

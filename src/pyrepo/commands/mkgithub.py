@@ -2,7 +2,7 @@ from typing import Optional
 import click
 from ..config import Config
 from ..project import Project, with_project
-from ..util import readcmd, runcmd
+from ..util import cpe_no_tb, readcmd, runcmd
 
 
 @click.command()
@@ -10,6 +10,7 @@ from ..util import readcmd, runcmd
 @click.option("--repo-name", metavar="NAME", help="Set the name of the repository")
 @click.pass_obj
 @with_project
+@cpe_no_tb
 def cli(obj: Config, project: Project, repo_name: Optional[str], private: bool) -> None:
     """Create a repository on GitHub for the local project and upload it"""
     if repo_name is None:

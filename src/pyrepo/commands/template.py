@@ -1,13 +1,14 @@
 from typing import Optional, Sequence, TextIO
 import click
 from ..project import Project, with_project
-from ..util import get_jinja_env
+from ..util import cpe_no_tb, get_jinja_env
 
 
 @click.command()
 @click.option("-o", "--outfile", type=click.File("w", encoding="utf-8"))
 @click.argument("template", nargs=-1)
 @with_project
+@cpe_no_tb
 def cli(project: Project, template: Sequence[str], outfile: Optional[TextIO]) -> None:
     """Replace files with their re-evaluated templates"""
     jenv = get_jinja_env()

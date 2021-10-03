@@ -36,6 +36,7 @@ from ..gh import GitHub
 from ..inspecting import get_commit_years
 from ..project import Project, with_project
 from ..util import (
+    cpe_no_tb,
     ensure_license_years,
     map_lines,
     optional,
@@ -351,6 +352,7 @@ class Releaser(BaseModel):
 @click.argument("version", required=False)
 @click.pass_obj
 @with_project
+@cpe_no_tb
 def cli(
     obj: Config, project: Project, version: Optional[str], tox: bool, sign_assets: bool
 ) -> None:

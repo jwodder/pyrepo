@@ -1,5 +1,6 @@
 import click
 from ..project import Project, with_project
+from ..util import cpe_no_tb
 
 
 @click.command()
@@ -21,6 +22,7 @@ from ..project import Project, with_project
     help="Whether to build a wheel [default: true]",
 )
 @with_project
+@cpe_no_tb
 def cli(project: Project, clean: bool, sdist: bool, wheel: bool) -> None:
     """Build an sdist and/or wheel for a project"""
     project.build(clean=clean, sdist=sdist, wheel=wheel)
