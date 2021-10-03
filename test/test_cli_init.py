@@ -1,13 +1,12 @@
 from operator import attrgetter
 from pathlib import Path
 from shutil import copytree
-from unittest.mock import MagicMock
 from click.testing import CliRunner
 import pytest
 from pytest_mock import MockerFixture
 import responses
 from pyrepo.__main__ import main
-from test_helpers import DATA_DIR, assert_dirtrees_eq, show_result
+from test_helpers import DATA_DIR, assert_dirtrees_eq, mock_git, show_result
 
 CONFIG = DATA_DIR / "config.cfg"
 
@@ -17,9 +16,7 @@ CONFIG = DATA_DIR / "config.cfg"
     sorted((DATA_DIR / "pyrepo_init").iterdir()),
     ids=attrgetter("name"),
 )
-def test_pyrepo_init(
-    mock_default_branch: MagicMock, dirpath: Path, mocker: MockerFixture, tmp_path: Path
-) -> None:
+def test_pyrepo_init(dirpath: Path, mocker: MockerFixture, tmp_path: Path) -> None:
     tmp_path /= "tmp"  # copytree() can't copy to a dir that already exists
     copytree(dirpath / "before", tmp_path)
     options = (dirpath / "options.txt").read_text().splitlines()
@@ -27,9 +24,8 @@ def test_pyrepo_init(
         cfg = dirpath / "config.cfg"
     else:
         cfg = CONFIG
-    get_commit_years = mocker.patch(
-        "pyrepo.inspecting.get_commit_years",
-        return_value=[2016, 2018, 2019],
+    mgitcls, mgit = mock_git(
+        mocker, get_commit_years=[2016, 2018, 2019], get_default_branch="master"
     )
     runcmd = mocker.patch("pyrepo.commands.init.runcmd")
     with responses.RequestsMock() as rsps:
@@ -51,8 +47,9 @@ def test_pyrepo_init(
         )
     if not (dirpath / "errmsg.txt").exists():
         assert r.exit_code == 0, show_result(r)
-        get_commit_years.assert_called_once_with(tmp_path)
-        mock_default_branch.assert_called_once_with(tmp_path)
+        mgitcls.assert_called_once_with(dirpath=tmp_path)
+        mgit.get_commit_years.assert_called_once_with()
+        mgit.get_default_branch.assert_called_once_with()
         runcmd.assert_called_once_with("pre-commit", "install", cwd=tmp_path)
         assert_dirtrees_eq(tmp_path, dirpath / "after")
     else:

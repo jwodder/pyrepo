@@ -1,5 +1,5 @@
 from contextlib import suppress
-from functools import partial, wraps
+from functools import cached_property, partial, wraps
 import logging
 from pathlib import Path
 import re
@@ -12,6 +12,7 @@ from jinja2 import Environment
 from lineinfile import AfterLast, add_line_to_file
 from packaging.specifiers import SpecifierSet
 from pydantic import BaseModel, DirectoryPath
+from . import git
 from .changelog import Changelog
 from .inspecting import InvalidProjectError, find_project_root, inspect_project
 from .util import (
@@ -74,6 +75,11 @@ class Project(BaseModel):
     copyright_years: List[int]
     default_branch: str
 
+    class Config:
+        # <https://github.com/samuelcolvin/pydantic/issues/1241>
+        arbitrary_types_allowed = True
+        keep_untouched = (cached_property,)
+
     def __init__(self, **data: Any) -> None:
         super().__init__(**data)
         self.python_versions.sort()
@@ -96,6 +102,10 @@ class Project(BaseModel):
             return self.directory / "src" / (self.import_name + ".py")
         else:
             return self.directory / "src" / self.import_name / "__init__.py"
+
+    @cached_property
+    def repo(self) -> git.Git:
+        return git.Git(dirpath=self.directory)
 
     def get_template_context(self) -> dict:
         return self.dict(exclude={"directory"})

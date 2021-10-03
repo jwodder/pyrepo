@@ -33,14 +33,12 @@ from uritemplate import expand
 from ..changelog import Changelog, ChangelogSection
 from ..config import Config
 from ..gh import GitHub
-from ..inspecting import get_commit_years
 from ..project import Project, with_project
 from ..util import (
     cpe_no_tb,
     ensure_license_years,
     map_lines,
     optional,
-    readcmd,
     replace_group,
     runcmd,
     update_years2str,
@@ -144,17 +142,8 @@ class Releaser(BaseModel):
             print("# The first line will be used as the release name.", file=tmplate)
             print("# The rest will be used as the release body.", file=tmplate)
             tmplate.flush()
-            runcmd(
-                "git",
-                "commit",
-                "-a",
-                "-v",
-                "--template",
-                tmplate.name,
-                cwd=self.project.directory,
-            )
-        runcmd(
-            "git",
+            self.project.repo.run("commit", "-a", "-v", "--template", tmplate.name)
+        self.project.repo.run(
             "-c",
             "gpg.program=" + GPG,
             "tag",
@@ -162,19 +151,16 @@ class Releaser(BaseModel):
             "-m",
             "Version " + self.version,
             "v" + self.version,
-            cwd=self.project.directory,
         )
-        runcmd("git", "push", "--follow-tags", cwd=self.project.directory)
+        self.project.repo.run("push", "--follow-tags")
 
     def mkghrelease(self) -> None:  ### Not idempotent
         log.info("Creating GitHub release ...")
-        subject, body = readcmd(
-            "git",
+        subject, body = self.project.repo.read(
             "show",
             "-s",
             "--format=%s%x00%b",
             "v" + self.version + "^{commit}",
-            cwd=self.project.directory,
         ).split("\0", 1)
         reldata = self.ghrepo.releases.post(
             json={
@@ -276,7 +262,7 @@ class Releaser(BaseModel):
                 chlog.sections[0].version = f"v{self.version}"
                 chlog.sections[0].date = today()
                 self.project.set_changelog(chlog, docs=docs)
-        years = get_commit_years(self.project.directory)
+        years = self.project.repo.get_commit_years()
         # Update year ranges in LICENSE
         log.info("Ensuring LICENSE copyright line is up to date ...")
         ensure_license_years(self.project.directory / "LICENSE", years)

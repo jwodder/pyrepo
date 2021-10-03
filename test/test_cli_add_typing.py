@@ -4,8 +4,9 @@ from pathlib import Path
 from shutil import copytree
 from click.testing import CliRunner
 import pytest
+from pytest_mock import MockerFixture
 from pyrepo.__main__ import main
-from test_helpers import DATA_DIR, assert_dirtrees_eq, show_result
+from test_helpers import DATA_DIR, assert_dirtrees_eq, mock_git, show_result
 
 
 @pytest.mark.parametrize(
@@ -13,8 +14,10 @@ from test_helpers import DATA_DIR, assert_dirtrees_eq, show_result
     sorted((DATA_DIR / "add_typing").iterdir()),
     ids=attrgetter("name"),
 )
-@pytest.mark.usefixtures("mock_default_branch")
-def test_pyrepo_add_typing(dirpath: Path, tmp_path: Path) -> None:
+def test_pyrepo_add_typing(
+    dirpath: Path, mocker: MockerFixture, tmp_path: Path
+) -> None:
+    mgitcls, mgit = mock_git(mocker, get_default_branch="master")
     tmp_path /= "tmp"  # copytree() can't copy to a dir that already exists
     copytree(dirpath / "before", tmp_path)
     r = CliRunner().invoke(
@@ -26,4 +29,6 @@ def test_pyrepo_add_typing(dirpath: Path, tmp_path: Path) -> None:
         standalone_mode=False,
     )
     assert r.exit_code == 0, show_result(r)
+    mgitcls.assert_called_once_with(dirpath=Path())
+    mgit.get_default_branch.assert_called_once_with()
     assert_dirtrees_eq(tmp_path, dirpath / "after")

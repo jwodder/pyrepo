@@ -2,14 +2,13 @@ import ast
 from configparser import ConfigParser
 from pathlib import Path
 import re
-import time
 from typing import Any, Dict, List, Optional, Union
 from intspan import intspan
 from pydantic import BaseModel, Field
 from read_version import read_version
 from setuptools.config import read_configuration
 import yaml
-from . import util  # Import module to keep mocking easy
+from . import git, util  # Import modules to keep mocking easy
 from .readme import Readme
 
 
@@ -48,7 +47,7 @@ def inspect_project(dirpath: Optional[Union[str, Path]] = None) -> dict:
         # "version": cfg["metadata"].get("version"),
         "keywords": cfg["metadata"].get("keywords", []),
         "supports_pypy3": False,
-        "default_branch": get_default_branch(directory),
+        "default_branch": git.Git(dirpath=directory).get_default_branch(),
     }
 
     # if env["version"] is None:
@@ -144,20 +143,6 @@ def inspect_project(dirpath: Optional[Union[str, Path]] = None) -> dict:
     )
 
     return env
-
-
-def get_commit_years(dirpath: Path, include_now: bool = True) -> List[int]:
-    years = set(
-        map(
-            int,
-            util.readcmd(
-                "git", "log", "--format=%ad", "--date=format:%Y", cwd=dirpath
-            ).splitlines(),
-        )
-    )
-    if include_now:
-        years.add(time.localtime().tm_year)
-    return sorted(years)
 
 
 class ModuleInfo(BaseModel):
@@ -263,18 +248,6 @@ def parse_extra_testenvs(filepath: Path) -> Dict[str, str]:
         return {}
     includes = workflow["jobs"]["test"]["strategy"]["matrix"].get("include", [])
     return {inc["toxenv"]: inc["python-version"] for inc in includes}
-
-
-def get_default_branch(dirpath: Path) -> str:
-    branches = set(
-        util.readcmd(
-            "git", "--no-pager", "branch", "--format=%(refname:short)", cwd=dirpath
-        ).splitlines()
-    )
-    for guess in ["main", "master"]:
-        if guess in branches:
-            return guess
-    raise InvalidProjectError("Could not determine default Git branch")
 
 
 def find_project_root(dirpath: Optional[Path] = None) -> Optional[Path]:

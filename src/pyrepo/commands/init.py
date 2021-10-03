@@ -8,7 +8,7 @@ from in_place import InPlace
 from packaging.requirements import Requirement
 from packaging.specifiers import SpecifierSet
 from packaging.utils import canonicalize_name as normalize
-from .. import inspecting
+from .. import git, inspecting
 from ..config import Config
 from ..project import Project
 from ..util import cpe_no_tb, ensure_license_years, get_jinja_env, optional, runcmd
@@ -83,10 +83,12 @@ def cli(obj: Config, dirpath: Path, **options: Any) -> None:
     if "github_user" not in options:
         options["github_user"] = obj.gh.user.get()["login"]
 
+    repo = git.Git(dirpath=dirpath)
+
     env = {
         "author": options["author"],
         "short_description": options["description"],
-        "copyright_years": inspecting.get_commit_years(dirpath),
+        "copyright_years": repo.get_commit_years(),
         "has_doctests": options.get("doctests", False),
         "has_tests": options.get("tests", False) or options.get("ci", False),
         "has_typing": options.get("typing", False),
@@ -99,7 +101,7 @@ def cli(obj: Config, dirpath: Path, **options: Any) -> None:
         "version": "0.1.0.dev1",
         "supports_pypy3": True,
         "extra_testenvs": {},
-        "default_branch": inspecting.get_default_branch(dirpath),
+        "default_branch": repo.get_default_branch(),
     }
 
     log.info("Determining Python module ...")

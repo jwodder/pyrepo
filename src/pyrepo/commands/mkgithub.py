@@ -1,8 +1,9 @@
 from typing import Optional
 import click
+from .. import git
 from ..config import Config
 from ..project import Project, with_project
-from ..util import cpe_no_tb, readcmd, runcmd
+from ..util import cpe_no_tb
 
 
 @click.command()
@@ -26,7 +27,8 @@ def cli(obj: Config, project: Project, repo_name: Optional[str], private: bool) 
     if "python" not in keywords:
         keywords.append("python")
     obj.gh[repo["url"]].topics.put(json={"names": keywords})
-    if "origin" in readcmd("git", "remote", cwd=project.directory).splitlines():
-        runcmd("git", "remote", "rm", "origin", cwd=project.directory)
-    runcmd("git", "remote", "add", "origin", repo["ssh_url"], cwd=project.directory)
-    runcmd("git", "push", "-u", "origin", project.default_branch, cwd=project.directory)
+    repo = git.Git(dirpath=project.directory)
+    if "origin" in repo.get_remotes():
+        repo.rm_remote("origin")
+    repo.add_remote("origin", repo["ssh_url"])
+    repo.run("push", "-u", "origin", project.default_branch)
