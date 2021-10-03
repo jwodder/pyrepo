@@ -42,11 +42,12 @@ Usage
 
     pyrepo [<global-options>] <command> ...
 
-All ``pyrepo`` commands must either be run from the root of a Python project
-directory or else specify the root of such a directory with the ``--chdir``
-global option.  Moreover, all commands other than ``pyrepo init`` require that
-the project repository have already been set up by previously invoking ``pyrepo
-init``.
+All ``pyrepo`` commands other than ``pyrepo init`` must be run inside a Python
+project directory (after processing the ``--chdir`` option, if given); the
+project root is determined by recursing upwards in search of a
+``pyproject.toml`` file.  Moreover, all commands other than ``pyrepo init``
+require that the project have already been set up by previously invoking
+``pyrepo init``.
 
 
 Global Options

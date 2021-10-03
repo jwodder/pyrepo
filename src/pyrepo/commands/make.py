@@ -1,6 +1,5 @@
 import click
-from ..inspecting import InvalidProjectError
-from ..project import Project
+from ..project import Project, with_project
 
 
 @click.command()
@@ -21,10 +20,7 @@ from ..project import Project
     default=True,
     help="Whether to build a wheel [default: true]",
 )
-def cli(clean: bool, sdist: bool, wheel: bool) -> None:
+@with_project
+def cli(project: Project, clean: bool, sdist: bool, wheel: bool) -> None:
     """Build an sdist and/or wheel for a project"""
-    try:
-        project = Project.from_directory()
-    except InvalidProjectError as e:
-        raise click.UsageError(str(e))
     project.build(clean=clean, sdist=sdist, wheel=wheel)

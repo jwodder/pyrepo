@@ -32,8 +32,8 @@ from uritemplate import expand
 from ..changelog import Changelog, ChangelogSection
 from ..config import Config
 from ..gh import ACCEPT, GitHub
-from ..inspecting import InvalidProjectError, get_commit_years
-from ..project import Project
+from ..inspecting import get_commit_years
+from ..project import Project, with_project
 from ..util import (
     ensure_license_years,
     map_lines,
@@ -359,12 +359,11 @@ class Releaser(BaseModel):
 @optional("--sign-assets/--no-sign-assets", help="Sign built assets with PGP")
 @click.argument("version", required=False)
 @click.pass_obj
-def cli(obj: Config, version: Optional[str], tox: bool, sign_assets: bool) -> None:
+@with_project
+def cli(
+    obj: Config, project: Project, version: Optional[str], tox: bool, sign_assets: bool
+) -> None:
     """Make a new release of the project"""
-    try:
-        project = Project.from_directory()
-    except InvalidProjectError as e:
-        raise click.UsageError(str(e))
     defaults = obj.defaults["release"]
     sign_assets = defaults.get("sign_assets", sign_assets)
     tox = defaults.get("tox", tox)

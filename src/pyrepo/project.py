@@ -1,18 +1,19 @@
 from contextlib import suppress
-from functools import partial
+from functools import partial, wraps
 import logging
 from pathlib import Path
 import re
 from shutil import rmtree
 import sys
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+import click
 from in_place import InPlace
 from jinja2 import Environment
 from lineinfile import AfterLast, add_line_to_file
 from packaging.specifiers import SpecifierSet
 from pydantic import BaseModel, DirectoryPath
 from .changelog import Changelog
-from .inspecting import inspect_project
+from .inspecting import InvalidProjectError, find_project_root, inspect_project
 from .util import (
     PyVersion,
     get_jinja_env,
@@ -343,3 +344,18 @@ def add_py_env(pyv: PyVersion, envlist: str) -> str:
     else:
         envs.append(pyv.pyenv)
     return ",".join(envs)
+
+
+def with_project(func: Callable) -> Callable:
+    @wraps(func)
+    def wrapped(*args: Any, **kwargs: Any) -> Any:
+        dirpath = find_project_root()
+        if dirpath is None:
+            raise click.UsageError("Not inside a project directory")
+        try:
+            project = Project.from_directory(dirpath)
+        except InvalidProjectError as e:
+            raise click.UsageError(str(e))
+        return func(*args, project=project, **kwargs)
+
+    return wrapped

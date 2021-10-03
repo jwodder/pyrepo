@@ -13,6 +13,10 @@ from . import util  # Import module to keep mocking easy
 from .readme import Readme
 
 
+class InvalidProjectError(Exception):
+    pass
+
+
 def inspect_project(dirpath: Optional[Union[str, Path]] = None) -> dict:
     """Fetch various information about an already-initialized project"""
     if dirpath is None:
@@ -273,5 +277,12 @@ def get_default_branch(dirpath: Path) -> str:
     raise InvalidProjectError("Could not determine default Git branch")
 
 
-class InvalidProjectError(Exception):
-    pass
+def find_project_root(dirpath: Optional[Path] = None) -> Optional[Path]:
+    if dirpath is None:
+        cwd = Path()
+    else:
+        cwd = dirpath
+    for d in (cwd, *cwd.resolve().parents):
+        if (d / "pyproject.toml").exists():
+            return d
+    return None

@@ -1,13 +1,9 @@
 import click
-from ..inspecting import InvalidProjectError
-from ..project import Project
+from ..project import Project, with_project
 
 
 @click.command()
-def cli() -> None:
+@with_project
+def cli(project: Project) -> None:
     """Add configuration for type annotations and the checking thereof"""
-    try:
-        project = Project.from_directory()
-    except InvalidProjectError as e:
-        raise click.UsageError(str(e))
     project.add_typing()
