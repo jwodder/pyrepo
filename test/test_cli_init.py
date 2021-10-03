@@ -1,21 +1,15 @@
-from operator import attrgetter
 from pathlib import Path
 from shutil import copytree
 from click.testing import CliRunner
-import pytest
 from pytest_mock import MockerFixture
 import responses
 from pyrepo.__main__ import main
-from test_helpers import DATA_DIR, assert_dirtrees_eq, mock_git, show_result
+from test_helpers import DATA_DIR, assert_dirtrees_eq, case_dirs, mock_git, show_result
 
 CONFIG = DATA_DIR / "config.cfg"
 
 
-@pytest.mark.parametrize(
-    "dirpath",
-    sorted((DATA_DIR / "pyrepo_init").iterdir()),
-    ids=attrgetter("name"),
-)
+@case_dirs("pyrepo_init")
 def test_pyrepo_init(dirpath: Path, mocker: MockerFixture, tmp_path: Path) -> None:
     tmp_path /= "tmp"  # copytree() can't copy to a dir that already exists
     copytree(dirpath / "before", tmp_path)

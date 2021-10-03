@@ -14,14 +14,10 @@ from pyrepo.inspecting import (
     parse_requirements,
 )
 from pyrepo.project import Project
-from test_helpers import DATA_DIR, mock_git
+from test_helpers import DATA_DIR, case_dirs, mock_git
 
 
-@pytest.mark.parametrize(
-    "dirpath",
-    sorted((DATA_DIR / "find_module" / "valid").iterdir()),
-    ids=attrgetter("name"),
-)
+@case_dirs("find_module", "valid")
 def test_find_module(dirpath: Path) -> None:
     assert find_module(dirpath) == ModuleInfo(
         import_name="foobar",
@@ -30,11 +26,7 @@ def test_find_module(dirpath: Path) -> None:
     )
 
 
-@pytest.mark.parametrize(
-    "dirpath",
-    sorted((DATA_DIR / "find_module" / "valid-src").iterdir()),
-    ids=attrgetter("name"),
-)
+@case_dirs("find_module", "valid-src")
 def test_find_module_src(dirpath: Path) -> None:
     assert find_module(dirpath) == ModuleInfo(
         import_name="foobar",
@@ -43,33 +35,21 @@ def test_find_module_src(dirpath: Path) -> None:
     )
 
 
-@pytest.mark.parametrize(
-    "dirpath",
-    sorted((DATA_DIR / "find_module" / "extra").iterdir()),
-    ids=attrgetter("name"),
-)
+@case_dirs("find_module", "extra")
 def test_find_module_extra(dirpath: Path) -> None:
     with pytest.raises(InvalidProjectError) as excinfo:
         find_module(dirpath)
     assert str(excinfo.value) == "Multiple Python modules in repository"
 
 
-@pytest.mark.parametrize(
-    "dirpath",
-    sorted((DATA_DIR / "find_module" / "none").iterdir()),
-    ids=attrgetter("name"),
-)
+@case_dirs("find_module", "none")
 def test_find_module_none(dirpath: Path) -> None:
     with pytest.raises(InvalidProjectError) as excinfo:
         find_module(dirpath)
     assert str(excinfo.value) == "No Python modules in repository"
 
 
-@pytest.mark.parametrize(
-    "dirpath",
-    sorted((DATA_DIR / "extract_requires").iterdir()),
-    ids=attrgetter("name"),
-)
+@case_dirs("extract_requires")
 def test_extract_requires(dirpath: Path, tmp_path: Path) -> None:
     dest = tmp_path / "foobar.py"
     copyfile(dirpath / "before.py", dest)
@@ -88,12 +68,8 @@ def test_parse_requirements(reqfile: Path) -> None:
     assert variables == Requirements.parse_file(reqfile.with_suffix(".json"))
 
 
-@pytest.mark.parametrize(
-    "dirpath",
-    sorted((DATA_DIR / "inspect_project").iterdir()),
-    ids=attrgetter("name"),
-)
-def test_inspect_project(mocker: MockerFixture, dirpath: Path) -> None:
+@case_dirs("inspect_project")
+def test_inspect_project(dirpath: Path, mocker: MockerFixture) -> None:
     mgitcls, mgit = mock_git(mocker, get_default_branch="master")
     if (dirpath / "_errmsg.txt").exists():
         with pytest.raises(Exception) as excinfo:

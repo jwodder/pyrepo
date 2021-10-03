@@ -1,19 +1,13 @@
-from operator import attrgetter
 import os
 from pathlib import Path
 from shutil import copytree
 from click.testing import CliRunner
-import pytest
 from pytest_mock import MockerFixture
 from pyrepo.__main__ import main
-from test_helpers import DATA_DIR, assert_dirtrees_eq, mock_git, show_result
+from test_helpers import assert_dirtrees_eq, case_dirs, mock_git, show_result
 
 
-@pytest.mark.parametrize(
-    "dirpath",
-    sorted((DATA_DIR / "unflatten").iterdir()),
-    ids=attrgetter("name"),
-)
+@case_dirs("unflatten")
 def test_pyrepo_unflatten(dirpath: Path, mocker: MockerFixture, tmp_path: Path) -> None:
     mgitcls, mgit = mock_git(mocker, get_default_branch="master")
     tmp_path /= "tmp"  # copytree() can't copy to a dir that already exists

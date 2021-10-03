@@ -1,19 +1,13 @@
-from operator import attrgetter
 import os
 from pathlib import Path
 from shutil import copytree
 from click.testing import CliRunner
-import pytest
 from pytest_mock import MockerFixture
 from pyrepo.__main__ import main
-from test_helpers import DATA_DIR, assert_dirtrees_eq, mock_git, show_result
+from test_helpers import assert_dirtrees_eq, case_dirs, mock_git, show_result
 
 
-@pytest.mark.parametrize(
-    "dirpath",
-    sorted((DATA_DIR / "add_ci_testenv").iterdir()),
-    ids=attrgetter("name"),
-)
+@case_dirs("add_ci_testenv")
 def test_pyrepo_add_ci_testenv(
     dirpath: Path, mocker: MockerFixture, tmp_path: Path
 ) -> None:
