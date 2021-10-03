@@ -25,7 +25,7 @@ def cli(obj: Config, project: Project, repo_name: Optional[str], private: bool) 
     if "python" not in keywords:
         keywords.append("python")
     obj.gh[repo["url"]].topics.put(json={"names": keywords})
-    if "origin" in readcmd("git", "remote").splitlines():
-        runcmd("git", "remote", "rm", "origin")
-    runcmd("git", "remote", "add", "origin", repo["ssh_url"])
-    runcmd("git", "push", "-u", "origin", project.default_branch)
+    if "origin" in readcmd("git", "remote", cwd=project.directory).splitlines():
+        runcmd("git", "remote", "rm", "origin", cwd=project.directory)
+    runcmd("git", "remote", "add", "origin", repo["ssh_url"], cwd=project.directory)
+    runcmd("git", "push", "-u", "origin", project.default_branch, cwd=project.directory)
