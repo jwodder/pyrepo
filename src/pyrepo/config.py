@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from pyversion_info import get_pyversion_info
 import requests
 from pyrepo import __url__, __version__
-from .gh import ACCEPT, GitHub
+from .gh import GitHub
 from .util import PyVersion
 
 DEFAULT_CFG = str(Path.home() / ".config" / "pyrepo.cfg")
@@ -19,7 +19,9 @@ DEFAULTS = {
     },
 }
 
-USER_AGENT = "pyrepo/{} ({}) requests/{} {}/{}".format(
+EXTRA_ACCEPT = ["application/vnd.github.mercy-preview"]  # topics
+
+USER_AGENT = "jwodder-pyrepo/{} ({}) requests/{} {}/{}".format(
     __version__,
     __url__,
     requests.__version__,
@@ -32,7 +34,7 @@ PYVER_TEMPLATE = '"3.X"'
 
 
 class Config(BaseModel):
-    defaults: dict
+    defaults: Dict[str, Any]
     pyversions: List[PyVersion]
     gh: GitHub
 
@@ -75,24 +77,19 @@ def configure(ctx: click.Context, filename: Union[str, Path]) -> None:
             " pyversions.maximum"
         )
 
-    s = requests.Session()
-    s.headers["Accept"] = ACCEPT
-    s.headers["User-Agent"] = USER_AGENT
-    auth_gh: Dict[str, str]
-    try:
-        auth_gh = dict(cfg["auth.github"])
-    except KeyError:
-        auth_gh = {}
-    if "token" in auth_gh:
-        s.headers["Authorization"] = "token " + auth_gh["token"]
     ctx.obj = Config(
         defaults={},
         pyversions=pyver_range(min_pyversion, max_pyversion),
-        gh=GitHub(session=s),
+        gh=GitHub(
+            token=cfg.get("auth.github", "token", fallback=None),
+            headers={"User-Agent": USER_AGENT},
+            extra_accept=EXTRA_ACCEPT,
+        ),
     )
 
     if not cfg.has_option("options", "python_requires"):
         cfg["options"]["python_requires"] = f"~={min_pyversion}"
+
     from .__main__ import main
 
     for cmdname, cmdobj in main.commands.items():

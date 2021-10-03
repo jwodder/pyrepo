@@ -1,9 +1,9 @@
 import json
 from pathlib import Path
-from typing import Any, Iterator, Optional, Union
+from typing import Any, Dict, Iterator, Optional, Sequence, Union
 import requests
 
-ACCEPT = "application/vnd.github.v3+json"
+ACCEPT = ("application/vnd.github.v3+json",)
 
 API_ENDPOINT = "https://api.github.com"
 
@@ -17,16 +17,20 @@ class GitHub:
         token: Optional[str] = None,
         token_file: Union[str, Path] = DEFAULT_TOKEN_FILE,
         session: Optional[requests.Session] = None,
+        extra_accept: Sequence[str] = (),
+        headers: Optional[Dict[str, str]] = None,
         _method: Optional[str] = None,
     ):
         self._url = url
         if session is None:
             session = requests.Session()
-            session.headers["Accept"] = ACCEPT
+            session.headers["Accept"] = ",".join(tuple(extra_accept) + ACCEPT)
             if token is None:
                 with open(token_file) as fp:
                     token = fp.read().strip()
             session.headers["Authorization"] = "token " + token
+            if headers is not None:
+                session.headers.update(headers)
         self._session = session
         self._method = _method
 

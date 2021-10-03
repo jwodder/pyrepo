@@ -31,7 +31,7 @@ from pydantic import BaseModel, Field
 from uritemplate import expand
 from ..changelog import Changelog, ChangelogSection
 from ..config import Config
-from ..gh import ACCEPT, GitHub
+from ..gh import GitHub
 from ..inspecting import get_commit_years
 from ..project import Project, with_project
 from ..util import (
@@ -57,8 +57,6 @@ ACTIVE_BADGE = """\
           state and is being actively developed.
 """
 
-TOPICS_ACCEPT = f"application/vnd.github.mercy-preview,{ACCEPT}"
-
 
 class Releaser(BaseModel):
     project: Project
@@ -76,8 +74,8 @@ class Releaser(BaseModel):
     def from_project(
         cls,
         project: Project,
+        gh: GitHub,
         version: Optional[str] = None,
-        gh: Optional[GitHub] = None,
         tox: bool = False,
         sign_assets: bool = False,
     ) -> "Releaser":
@@ -87,14 +85,10 @@ class Releaser(BaseModel):
             v = re.sub(r"(a|b|rc)\d+|\.dev\d+", "", project.version)
         else:
             v = version.lstrip("v")
-        if gh is None:
-            g = GitHub()
-        else:
-            g = gh
         return cls(
             project=project,
             version=v,
-            ghrepo=g.repos[project.github_user][project.repo_name],
+            ghrepo=gh.repos[project.github_user][project.repo_name],
             tox=tox,
             sign_assets=sign_assets,
         )
@@ -345,13 +339,10 @@ class Releaser(BaseModel):
     def update_gh_topics(
         self, add: Sequence[str] = (), remove: Sequence[str] = ()
     ) -> None:
-        topics = set(self.ghrepo.get(headers={"Accept": TOPICS_ACCEPT})["topics"])
+        topics = set(self.ghrepo.get()["topics"])
         new_topics = topics.union(add).difference(remove)
         if new_topics != topics:
-            self.ghrepo.topics.put(
-                headers={"Accept": TOPICS_ACCEPT},
-                json={"names": list(new_topics)},
-            )
+            self.ghrepo.topics.put(json={"names": list(new_topics)})
 
 
 @click.command()
