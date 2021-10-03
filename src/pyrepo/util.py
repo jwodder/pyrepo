@@ -1,4 +1,4 @@
-from functools import partial, total_ordering, wraps
+from functools import partial, wraps
 import logging
 from operator import attrgetter
 from pathlib import Path
@@ -38,7 +38,6 @@ FC = TypeVar("FC", Callable[..., Any], click.Command)
 log = logging.getLogger(__name__)
 
 
-@total_ordering
 class PyVersion(str):
     major: int
     minor: int
@@ -64,9 +63,31 @@ class PyVersion(str):
     def __repr__(self) -> str:
         return f"PyVersion({super().__repr__()})"
 
+    # Using functools.total_ordering to derive everything from __lt__ doesn't
+    # work, as the comparison operators inherited from str keep the decorator
+    # from working.
+
     def __lt__(self, other: Any) -> bool:
         if isinstance(other, PyVersion):
             return (self.major, self.minor) < (other.major, other.minor)
+        else:
+            return NotImplemented
+
+    def __le__(self, other: Any) -> bool:
+        if isinstance(other, PyVersion):
+            return (self.major, self.minor) <= (other.major, other.minor)
+        else:
+            return NotImplemented
+
+    def __gt__(self, other: Any) -> bool:
+        if isinstance(other, PyVersion):
+            return (self.major, self.minor) > (other.major, other.minor)
+        else:
+            return NotImplemented
+
+    def __ge__(self, other: Any) -> bool:
+        if isinstance(other, PyVersion):
+            return (self.major, self.minor) >= (other.major, other.minor)
         else:
             return NotImplemented
 

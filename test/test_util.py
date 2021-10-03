@@ -1,8 +1,9 @@
+import json
 from typing import List
 from packaging.specifiers import SpecifierSet
 import pytest
 from pyrepo.commands.release import next_version
-from pyrepo.util import sort_specifier, update_years2str
+from pyrepo.util import PyVersion, sort_specifier, update_years2str
 
 
 @pytest.mark.parametrize(
@@ -45,3 +46,36 @@ def test_sort_specifier() -> None:
 )
 def test_next_version(old: str, new: str) -> None:
     assert next_version(old) == new
+
+
+@pytest.mark.parametrize(
+    "vstr,major,minor,pyenv",
+    [
+        ("3.0", 3, 0, "py30"),
+        ("3.6", 3, 6, "py36"),
+        ("3.10", 3, 10, "py310"),
+    ],
+)
+def test_pyversion(vstr: str, major: int, minor: int, pyenv: str) -> None:
+    v = PyVersion.parse(vstr)
+    assert v == vstr
+    assert str(v) == vstr
+    assert repr(v) == f"PyVersion({vstr!r})"
+    assert v.major == major
+    assert v.minor == minor
+    assert v.pyenv == pyenv
+    assert PyVersion.construct(major, minor) == v
+    assert json.dumps(v) == f'"{vstr}"'
+
+
+def test_pyversion_cmp() -> None:
+    VERSIONS = list(map(PyVersion.parse, ["2.0", "2.7", "3.0", "3.6", "3.10"]))
+    for i in range(len(VERSIONS) - 1):
+        assert VERSIONS[i] == VERSIONS[i]
+        assert VERSIONS[i] >= VERSIONS[i]
+        assert VERSIONS[i] <= VERSIONS[i]
+        assert VERSIONS[i] != VERSIONS[i + 1]
+        assert VERSIONS[i] < VERSIONS[i + 1]
+        assert VERSIONS[i + 1] > VERSIONS[i]
+        assert VERSIONS[i] <= VERSIONS[i + 1]
+        assert VERSIONS[i + 1] >= VERSIONS[i]
