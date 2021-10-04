@@ -151,6 +151,7 @@ class Releaser(BaseModel):
             "-m",
             "Version " + self.version,
             "v" + self.version,
+            env={**os.environ, "GPG_TTY": os.ttyname(0)},
         )
         self.project.repo.run("push", "--follow-tags")
 
@@ -180,7 +181,13 @@ class Releaser(BaseModel):
         for distfile in (self.project.directory / "dist").iterdir():
             self.assets.append(distfile)
             if sign_assets:
-                runcmd(GPG, "--detach-sign", "-a", distfile)
+                runcmd(
+                    GPG,
+                    "--detach-sign",
+                    "-a",
+                    distfile,
+                    env={**os.environ, "GPG_TTY": os.ttyname(0)},
+                )
                 self.assets_asc.append(distfile.with_name(distfile.name + ".asc"))
 
     def upload(self) -> None:
@@ -403,8 +410,6 @@ def cli(
                 "Cannot use version bump options when there are no tags"
             )
         version = bump_version(last_tag, bump)
-    # GPG_TTY has to be set so that GPG can be run through Git.
-    os.environ["GPG_TTY"] = os.ttyname(0)
     add_type("application/zip", ".whl", False)
     Releaser.from_project(
         project=project,
