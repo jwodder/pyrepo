@@ -275,6 +275,20 @@ Add configuration for type annotations and the checking thereof:
   CI configuration if it exists
 
 
+``pyrepo begin-dev``
+--------------------
+
+::
+
+    pyrepo [<global-options>] begin-dev
+
+Prepare for development on the next version of a project by setting
+``__version__`` to the next minor version number plus ".dev1" and adding a new
+section to the top of the CHANGELOG (creating a CHANGELOG if necessary) and to
+the top of ``docs/changelog.rst`` (creating it if a ``docs`` directory already
+exists).  This is the same behavior as the last step of ``pyrepo release``.
+
+
 ``pyrepo inspect``
 ------------------
 

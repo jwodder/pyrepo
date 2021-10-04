@@ -13,15 +13,17 @@ from lineinfile import AfterLast, add_line_to_file
 from packaging.specifiers import SpecifierSet
 from pydantic import BaseModel, DirectoryPath
 from . import git
-from .changelog import Changelog
+from .changelog import Changelog, ChangelogSection
 from .inspecting import InvalidProjectError, find_project_root, inspect_project
 from .util import (
     PyVersion,
     get_jinja_env,
     map_lines,
+    next_version,
     replace_group,
     runcmd,
     split_ini_sections,
+    today,
 )
 
 log = logging.getLogger(__name__)
@@ -335,6 +337,42 @@ class Project(BaseModel):
                 inserter=AfterLast(fr"^{' ' * 10}- ['\x22]?\d+\.\d+['\x22]?$"),
                 encoding="utf-8",
             )
+
+    def begin_dev(self) -> None:
+        log.info("Preparing for work on next version ...")
+        # Set __version__ to the next version number plus ".dev1"
+        old_version = self.version
+        new_version = next_version(old_version)
+        self.set_version(new_version + ".dev1")
+        # Add new section to top of CHANGELOGs
+        new_sect = ChangelogSection(
+            version="v" + new_version,
+            date="in development",
+            content="",
+        )
+        for docs in (False, True):
+            if docs:
+                if not (self.directory / "docs").exists():
+                    continue
+                log.info("Adding new section to docs/changelog.rst ...")
+            else:
+                log.info("Adding new section to CHANGELOG ...")
+            chlog = self.get_changelog(docs=docs)
+            if chlog is not None and chlog.sections:
+                chlog.sections.insert(0, new_sect)
+            else:
+                chlog = Changelog(
+                    intro="Changelog\n=========\n\n" if docs else "",
+                    sections=[
+                        new_sect,
+                        ChangelogSection(
+                            version="v" + old_version,
+                            date=today(),
+                            content="Initial release",
+                        ),
+                    ],
+                )
+            self.set_changelog(chlog, docs=docs)
 
 
 def add_typing_env(envlist: str) -> str:

@@ -2,12 +2,12 @@ import json
 from typing import List, Optional, Tuple
 from packaging.specifiers import SpecifierSet
 import pytest
-from pyrepo.commands.release import next_version
 from pyrepo.util import (
     Bump,
     PyVersion,
     bump_version,
     mkversion,
+    next_version,
     sort_specifier,
     update_years2str,
 )

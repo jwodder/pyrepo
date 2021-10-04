@@ -22,7 +22,6 @@ from pathlib import Path
 import re
 import sys
 from tempfile import NamedTemporaryFile
-import time
 from typing import Any, Callable, List, Optional, Sequence
 import click
 from in_place import InPlace
@@ -30,7 +29,6 @@ from linesep import read_paragraphs
 from packaging.version import Version
 from pydantic import BaseModel, Field
 from uritemplate import expand
-from ..changelog import Changelog, ChangelogSection
 from ..config import Config
 from ..gh import GitHub
 from ..project import Project, with_project
@@ -42,6 +40,7 @@ from ..util import (
     map_lines,
     replace_group,
     runcmd,
+    today,
     update_years2str,
 )
 
@@ -99,7 +98,7 @@ class Releaser(BaseModel):
         self.commit_version()
         self.mkghrelease()
         self.upload()
-        self.begin_dev()
+        self.project.begin_dev()  # Not idempotent
 
     def tox_check(self) -> None:  # Idempotent
         if (self.project.directory / "tox.ini").exists():
@@ -219,42 +218,6 @@ class Releaser(BaseModel):
                 headers={"Content-Type": mime_type(asset.name)},
                 data=asset.read_bytes(),
             )
-
-    def begin_dev(self) -> None:  # Not idempotent
-        log.info("Preparing for work on next version ...")
-        # Set __version__ to the next version number plus ".dev1"
-        old_version = self.project.version
-        new_version = next_version(old_version)
-        self.project.set_version(new_version + ".dev1")
-        # Add new section to top of CHANGELOGs
-        new_sect = ChangelogSection(
-            version="v" + new_version,
-            date="in development",
-            content="",
-        )
-        for docs in (False, True):
-            if docs:
-                if not (self.project.directory / "docs").exists():
-                    continue
-                log.info("Adding new section to docs/changelog.rst ...")
-            else:
-                log.info("Adding new section to CHANGELOG ...")
-            chlog = self.project.get_changelog(docs=docs)
-            if chlog is not None and chlog.sections:
-                chlog.sections.insert(0, new_sect)
-            else:
-                chlog = Changelog(
-                    intro="Changelog\n=========\n\n" if docs else "",
-                    sections=[
-                        new_sect,
-                        ChangelogSection(
-                            version="v" + old_version,
-                            date=today(),
-                            content="Initial release",
-                        ),
-                    ],
-                )
-            self.project.set_changelog(chlog, docs=docs)
 
     def end_dev(self) -> None:  # Idempotent
         log.info("Finalizing version ...")
@@ -419,22 +382,6 @@ def cli(
         tox=tox,
         sign_assets=sign_assets,
     ).run()
-
-
-def next_version(v: str) -> str:
-    """
-    If ``v`` is a prerelease version, returns the base version.  Otherwise,
-    returns the next minor version after the base version.
-    """
-    vobj = Version(v)
-    if vobj.is_prerelease:
-        return vobj.base_version
-    else:
-        return bump_version(vobj, Bump.MINOR)
-
-
-def today() -> str:
-    return time.strftime("%Y-%m-%d")
 
 
 def mime_type(filename: str) -> str:

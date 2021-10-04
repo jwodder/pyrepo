@@ -291,3 +291,19 @@ def mkversion(
     if post is not None:
         s += f".post{post}"
     return s
+
+
+def next_version(v: str) -> str:
+    """
+    If ``v`` is a prerelease version, returns the base version.  Otherwise,
+    returns the next minor version after the base version.
+    """
+    vobj = Version(v)
+    if vobj.is_prerelease:
+        return vobj.base_version
+    else:
+        return bump_version(vobj, Bump.MINOR)
+
+
+def today() -> str:
+    return time.strftime("%Y-%m-%d")
