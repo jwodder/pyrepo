@@ -5,6 +5,8 @@
 - Make `configure()` store the config file values in `ctx.default_map`
     - Use Click 8's new features to handle the precedence order of `pyrepo init
       --python-requires`
+    - Simplify the option handling in `pyrepo release` to take advantage of
+      this
 - Change `__python_requires__` to `__requires_python__` to match PEP 621?
     - Accept both forms as synonyms?
 - Rename `supports_pypy3` to `supports_pypy` and determine what versions of

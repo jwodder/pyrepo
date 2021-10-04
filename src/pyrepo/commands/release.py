@@ -38,7 +38,6 @@ from ..util import (
     cpe_no_tb,
     ensure_license_years,
     map_lines,
-    optional,
     replace_group,
     runcmd,
     update_years2str,
@@ -333,19 +332,29 @@ class Releaser(BaseModel):
 
 
 @click.command()
-@optional("--tox/--no-tox", help="Run tox before building")
-@optional("--sign-assets/--no-sign-assets", help="Sign built assets with PGP")
+@click.option("--tox/--no-tox", default=None, help="Run tox before building")
+@click.option(
+    "--sign-assets/--no-sign-assets", default=None, help="Sign built assets with PGP"
+)
 @click.argument("version", required=False)
 @click.pass_obj
 @with_project
 @cpe_no_tb
 def cli(
-    obj: Config, project: Project, version: Optional[str], tox: bool, sign_assets: bool
+    obj: Config,
+    project: Project,
+    version: Optional[str],
+    tox: Optional[bool],
+    sign_assets: Optional[bool],
 ) -> None:
     """Make a new release of the project"""
     defaults = obj.defaults["release"]
-    sign_assets = defaults.get("sign_assets", sign_assets)
-    tox = defaults.get("tox", tox)
+    if tox is None:
+        tox = defaults.get("tox", False)
+    assert tox is not None
+    if sign_assets is None:
+        sign_assets = defaults.get("sign_assets", False)
+    assert sign_assets is not None
     # GPG_TTY has to be set so that GPG can be run through Git.
     os.environ["GPG_TTY"] = os.ttyname(0)
     add_type("application/zip", ".whl", False)
