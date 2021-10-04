@@ -1,3 +1,4 @@
+from enum import Enum
 from functools import partial, wraps
 import logging
 from operator import attrgetter
@@ -12,6 +13,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    Iterable,
     Iterator,
     List,
     Optional,
@@ -27,6 +29,7 @@ from intspan import intspan
 from jinja2 import Environment, PackageLoader
 from linesep import split_preceded
 from packaging.specifiers import SpecifierSet
+from packaging.version import Version
 from pydantic import parse_obj_as
 from pydantic.validators import str_validator
 
@@ -253,3 +256,38 @@ def cpe_no_tb(func: Callable) -> Callable:
             sys.exit(e.returncode)
 
     return wrapped
+
+
+class Bump(Enum):
+    MAJOR = 0
+    MINOR = 1
+    MICRO = 2
+    POST = -1
+
+
+def bump_version(v: Union[str, Version], level: Bump) -> str:
+    if isinstance(v, Version):
+        vobj = v
+    else:
+        vobj = Version(v)
+    if vobj.is_prerelease:
+        raise ValueError(f"Cannot bump pre-release versions: {v!r}")
+    if level is Bump.POST:
+        post = vobj.post if vobj.post is not None else 0
+        return mkversion(epoch=vobj.epoch, release=vobj.release, post=post + 1)
+    else:
+        vs = list(vobj.release) + [0] * (level.value + 1 - len(vobj.release))
+        vs[level.value] += 1
+        vs[level.value + 1 :] = [0] * len(vs[level.value + 1 :])
+        return mkversion(epoch=vobj.epoch, release=vs)
+
+
+def mkversion(
+    release: Iterable[int], epoch: int = 0, post: Optional[int] = None
+) -> str:
+    s = ".".join(map(str, release))
+    if epoch:
+        s = f"{epoch}!{s}"
+    if post is not None:
+        s += f".post{post}"
+    return s

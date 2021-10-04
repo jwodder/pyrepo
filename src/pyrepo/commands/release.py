@@ -35,6 +35,8 @@ from ..config import Config
 from ..gh import GitHub
 from ..project import Project, with_project
 from ..util import (
+    Bump,
+    bump_version,
     cpe_no_tb,
     ensure_license_years,
     map_lines,
@@ -375,13 +377,8 @@ def next_version(v: str) -> str:
     vobj = Version(v)
     if vobj.is_prerelease:
         return str(vobj.base_version)
-    vs = list(vobj.release)
-    vs[1] += 1
-    vs[2:] = [0] * len(vs[2:])
-    s = ".".join(map(str, vs))
-    if vobj.epoch:
-        s = f"{vobj.epoch}!{s}"
-    return s
+    else:
+        return bump_version(vobj, Bump.MINOR)
 
 
 def today() -> str:
