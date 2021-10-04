@@ -53,3 +53,16 @@ class Git(BaseModel):
             return tags[0]
         else:
             return None
+
+    def get_config(self, key: str, default: Optional[str]) -> Optional[str]:
+        if default is not None:
+            opts = ["--default", default]
+        else:
+            opts = []
+        try:
+            return self.read("config", "--get", *opts, key)
+        except subprocess.CalledProcessError as e:
+            if e.returncode == 1:
+                return None
+            else:
+                raise

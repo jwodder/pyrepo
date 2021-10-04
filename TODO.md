@@ -62,7 +62,6 @@
         - whether to start a shell to examine the assets after building but
           before uploading?
     - Move the signing of the build assets to after committing & tagging?
-    - Get the program to use for signing from git's `gpg.program` config value
 
 - `pyrepo mkgithub`:
     - Update the project's `url` et alii if necessary

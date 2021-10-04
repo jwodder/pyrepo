@@ -4,7 +4,7 @@
 
 # External dependencies:
 # - git (including push access to repository)
-# - $GPG (including a key usable for signing)
+# - gpg (including a key usable for signing)
 # - PyPI credentials for twine
 # - GitHub OAuth token in config
 
@@ -23,7 +23,7 @@ import re
 import sys
 from tempfile import NamedTemporaryFile
 import time
-from typing import List, Optional, Sequence
+from typing import Any, Callable, List, Optional, Sequence
 import click
 from in_place import InPlace
 from linesep import read_paragraphs
@@ -46,10 +46,6 @@ from ..util import (
 )
 
 log = logging.getLogger(__name__)
-
-GPG = "gpg"
-# This must point to gpg version 2 or higher, which automatically & implicitly
-# uses gpg-agent to obviate the need to keep entering one's password.
 
 ACTIVE_BADGE = """\
 .. image:: http://www.repostatus.org/badges/latest/active.svg
@@ -144,8 +140,6 @@ class Releaser(BaseModel):
             tmplate.flush()
             self.project.repo.run("commit", "-a", "-v", "--template", tmplate.name)
         self.project.repo.run(
-            "-c",
-            "gpg.program=" + GPG,
             "tag",
             "-s",
             "-m",
@@ -178,16 +172,23 @@ class Releaser(BaseModel):
         self.project.build(clean=True)
         self.assets = []
         self.assets_asc = []
+        signer: Optional[Callable[[str], Any]]
+        if sign_assets:
+            gpg_program = self.project.repo.get_config("gpg.program", default="gpg")
+            assert gpg_program is not None
+            signer = partial(
+                runcmd,
+                gpg_program,
+                "--detach-sign",
+                "-a",
+                env={**os.environ, "GPG_TTY": os.ttyname(0)},
+            )
+        else:
+            signer = None
         for distfile in (self.project.directory / "dist").iterdir():
             self.assets.append(distfile)
-            if sign_assets:
-                runcmd(
-                    GPG,
-                    "--detach-sign",
-                    "-a",
-                    distfile,
-                    env={**os.environ, "GPG_TTY": os.ttyname(0)},
-                )
+            if signer is not None:
+                signer(distfile)  # type: ignore[unreachable]
                 self.assets_asc.append(distfile.with_name(distfile.name + ".asc"))
 
     def upload(self) -> None:
