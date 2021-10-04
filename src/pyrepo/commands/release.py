@@ -83,8 +83,7 @@ class Releaser(BaseModel):
     ) -> "Releaser":
         if version is None:
             # Remove prerelease & dev release from __version__
-            ### TODO: Just use Version.base_version instead?
-            v = re.sub(r"(a|b|rc)\d+|\.dev\d+", "", project.version)
+            v = Version(project.version).base_version
         else:
             v = version.lstrip("v")
         return cls(
@@ -338,6 +337,41 @@ class Releaser(BaseModel):
 @click.option(
     "--sign-assets/--no-sign-assets", default=None, help="Sign built assets with PGP"
 )
+@click.option(
+    "--major",
+    "bump",
+    flag_value=Bump.MAJOR,
+    type=click.UNPROCESSED,
+    help="Release the next major version",
+)
+@click.option(
+    "--minor",
+    "bump",
+    flag_value=Bump.MINOR,
+    type=click.UNPROCESSED,
+    help="Release the next minor version",
+)
+@click.option(
+    "--micro",
+    "bump",
+    flag_value=Bump.MICRO,
+    type=click.UNPROCESSED,
+    help="Release the next micro/patch version",
+)
+@click.option(
+    "--patch",
+    "bump",
+    flag_value=Bump.MICRO,
+    type=click.UNPROCESSED,
+    help="Release the next micro/patch version",
+)
+@click.option(
+    "--post",
+    "bump",
+    flag_value=Bump.POST,
+    type=click.UNPROCESSED,
+    help="Release the next post version",
+)
 @click.argument("version", required=False)
 @click.pass_obj
 @with_project
@@ -348,6 +382,7 @@ def cli(
     version: Optional[str],
     tox: Optional[bool],
     sign_assets: Optional[bool],
+    bump: Optional[Bump],
 ) -> None:
     """Make a new release of the project"""
     defaults = obj.defaults["release"]
@@ -357,6 +392,17 @@ def cli(
     if sign_assets is None:
         sign_assets = defaults.get("sign_assets", False)
     assert sign_assets is not None
+    if bump is not None:
+        if version is not None:
+            raise click.UsageError(
+                "Explicit version and version bump options are mutually exclusive"
+            )
+        last_tag = project.repo.get_latest_tag()
+        if last_tag is None:
+            raise click.UsageError(
+                "Cannot use version bump options when there are no tags"
+            )
+        version = bump_version(last_tag, bump)
     # GPG_TTY has to be set so that GPG can be run through Git.
     os.environ["GPG_TTY"] = os.ttyname(0)
     add_type("application/zip", ".whl", False)
@@ -376,7 +422,7 @@ def next_version(v: str) -> str:
     """
     vobj = Version(v)
     if vobj.is_prerelease:
-        return str(vobj.base_version)
+        return vobj.base_version
     else:
         return bump_version(vobj, Bump.MINOR)
 

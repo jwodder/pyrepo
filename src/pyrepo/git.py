@@ -2,7 +2,7 @@ import logging
 from pathlib import Path
 import subprocess
 import time
-from typing import Any, List, Union
+from typing import Any, List, Optional, Union
 from pydantic import BaseModel, DirectoryPath
 from . import util
 
@@ -46,3 +46,10 @@ class Git(BaseModel):
             if guess in branches:
                 return guess
         raise InvalidProjectError("Could not determine default Git branch")
+
+    def get_latest_tag(self) -> Optional[str]:
+        tags = self.readlines("tag", "-l", "--sort=-creatordate")
+        if tags:
+            return tags[0]
+        else:
+            return None
