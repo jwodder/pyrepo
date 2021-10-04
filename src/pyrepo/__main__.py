@@ -32,7 +32,6 @@ from .config import DEFAULT_CFG, configure
     type=LogLevel(),
     default=logging.INFO,
     help="Set logging level  [default: INFO]",
-    show_default=True,
 )
 @click.version_option(
     __version__,
