@@ -104,7 +104,6 @@ class PyVersion(str):
 
     @property
     def pyenv(self) -> str:
-        ### TODO: How will tox handle 3.10?
         return f"py{self.major}{self.minor}"
 
 

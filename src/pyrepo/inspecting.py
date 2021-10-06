@@ -252,10 +252,8 @@ def parse_extra_testenvs(filepath: Path) -> Dict[str, str]:
 
 def find_project_root(dirpath: Optional[Path] = None) -> Optional[Path]:
     if dirpath is None:
-        cwd = Path()
-    else:
-        cwd = dirpath
-    for d in (cwd, *cwd.resolve().parents):
+        dirpath = Path()
+    for d in (dirpath, *dirpath.resolve().parents):
         if (d / "pyproject.toml").exists():
             return d
     return None

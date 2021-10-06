@@ -87,10 +87,8 @@ class Project(BaseModel):
     @classmethod
     def from_directory(cls, dirpath: Optional[Path] = None) -> "Project":
         if dirpath is None:
-            directory = Path()
-        else:
-            directory = Path(dirpath)
-        return cls.from_inspection(directory, inspect_project(directory))
+            dirpath = Path()
+        return cls.from_inspection(dirpath, inspect_project(dirpath))
 
     @classmethod
     def from_inspection(cls, directory: Path, context: dict) -> "Project":

@@ -359,10 +359,8 @@ def cli(
     defaults = obj.defaults["release"]
     if tox is None:
         tox = defaults.get("tox", False)
-    assert tox is not None
     if sign_assets is None:
         sign_assets = defaults.get("sign_assets", False)
-    assert sign_assets is not None
     if bump is not None:
         if version is not None:
             raise click.UsageError(
