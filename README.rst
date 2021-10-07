@@ -248,8 +248,9 @@ environment ``<testenv>`` against ``<python-version>``.
 Configure the project to declare support for and test against the given Python
 version(s) (which must be given in the form "``X.Y``").
 
-If a given version is out of bounds for the project's ``python_requires``
-setting, an error results; update ``python_requires`` and try again.
+Note that this command will not modify the project's ``python_requires``
+setting.  If a given version is out of bounds for ``python_requires``, an error
+will result; update ``python_requires`` and try again.
 
 
 ``pyrepo add-typing``
