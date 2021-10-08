@@ -1,3 +1,4 @@
+from bisect import insort
 from contextlib import suppress
 from functools import cached_property, partial, wraps
 import logging
@@ -335,6 +336,7 @@ class Project(BaseModel):
                 inserter=AfterLast(fr"^{' ' * 10}- ['\x22]?\d+\.\d+['\x22]?$"),
                 encoding="utf-8",
             )
+        insort(self.python_versions, pyv)
 
     def begin_dev(self) -> None:
         log.info("Preparing for work on next version ...")
