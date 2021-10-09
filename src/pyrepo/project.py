@@ -243,6 +243,9 @@ class Project(BaseModel):
         self.is_flat_module = False
 
     def add_typing(self) -> None:
+        if self.has_typing:
+            log.info("Project already has typing; no need to add it")
+            return
         log.info("Adding typing configuration ...")
         self.unflatten()
         log.info("Creating src/%s/py.typed ...", self.import_name)
@@ -305,6 +308,9 @@ class Project(BaseModel):
 
     def add_pyversion(self, v: str) -> None:
         pyv = PyVersion.parse(v)
+        if pyv in self.python_versions:
+            log.info("Project already supports %s; not adding", pyv)
+            return
         if str(pyv) not in SpecifierSet(self.python_requires):
             raise ValueError(
                 f"Version {pyv} does not match python_requires ="
