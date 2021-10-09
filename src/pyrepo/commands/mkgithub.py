@@ -1,6 +1,5 @@
 from typing import Optional
 import click
-from .. import git
 from ..config import Config
 from ..project import Project, with_project
 from ..util import cpe_no_tb
@@ -16,7 +15,7 @@ def cli(obj: Config, project: Project, repo_name: Optional[str], private: bool) 
     """Create a repository on GitHub for the local project and upload it"""
     if repo_name is None:
         repo_name = project.repo_name
-    repo = obj.gh.user.repos.post(
+    r = obj.gh.user.repos.post(
         json={
             "name": repo_name,
             "description": project.short_description,
@@ -26,9 +25,8 @@ def cli(obj: Config, project: Project, repo_name: Optional[str], private: bool) 
     keywords = [kw.lower().replace(" ", "-") for kw in project.keywords]
     if "python" not in keywords:
         keywords.append("python")
-    obj.gh[repo["url"]].topics.put(json={"names": keywords})
-    repo = git.Git(dirpath=project.directory)
-    if "origin" in repo.get_remotes():
-        repo.rm_remote("origin")
-    repo.add_remote("origin", repo["ssh_url"])
-    repo.run("push", "-u", "origin", project.default_branch)
+    obj.gh[r["url"]].topics.put(json={"names": keywords})
+    if "origin" in project.repo.get_remotes():
+        project.repo.rm_remote("origin")
+    project.repo.add_remote("origin", r["ssh_url"])
+    project.repo.run("push", "-u", "origin", project.default_branch)
