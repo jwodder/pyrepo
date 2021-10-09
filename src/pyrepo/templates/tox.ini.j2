@@ -1,9 +1,13 @@
-{% if has_tests %}
+{% if has_tests or has_docs %}
 [tox]
+{% if has_tests %}
 envlist = lint,{% if has_typing %}typing,{% endif %}{% for v in python_versions %}{{v.pyenv}},{% endfor %}pypy3
 skip_missing_interpreters = True
+{% endif %}
 isolated_build = True
 minversion = 3.3.0
+{% endif %}
+{% if has_tests %}
 
 [testenv]
 deps =
@@ -72,6 +76,8 @@ exclude_lines =
     pragma: no cover
     if TYPE_CHECKING:
     \.\.\.
+{% endif %}
+{% if has_tests or has_docs %}
 
 {% endif %}
 [flake8]
