@@ -302,7 +302,3 @@ def next_version(v: str) -> str:
         return vobj.base_version
     else:
         return bump_version(vobj, Bump.MINOR)
-
-
-def today() -> str:
-    return time.strftime("%Y-%m-%d")

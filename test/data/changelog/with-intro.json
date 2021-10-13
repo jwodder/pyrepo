@@ -3,12 +3,12 @@
     "sections": [
         {
             "version": "v0.2.0",
-            "date": "2019-05-09",
+            "release_date": "2019-05-09",
             "content": "- Changed the capitalization of \"User-agent\" in the log format string constants\n  to \"User-Agent\"\n- The ``cookies``, ``env_vars``, ``headers_in``, ``headers_out``, ``notes``,\n  ``trailers_in``, and ``trailers_out`` attributes of `LogEntry` are now all\n  case-insensitive `dict`\\s."
         },
         {
             "version": "v0.1.0",
-            "date": "2019-05-06",
+            "release_date": "2019-05-06",
             "content": "Initial release"
         }
     ]

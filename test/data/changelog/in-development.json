@@ -2,9 +2,9 @@
     "intro": "",
     "sections": [
         {
-            "version": "v0.2.0",
+            "version": null,
             "release_date": null,
-            "content": "- Dropped support for Python 3.4\n\n- Added support for Python 3.8"
+            "content": "- Dropped support for Python 3.4"
         },
         {
             "version": "v0.1.0",

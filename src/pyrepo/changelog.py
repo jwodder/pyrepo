@@ -1,18 +1,32 @@
+from datetime import date
+import json
 import re
-from typing import IO, List, Optional
+from typing import IO, List, Optional, cast
 from pydantic import BaseModel
 
 
 class ChangelogSection(BaseModel):
-    version: str
-    date: str
+    # If `version` is unset, then `release_date` should be unset as well; this
+    # denotes a section header of just "In Development"
+    version: Optional[str]
+    release_date: Optional[date]  # None = "in development"
     content: str  # has trailing newlines stripped
 
     def __str__(self) -> str:
-        s = self.version
-        if self.date is not None:
-            s += f" ({self.date})"
-        return s + "\n" + "-" * len(s) + ("\n" + self.content if self.content else "")
+        if self.version is None:
+            header = "In Development"
+        else:
+            if self.release_date is None:
+                rdate = "in development"
+            else:
+                rdate = str(self.release_date)
+            header = f"{self.version} ({rdate})"
+        return (
+            header
+            + "\n"
+            + "-" * len(header)
+            + ("\n" + self.content if self.content else "")
+        )
 
     def _end(self) -> None:
         self.content = self.content.rstrip("\r\n")
@@ -33,16 +47,34 @@ class Changelog(BaseModel):
         prev: Optional[str] = None
         sections: List[ChangelogSection] = []
         for line in fp:
-            if re.match(r"^---+$", line):
+            if re.fullmatch(r"---+\s*", line):
                 if sections:
                     sections[-1]._end()
                 if prev is None:
                     raise ValueError("File begins with hrule")
-                if m := re.match(r"^(?P<version>\S+)\s+\((?P<date>.+)\)$", prev):
+                if m := re.fullmatch(
+                    (
+                        r"(?P<version>\S+)\s+"
+                        r"\((?P<date>\d{4}-\d\d-\d\d|in development)\)\s*"
+                    ),
+                    prev,
+                    flags=re.I,
+                ):
+                    rdate: Optional[str] = m["date"]
+                    if rdate is not None and rdate.lower() == "in development":
+                        rdate = None
                     sections.append(
                         ChangelogSection(
                             version=m["version"],
-                            date=m["date"],
+                            release_date=rdate,
+                            content="",
+                        )
+                    )
+                elif prev.strip().lower() == "in development":
+                    sections.append(
+                        ChangelogSection(
+                            version=None,
+                            release_date=None,
                             content="",
                         )
                     )
@@ -81,4 +113,4 @@ class Changelog(BaseModel):
             return self.intro
 
     def for_json(self) -> dict:
-        return self.dict()
+        return cast(dict, json.loads(self.json()))

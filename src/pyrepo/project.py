@@ -1,5 +1,6 @@
 from bisect import insort
 from contextlib import suppress
+from datetime import date
 from functools import cached_property, partial, wraps
 import logging
 from pathlib import Path
@@ -24,7 +25,6 @@ from .util import (
     replace_group,
     runcmd,
     split_ini_sections,
-    today,
 )
 
 log = logging.getLogger(__name__)
@@ -353,7 +353,7 @@ class Project(BaseModel):
         # Add new section to top of CHANGELOGs
         new_sect = ChangelogSection(
             version="v" + new_version,
-            date="in development",
+            release_date=None,
             content="",
         )
         for docs in (False, True):
@@ -373,7 +373,7 @@ class Project(BaseModel):
                         new_sect,
                         ChangelogSection(
                             version="v" + old_version,
-                            date=today(),
+                            release_date=date.today(),
                             content="Initial release",
                         ),
                     ],

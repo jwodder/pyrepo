@@ -13,6 +13,7 @@
 # - The version is set as `__version__` in `packagename/__init__.py` or
 #   `packagename.py`.
 
+from datetime import date
 from functools import partial
 import logging
 from mimetypes import add_type, guess_type
@@ -40,7 +41,6 @@ from ..util import (
     map_lines,
     replace_group,
     runcmd,
-    today,
     update_years2str,
 )
 
@@ -231,7 +231,7 @@ class Releaser(BaseModel):
             chlog = self.project.get_changelog(docs=docs)
             if chlog and chlog.sections:
                 chlog.sections[0].version = f"v{self.version}"
-                chlog.sections[0].date = today()
+                chlog.sections[0].release_date = date.today()
                 self.project.set_changelog(chlog, docs=docs)
         years = self.project.repo.get_commit_years()
         # Update year ranges in LICENSE
