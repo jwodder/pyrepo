@@ -301,7 +301,7 @@ class Project(BaseModel):
                     print(sect, end="", file=fp)
         if self.has_ci:
             pyver = self.python_versions[0]
-            log.info("Adding testenv %r with Python version %r", "typing", pyver)
+            log.info("Adding testenv %r with Python version %s", "typing", pyver)
             self.extra_testenvs["typing"] = str(pyver)
             self.write_template(".github/workflows/test.yml", jenv)
         self.has_typing = True
