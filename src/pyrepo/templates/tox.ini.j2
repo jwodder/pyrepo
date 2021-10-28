@@ -12,11 +12,11 @@ minversion = 3.3.0
 [testenv]
 deps =
     {% if has_doctests %}
-    coverage~=5.0
+    coverage~=6.0
     {% endif %}
     pytest~=6.0
     {% if not has_doctests %}
-    pytest-cov~=2.0
+    pytest-cov~=3.0
     {% endif %}
 commands =
 {% if has_doctests %}
