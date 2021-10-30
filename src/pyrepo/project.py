@@ -135,10 +135,14 @@ class Project(BaseModel):
         )
 
     def get_template_block(
-        self, template_name: str, block_name: str, jinja_env: Environment
+        self,
+        template_name: str,
+        block_name: str,
+        jinja_env: Environment,
+        vars: Optional[Dict[str, Any]] = None,
     ) -> str:
         tmpl = jinja_env.get_template(template_name)
-        context = tmpl.new_context()
+        context = tmpl.new_context(vars=vars)
         return "".join(tmpl.blocks[block_name](context))
 
     def set_version(self, version: str) -> None:
@@ -295,6 +299,7 @@ class Project(BaseModel):
                                 "tox.ini.j2",
                                 "testenv_typing",
                                 jenv,
+                                vars={"has_tests": self.has_tests},
                             ),
                             file=fp,
                         )

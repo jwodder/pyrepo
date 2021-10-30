@@ -70,11 +70,8 @@
     - Support creating the repository in an organization?
 
 - `pyrepo template`:
-    - Add command line options for overriding the various Jinja env vars
+    - Add command line options for overriding the various Jinja env vars?
     - Preserve classifiers etc. when retemplating `setup.cfg`?
-
-- `pyrepo make`:
-    - Support setting options via the config file
 
 - Add subcommands for incrementally adding features (tests, docs, CI, etc.) to
   an already-templated repository
@@ -98,8 +95,6 @@
     - Automatically run this command on first release
 - Add a subcommand for updating GitHub description & tags based on the
   project's short description and keywords?
-- Add subcommands for adding & removing a Python version from the set of
-  supported versions
 
 - Templates:
     - When a package has a command, include "Run ``{{command}} --help``" in the
