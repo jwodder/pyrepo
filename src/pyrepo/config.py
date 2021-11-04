@@ -4,13 +4,13 @@ import platform
 from typing import Any, Dict, List, Union
 import click
 from pydantic import BaseModel
-from pyversion_info import get_pyversion_info
+from pyversion_info import VersionDatabase
 import requests
 from pyrepo import __url__, __version__
 from .gh import GitHub
 from .util import PyVersion
 
-DEFAULT_CFG = str(Path.home() / ".config" / "pyrepo.cfg")
+DEFAULT_CFG = Path.home() / ".config" / "pyrepo.cfg"
 
 DEFAULTS = {
     "options": {
@@ -49,7 +49,7 @@ def configure(ctx: click.Context, filename: Union[str, Path]) -> None:
     ### TODO: Check the return value and raise an exception if it's empty:
     cfg.read(filename)
 
-    pyvinfo = get_pyversion_info()
+    pyvinfo = VersionDatabase.fetch().cpython
     supported_series = [
         v
         for m in map(str, MAJOR_PYTHON_VERSIONS)
