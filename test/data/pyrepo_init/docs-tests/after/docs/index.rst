@@ -9,7 +9,7 @@ foobar — A project
 | `Issues <https://github.com/jwodder/foobar/issues>`_
 
 .. toctree::
-    :maxdepth: 2
+    :hidden:
 
 INSERT LONG DESCRIPTION HERE
 
