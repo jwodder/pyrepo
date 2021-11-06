@@ -17,7 +17,9 @@ jobs:
           - '{{v}}'
           {% endfor %}
           {% if supports_pypy3 %}
-          - 'pypy3'
+          {% for pyv in python_versions|pypy_supported %}
+          - 'pypy-{{pyv}}'
+          {% endfor %}
           {% endif %}
         {% if extra_testenvs %}
         toxenv: [py]

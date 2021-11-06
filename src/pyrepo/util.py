@@ -32,6 +32,7 @@ from packaging.specifiers import SpecifierSet
 from packaging.version import Version
 from pydantic import parse_obj_as
 from pydantic.validators import str_validator
+from pyversion_info import VersionDatabase
 
 if TYPE_CHECKING:
     from pydantic.typing import CallableGenerator
@@ -147,12 +148,24 @@ def update_years2str(year_str: str, years: Optional[List[int]] = None) -> str:
     return years2str(yearspan)
 
 
+def pypy_supported(cpython_versions: List[PyVersion]) -> List[PyVersion]:
+    # Returns the subset of `cpython_versions` that are supported by the latest
+    # PyPy minor version
+    info = VersionDatabase.fetch().pypy
+    *_, latest_series = filter(info.is_released, info.minor_versions())
+    pypy_supports = set(
+        map(PyVersion.parse, info.supported_cpython_series(latest_series))
+    )
+    return sorted(pypy_supports.intersection(cpython_versions))
+
+
 def get_jinja_env() -> Environment:
     jenv = Environment(
         loader=PackageLoader("pyrepo", "templates"),
         trim_blocks=True,
         lstrip_blocks=True,
     )
+    jenv.filters["pypy_supported"] = pypy_supported
     jenv.filters["repr"] = repr
     jenv.filters["rewrap"] = rewrap
     jenv.filters["years2str"] = years2str
