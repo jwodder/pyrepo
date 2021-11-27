@@ -1,7 +1,7 @@
 import logging
 import click
 from ..project import Project, with_project
-from ..util import cpe_no_tb, get_jinja_env
+from ..util import cpe_no_tb
 
 log = logging.getLogger(__name__)
 
@@ -13,6 +13,4 @@ log = logging.getLogger(__name__)
 @cpe_no_tb
 def cli(project: Project, testenv: str, pyver: str) -> None:
     """Add a TESTENV job with the given PYVER to the CI configuration"""
-    log.info("Adding testenv %r with Python version %r", testenv, pyver)
-    project.extra_testenvs[testenv] = pyver
-    project.write_template(".github/workflows/test.yml", get_jinja_env())
+    project.add_ci_testenv(testenv, pyver)

@@ -305,11 +305,13 @@ class Project(BaseModel):
                         )
                     print(sect, end="", file=fp)
         if self.has_ci:
-            pyver = self.python_versions[0]
-            log.info("Adding testenv %r with Python version %s", "typing", pyver)
-            self.extra_testenvs["typing"] = str(pyver)
-            self.write_template(".github/workflows/test.yml", jenv)
+            self.add_ci_testenv("typing", str(self.python_versions[0]))
         self.has_typing = True
+
+    def add_ci_testenv(self, testenv: str, pyver: str) -> None:
+        log.info("Adding testenv %r with Python version %r", testenv, pyver)
+        self.extra_testenvs[testenv] = pyver
+        self.write_template(".github/workflows/test.yml", get_jinja_env())
 
     def add_pyversion(self, v: str) -> None:
         pyv = PyVersion.parse(v)
