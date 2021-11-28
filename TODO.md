@@ -21,6 +21,8 @@
 - Instead of filling up `test/data` with folders full of test cases, write a
   function for generating a complete sample project from a set of parameters
   (The function will still need folders full of test cases, though)
+- `Project.add_ci_testenv()`: "Manually" add in the new lines instead of
+  retemplating?
 
 - Support projects supporting multiple major versions of Python
     - Make `Project.add_pyversion()` add a "Programming Language :: Python ::
@@ -105,6 +107,8 @@
     - Support having the same extra testenv run against multiple Python
       versions
     - Make `supports_pypy3` affect the envlist in `tox.ini`
+    - `.github/workflows/test.yml`: Add an option for testing against different
+      OSes?
 
 - Write a command for adding new repositories to Read the Docs
     - Not possible?  Double-check

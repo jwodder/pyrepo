@@ -21,8 +21,8 @@ jobs:
           - 'pypy-{{pyv}}'
           {% endfor %}
           {% endif %}
-        {% if extra_testenvs %}
         toxenv: [py]
+        {% if extra_testenvs %}
         include:
         {% for testenv, pyver in extra_testenvs.items()|sort %}
           - python-version: '{{pyver}}'
@@ -49,18 +49,12 @@ jobs:
 
       {% if has_doctests %}
       - name: Run tests
-        {% if extra_testenvs %}
         run: tox -e ${{ '{{' }} matrix.toxenv }}
-        {% else %}
-        run: tox -e py
-        {% endif %}
 
       - name: Generate XML coverage report
-        {% if extra_testenvs %}
         if: matrix.toxenv == 'py'
-        {% endif %}
         run: coverage xml
-      {% elif extra_testenvs %}
+      {% else %}
       - name: Run tests with coverage
         if: matrix.toxenv == 'py'
         run: tox -e py -- --cov-report=xml
@@ -68,15 +62,10 @@ jobs:
       - name: Run generic tests
         if: matrix.toxenv != 'py'
         run: tox -e ${{ '{{' }} matrix.toxenv }}
-      {% else %}
-      - name: Run tests
-        run: tox -e py -- --cov-report=xml
       {% endif %}
 
       - name: Upload coverage to Codecov
-        {% if extra_testenvs %}
         if: matrix.toxenv == 'py'
-        {% endif %}
         uses: codecov/codecov-action@v2
         with:
           fail_ci_if_error: false
