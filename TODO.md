@@ -1,6 +1,4 @@
 - Write more tests
-- Support namespace packages?
-- Make this a package in the `jwodder` namespace?
 - Rename the actual Python import package to `jwodder_pyrepo`?
 - Make `configure()` store the config file values in `ctx.default_map`
     - Use Click 8's new features to handle the precedence order of `pyrepo init
@@ -65,8 +63,6 @@
 
 - `pyrepo mkgithub`:
     - Update the project's `url` et alii if necessary
-    - Push all branches, not just master?
-    - Push all tags
     - Support creating the repository in an organization?
 
 - `pyrepo template`:

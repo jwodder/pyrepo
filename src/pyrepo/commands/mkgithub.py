@@ -29,4 +29,4 @@ def cli(obj: Config, project: Project, repo_name: Optional[str], private: bool) 
     if "origin" in project.repo.get_remotes():
         project.repo.rm_remote("origin")
     project.repo.add_remote("origin", r["ssh_url"])
-    project.repo.run("push", "-u", "origin", project.default_branch)
+    project.repo.run("push", "-u", "origin", "refs/heads/*", "refs/tags/*")
