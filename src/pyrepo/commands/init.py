@@ -206,7 +206,7 @@ def cli(obj: Config, dirpath: Path, **options: Any) -> None:
     else:
         env["commands"] = {options["command"]: f'{env["import_name"]}.__main__:main'}
 
-    project = Project.from_inspection(dirpath, env)
+    project = Project(directory=dirpath, details=env)
     project.write_template(".gitignore", jenv, force=False)
     project.write_template(".pre-commit-config.yaml", jenv, force=False)
     project.write_template("MANIFEST.in", jenv, force=False)

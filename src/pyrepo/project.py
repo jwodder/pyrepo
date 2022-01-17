@@ -18,7 +18,7 @@ from pydantic import BaseModel, DirectoryPath
 from . import git
 from .changelog import Changelog, ChangelogSection
 from .details import ProjectDetails
-from .inspecting import InvalidProjectError, find_project_root, inspect_project
+from .inspecting import InvalidProjectError, find_project_root
 from .util import (
     PyVersion,
     get_jinja_env,
@@ -46,11 +46,7 @@ class Project(BaseModel):
     def from_directory(cls, dirpath: Optional[Path] = None) -> Project:
         if dirpath is None:
             dirpath = Path()
-        return cls.from_inspection(dirpath, inspect_project(dirpath))
-
-    @classmethod
-    def from_inspection(cls, directory: Path, context: dict) -> Project:
-        return cls(directory=directory, details=ProjectDetails.parse_obj(context))
+        return cls(directory=dirpath, details=ProjectDetails.inspect(dirpath))
 
     @property
     def initfile(self) -> Path:

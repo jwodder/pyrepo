@@ -4,16 +4,15 @@ from pathlib import Path
 from shutil import copyfile
 import pytest
 from pytest_mock import MockerFixture
+from pyrepo.details import ProjectDetails
 from pyrepo.inspecting import (
     InvalidProjectError,
     ModuleInfo,
     Requirements,
     extract_requires,
     find_module,
-    inspect_project,
     parse_requirements,
 )
-from pyrepo.project import Project
 from test_helpers import DATA_DIR, case_dirs, mock_git
 
 
@@ -73,12 +72,10 @@ def test_inspect_project(dirpath: Path, mocker: MockerFixture) -> None:
     mgitcls, mgit = mock_git(mocker, get_default_branch="master")
     if (dirpath / "_errmsg.txt").exists():
         with pytest.raises(Exception) as excinfo:
-            inspect_project(dirpath)
+            ProjectDetails.inspect(dirpath)
         assert str(excinfo.value) == (dirpath / "_errmsg.txt").read_text().strip()
     else:
-        env = inspect_project(dirpath)
+        details = ProjectDetails.inspect(dirpath)
         mgitcls.assert_called_once_with(dirpath=dirpath)
         mgit.get_default_branch.assert_called_once_with()
-        assert env == json.loads((dirpath / "_inspect.json").read_text())
-        project = Project.from_inspection(dirpath, env)
-        assert project.details.get_template_context() == env
+        assert details.dict() == json.loads((dirpath / "_inspect.json").read_text())

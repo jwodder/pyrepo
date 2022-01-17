@@ -1,6 +1,9 @@
-from typing import Dict, List
+from __future__ import annotations
+from pathlib import Path
+from typing import Dict, List, Optional, Union
 from jinja2 import Environment
 from pydantic import BaseModel, validator
+from .inspecting import inspect_project
 from .util import PyVersion
 
 
@@ -49,6 +52,10 @@ class ProjectDetails(BaseModel):
     @classmethod
     def _sort_python_versions(cls, v: List[PyVersion]) -> List[PyVersion]:
         return sorted(v)
+
+    @classmethod
+    def inspect(cls, dirpath: Optional[Union[str, Path]] = None) -> ProjectDetails:
+        return cls.parse_obj(inspect_project(dirpath))
 
     def get_template_context(self) -> dict:
         return self.dict()
