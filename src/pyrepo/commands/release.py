@@ -78,13 +78,13 @@ class Releaser(BaseModel):
     ) -> "Releaser":
         if version is None:
             # Remove prerelease & dev release from __version__
-            v = Version(project.version).base_version
+            v = Version(project.details.version).base_version
         else:
             v = version.lstrip("v")
         return cls(
             project=project,
             version=v,
-            ghrepo=gh.repos[project.github_user][project.repo_name],
+            ghrepo=gh.repos[project.details.github_user][project.details.repo_name],
             tox=tox,
             sign_assets=sign_assets,
         )

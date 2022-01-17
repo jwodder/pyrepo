@@ -219,9 +219,11 @@ def cli(obj: Config, dirpath: Path, **options: Any) -> None:
         log.info("Creating src/%s/py.typed ...", env["import_name"])
         (project.directory / "src" / env["import_name"] / "py.typed").touch()
     if env["has_ci"]:
-        project.extra_testenvs["lint"] = str(project.python_versions[0])
+        project.details.extra_testenvs["lint"] = str(project.details.python_versions[0])
         if env["has_typing"]:
-            project.extra_testenvs["typing"] = str(project.python_versions[0])
+            project.details.extra_testenvs["typing"] = str(
+                project.details.python_versions[0]
+            )
         project.write_template(".github/workflows/test.yml", jenv, force=False)
     if env["has_docs"]:
         project.write_template(".readthedocs.yml", jenv, force=False)

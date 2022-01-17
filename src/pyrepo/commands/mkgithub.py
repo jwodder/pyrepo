@@ -14,15 +14,15 @@ from ..util import cpe_no_tb
 def cli(obj: Config, project: Project, repo_name: Optional[str], private: bool) -> None:
     """Create a repository on GitHub for the local project and upload it"""
     if repo_name is None:
-        repo_name = project.repo_name
+        repo_name = project.details.repo_name
     r = obj.gh.user.repos.post(
         json={
             "name": repo_name,
-            "description": project.short_description,
+            "description": project.details.short_description,
             "private": private,
         }
     )
-    keywords = [kw.lower().replace(" ", "-") for kw in project.keywords]
+    keywords = [kw.lower().replace(" ", "-") for kw in project.details.keywords]
     if "python" not in keywords:
         keywords.append("python")
     obj.gh[r["url"]].topics.put(json={"names": keywords})

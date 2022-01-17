@@ -14,6 +14,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    Dict,
     Iterable,
     Iterator,
     List,
@@ -328,3 +329,14 @@ def next_version(v: str) -> str:
         return vobj.base_version
     else:
         return bump_version(vobj, Bump.MINOR)
+
+
+def get_template_block(
+    template_name: str,
+    block_name: str,
+    jinja_env: Environment,
+    vars: Optional[Dict[str, Any]] = None,
+) -> str:
+    tmpl = jinja_env.get_template(template_name)
+    context = tmpl.new_context(vars=vars)
+    return "".join(tmpl.blocks[block_name](context))

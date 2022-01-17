@@ -17,7 +17,7 @@ def cli(project: Project, template: Sequence[str], outfile: Optional[TextIO]) ->
             raise click.UsageError(
                 "--outfile may only be used with a single template argument"
             )
-        print(project.render_template(template[0], jenv), end="", file=outfile)
+        print(project.details.render_template(template[0], jenv), end="", file=outfile)
     else:
         for tmplt in template:
             project.write_template(tmplt, jenv)

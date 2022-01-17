@@ -24,4 +24,4 @@ def test_sort_pyversions() -> None:
         data = json.load(fp)
     data["python_versions"] = ["3.8", "3.9", "3.7", "3.6", "3.10"]
     proj = Project.from_inspection(DATA_DIR, data)
-    assert proj.python_versions == ["3.6", "3.7", "3.8", "3.9", "3.10"]
+    assert proj.details.python_versions == ["3.6", "3.7", "3.8", "3.9", "3.10"]

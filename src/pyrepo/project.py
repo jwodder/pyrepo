@@ -1,3 +1,4 @@
+from __future__ import annotations
 from bisect import insort
 from contextlib import suppress
 from datetime import date
@@ -7,19 +8,21 @@ from pathlib import Path
 import re
 from shutil import rmtree
 import sys
-from typing import Any, Callable, Dict, Iterator, List, Optional, Union
+from typing import Any, Callable, Iterator, List, Optional, Union
 import click
 from in_place import InPlace
 from jinja2 import Environment
 from lineinfile import AfterLast, add_line_to_file
 from packaging.specifiers import SpecifierSet
-from pydantic import BaseModel, DirectoryPath, validator
+from pydantic import BaseModel, DirectoryPath
 from . import git
 from .changelog import Changelog, ChangelogSection
+from .details import ProjectDetails
 from .inspecting import InvalidProjectError, find_project_root, inspect_project
 from .util import (
     PyVersion,
     get_jinja_env,
+    get_template_block,
     map_lines,
     next_version,
     replace_group,
@@ -32,91 +35,33 @@ log = logging.getLogger(__name__)
 
 class Project(BaseModel):
     directory: DirectoryPath
-
-    # All attributes from this point on are also context variables used by the
-    # Jinja2 templates.
-
-    #: The name of the project as it is/will be known on PyPI
-    name: str
-
-    version: str
-    short_description: str
-    author: str
-    author_email: str
-    install_requires: List[str]
-    keywords: List[str]
-    supports_pypy3: bool
-
-    #: Extra testenvs to include runs for in CI, as a mapping from testenv name
-    #: to Python version
-    extra_testenvs: Dict[str, str]
-
-    is_flat_module: bool
-    import_name: str
-
-    #: Sorted list of supported Python versions
-    python_versions: List[PyVersion]
-
-    python_requires: str
-
-    #: Mapping from command (`console_scripts`) names to entry point
-    #: specifications
-    commands: Dict[str, str]
-
-    github_user: str
-    codecov_user: str
-    repo_name: str
-    rtfd_name: str
-    has_tests: bool
-    has_typing: bool
-    has_doctests: bool
-    has_docs: bool
-    has_ci: bool
-    has_pypi: bool
-    copyright_years: List[int]
-    default_branch: str
+    details: ProjectDetails
 
     class Config:
         # <https://github.com/samuelcolvin/pydantic/issues/1241>
         arbitrary_types_allowed = True
         keep_untouched = (cached_property,)
 
-    @validator("python_versions")
     @classmethod
-    def _sort_python_versions(cls, v: List[PyVersion]) -> List[PyVersion]:
-        return sorted(v)
-
-    @classmethod
-    def from_directory(cls, dirpath: Optional[Path] = None) -> "Project":
+    def from_directory(cls, dirpath: Optional[Path] = None) -> Project:
         if dirpath is None:
             dirpath = Path()
         return cls.from_inspection(dirpath, inspect_project(dirpath))
 
     @classmethod
-    def from_inspection(cls, directory: Path, context: dict) -> "Project":
-        return cls.parse_obj({"directory": directory.resolve(), **context})
+    def from_inspection(cls, directory: Path, context: dict) -> Project:
+        return cls(directory=directory, details=ProjectDetails.parse_obj(context))
 
     @property
     def initfile(self) -> Path:
-        if self.is_flat_module:
-            return self.directory / "src" / (self.import_name + ".py")
+        if self.details.is_flat_module:
+            return self.directory / "src" / (self.details.import_name + ".py")
         else:
-            return self.directory / "src" / self.import_name / "__init__.py"
+            return self.directory / "src" / self.details.import_name / "__init__.py"
 
     @cached_property
     def repo(self) -> git.Git:
         return git.Git(dirpath=self.directory)
-
-    def get_template_context(self) -> dict:
-        return self.dict(exclude={"directory"})
-
-    def render_template(self, template_path: str, jinja_env: Environment) -> str:
-        return (
-            jinja_env.get_template(template_path + ".j2")
-            .render(self.get_template_context())
-            .rstrip()
-            + "\n"
-        )
 
     def write_template(
         self,
@@ -131,20 +76,9 @@ class Project(BaseModel):
         log.info("Writing %s ...", template_path)
         outpath.parent.mkdir(parents=True, exist_ok=True)
         outpath.write_text(
-            self.render_template(template_path, jinja_env),
+            self.details.render_template(template_path, jinja_env),
             encoding="utf-8",
         )
-
-    def get_template_block(
-        self,
-        template_name: str,
-        block_name: str,
-        jinja_env: Environment,
-        vars: Optional[Dict[str, Any]] = None,
-    ) -> str:
-        tmpl = jinja_env.get_template(template_name)
-        context = tmpl.new_context(vars=vars)
-        return "".join(tmpl.blocks[block_name](context))
 
     def set_version(self, version: str) -> None:
         log.info("Setting __version__ to %r ...", version)
@@ -158,7 +92,7 @@ class Project(BaseModel):
                 group="version",
             ),
         )
-        self.version = version
+        self.details.version = version
 
     def get_changelog_paths(
         self, docs: bool = False, extant: bool = True
@@ -209,11 +143,11 @@ class Project(BaseModel):
             runcmd(sys.executable, "-m", "build", *args, self.directory)
 
     def unflatten(self) -> None:
-        if not self.is_flat_module:
+        if not self.details.is_flat_module:
             log.info("Project is already a package; no need to unflatten")
             return
         log.info("Unflattening project ...")
-        pkgdir = self.directory / "src" / self.import_name
+        pkgdir = self.directory / "src" / self.details.import_name
         pkgdir.mkdir(parents=True, exist_ok=True)
         old_initfile = self.initfile
         new_initfile = pkgdir / "__init__.py"
@@ -245,16 +179,16 @@ class Project(BaseModel):
                 print("", file=fp)
                 print("[options.packages.find]", file=fp)
                 print("where = src", file=fp)
-        self.is_flat_module = False
+        self.details.is_flat_module = False
 
     def add_typing(self) -> None:
-        if self.has_typing:
+        if self.details.has_typing:
             log.info("Project already has typing; no need to add it")
             return
         log.info("Adding typing configuration ...")
         self.unflatten()
-        log.info("Creating src/%s/py.typed ...", self.import_name)
-        (self.directory / "src" / self.import_name / "py.typed").touch()
+        log.info("Creating src/%s/py.typed ...", self.details.import_name)
+        (self.directory / "src" / self.details.import_name / "py.typed").touch()
         jenv = get_jinja_env()
         log.info("Updating setup.cfg ...")
         with InPlace(
@@ -275,11 +209,11 @@ class Project(BaseModel):
                 print("Typing :: Typed", file=fp)
             print(file=fp)
             print(
-                self.get_template_block("setup.cfg.j2", "mypy", jenv),
+                get_template_block("setup.cfg.j2", "mypy", jenv),
                 end="",
                 file=fp,
             )
-        if self.has_tests:
+        if self.details.has_tests:
             log.info("Updating tox.ini ...")
             toxfile = self.directory / "tox.ini"
             sections = split_ini_sections(toxfile.read_text(encoding="utf-8"))
@@ -296,33 +230,33 @@ class Project(BaseModel):
                         sect = sect2
                     if sectname == "pytest":
                         print(
-                            self.get_template_block(
+                            get_template_block(
                                 "tox.ini.j2",
                                 "testenv_typing",
                                 jenv,
-                                vars={"has_tests": self.has_tests},
+                                vars={"has_tests": self.details.has_tests},
                             ),
                             file=fp,
                         )
                     print(sect, end="", file=fp)
-        if self.has_ci:
-            self.add_ci_testenv("typing", str(self.python_versions[0]))
-        self.has_typing = True
+        if self.details.has_ci:
+            self.add_ci_testenv("typing", str(self.details.python_versions[0]))
+        self.details.has_typing = True
 
     def add_ci_testenv(self, testenv: str, pyver: str) -> None:
         log.info("Adding testenv %r with Python version %r", testenv, pyver)
-        self.extra_testenvs[testenv] = pyver
+        self.details.extra_testenvs[testenv] = pyver
         self.write_template(".github/workflows/test.yml", get_jinja_env())
 
     def add_pyversion(self, v: str) -> None:
         pyv = PyVersion.parse(v)
-        if pyv in self.python_versions:
+        if pyv in self.details.python_versions:
             log.info("Project already supports %s; not adding", pyv)
             return
-        if str(pyv) not in SpecifierSet(self.python_requires):
+        if str(pyv) not in SpecifierSet(self.details.python_requires):
             raise ValueError(
                 f"Version {pyv} does not match python_requires ="
-                f" {self.python_requires!r}"
+                f" {self.details.python_requires!r}"
             )
         log.info("Adding %s to supported Python versions", pyv)
         log.info("Updating setup.cfg ...")
@@ -332,7 +266,7 @@ class Project(BaseModel):
             inserter=AfterLast(r"^    Programming Language :: Python :: \d+\.\d+$"),
             encoding="utf-8",
         )
-        if self.has_tests:
+        if self.details.has_tests:
             log.info("Updating tox.ini ...")
             map_lines(
                 self.directory / "tox.ini",
@@ -342,7 +276,7 @@ class Project(BaseModel):
                     partial(add_py_env, pyv),
                 ),
             )
-        if self.has_ci:
+        if self.details.has_ci:
             log.info("Updating .github/workflows/test.yml ...")
             add_line_to_file(
                 self.directory / ".github" / "workflows" / "test.yml",
@@ -350,12 +284,12 @@ class Project(BaseModel):
                 inserter=AfterLast(fr"^{' ' * 10}- ['\x22]?\d+\.\d+['\x22]?$"),
                 encoding="utf-8",
             )
-        insort(self.python_versions, pyv)
+        insort(self.details.python_versions, pyv)
 
     def begin_dev(self) -> None:
         log.info("Preparing for work on next version ...")
         # Set __version__ to the next version number plus ".dev1"
-        old_version = self.version
+        old_version = self.details.version
         new_version = next_version(old_version)
         self.set_version(new_version + ".dev1")
         # Add new section to top of CHANGELOGs

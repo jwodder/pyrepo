@@ -81,4 +81,4 @@ def test_inspect_project(dirpath: Path, mocker: MockerFixture) -> None:
         mgit.get_default_branch.assert_called_once_with()
         assert env == json.loads((dirpath / "_inspect.json").read_text())
         project = Project.from_inspection(dirpath, env)
-        assert project.get_template_context() == env
+        assert project.details.get_template_context() == env
