@@ -13,7 +13,7 @@ from in_place import InPlace
 from jinja2 import Environment
 from lineinfile import AfterLast, add_line_to_file
 from packaging.specifiers import SpecifierSet
-from pydantic import BaseModel, DirectoryPath
+from pydantic import BaseModel, DirectoryPath, validator
 from . import git
 from .changelog import Changelog, ChangelogSection
 from .inspecting import InvalidProjectError, find_project_root, inspect_project
@@ -81,9 +81,10 @@ class Project(BaseModel):
         arbitrary_types_allowed = True
         keep_untouched = (cached_property,)
 
-    def __init__(self, **data: Any) -> None:
-        super().__init__(**data)
-        self.python_versions.sort()
+    @validator("python_versions")
+    @classmethod
+    def _sort_python_versions(cls, v: List[PyVersion]) -> List[PyVersion]:
+        return sorted(v)
 
     @classmethod
     def from_directory(cls, dirpath: Optional[Path] = None) -> "Project":
