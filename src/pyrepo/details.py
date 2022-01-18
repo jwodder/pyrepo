@@ -1,9 +1,9 @@
 from __future__ import annotations
 from pathlib import Path
 from typing import Dict, List, Optional, Union
-from jinja2 import Environment
 from pydantic import BaseModel, validator
 from .inspecting import inspect_project
+from .tmpltr import Templater
 from .util import PyVersion
 
 
@@ -57,13 +57,5 @@ class ProjectDetails(BaseModel):
     def inspect(cls, dirpath: Optional[Union[str, Path]] = None) -> ProjectDetails:
         return cls.parse_obj(inspect_project(dirpath))
 
-    def get_template_context(self) -> dict:
-        return self.dict()
-
-    def render_template(self, template_path: str, jinja_env: Environment) -> str:
-        return (
-            jinja_env.get_template(template_path + ".j2")
-            .render(self.get_template_context())
-            .rstrip()
-            + "\n"
-        )
+    def get_templater(self) -> Templater:
+        return Templater(context=self.dict())

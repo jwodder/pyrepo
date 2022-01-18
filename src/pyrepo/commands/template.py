@@ -1,7 +1,7 @@
 from typing import Optional, Sequence, TextIO
 import click
 from ..project import Project, with_project
-from ..util import cpe_no_tb, get_jinja_env
+from ..util import cpe_no_tb
 
 
 @click.command()
@@ -11,13 +11,13 @@ from ..util import cpe_no_tb, get_jinja_env
 @cpe_no_tb
 def cli(project: Project, template: Sequence[str], outfile: Optional[TextIO]) -> None:
     """Replace files with their re-evaluated templates"""
-    jenv = get_jinja_env()
+    twriter = project.get_template_writer()
     if outfile is not None:
         if len(template) != 1:
             raise click.UsageError(
                 "--outfile may only be used with a single template argument"
             )
-        print(project.details.render_template(template[0], jenv), end="", file=outfile)
+        print(twriter.render(template[0]), end="", file=outfile)
     else:
         for tmplt in template:
-            project.write_template(tmplt, jenv)
+            twriter.write(tmplt)

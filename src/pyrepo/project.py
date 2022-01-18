@@ -11,7 +11,6 @@ import sys
 from typing import Any, Callable, Iterator, List, Optional, Union
 import click
 from in_place import InPlace
-from jinja2 import Environment
 from lineinfile import AfterLast, add_line_to_file
 from packaging.specifiers import SpecifierSet
 from pydantic import BaseModel, DirectoryPath
@@ -19,10 +18,9 @@ from . import git
 from .changelog import Changelog, ChangelogSection
 from .details import ProjectDetails
 from .inspecting import InvalidProjectError, find_project_root
+from .tmpltr import TemplateWriter
 from .util import (
     PyVersion,
-    get_jinja_env,
-    get_template_block,
     map_lines,
     next_version,
     replace_group,
@@ -59,22 +57,8 @@ class Project(BaseModel):
     def repo(self) -> git.Git:
         return git.Git(dirpath=self.directory)
 
-    def write_template(
-        self,
-        template_path: str,
-        jinja_env: Environment,
-        force: bool = True,
-    ) -> None:
-        outpath = self.directory / template_path
-        if not force and outpath.exists():
-            log.info("File %s already exists; not templating", template_path)
-            return
-        log.info("Writing %s ...", template_path)
-        outpath.parent.mkdir(parents=True, exist_ok=True)
-        outpath.write_text(
-            self.details.render_template(template_path, jinja_env),
-            encoding="utf-8",
-        )
+    def get_template_writer(self) -> TemplateWriter:
+        return TemplateWriter(context=self.details.dict(), basedir=self.directory)
 
     def set_version(self, version: str) -> None:
         log.info("Setting __version__ to %r ...", version)
@@ -185,7 +169,7 @@ class Project(BaseModel):
         self.unflatten()
         log.info("Creating src/%s/py.typed ...", self.details.import_name)
         (self.directory / "src" / self.details.import_name / "py.typed").touch()
-        jenv = get_jinja_env()
+        templater = self.details.get_templater()
         log.info("Updating setup.cfg ...")
         with InPlace(
             self.directory / "setup.cfg",
@@ -205,7 +189,7 @@ class Project(BaseModel):
                 print("Typing :: Typed", file=fp)
             print(file=fp)
             print(
-                get_template_block("setup.cfg.j2", "mypy", jenv),
+                templater.get_template_block("setup.cfg.j2", "mypy"),
                 end="",
                 file=fp,
             )
@@ -226,10 +210,9 @@ class Project(BaseModel):
                         sect = sect2
                     if sectname == "pytest":
                         print(
-                            get_template_block(
+                            templater.get_template_block(
                                 "tox.ini.j2",
                                 "testenv_typing",
-                                jenv,
                                 vars={"has_tests": self.details.has_tests},
                             ),
                             file=fp,
@@ -242,7 +225,7 @@ class Project(BaseModel):
     def add_ci_testenv(self, testenv: str, pyver: str) -> None:
         log.info("Adding testenv %r with Python version %r", testenv, pyver)
         self.details.extra_testenvs[testenv] = pyver
-        self.write_template(".github/workflows/test.yml", get_jinja_env())
+        self.get_template_writer().write(".github/workflows/test.yml")
 
     def add_pyversion(self, v: str) -> None:
         pyv = PyVersion.parse(v)

@@ -5,13 +5,14 @@ import re
 from typing import Any
 import click
 from in_place import InPlace
+from jinja2 import Environment
 from packaging.requirements import Requirement
 from packaging.specifiers import SpecifierSet
 from packaging.utils import canonicalize_name as normalize
 from .. import git, inspecting
 from ..config import Config
 from ..project import Project
-from ..util import cpe_no_tb, ensure_license_years, get_jinja_env, optional, runcmd
+from ..util import PyVersion, cpe_no_tb, ensure_license_years, optional, runcmd
 
 log = logging.getLogger(__name__)
 
@@ -133,10 +134,10 @@ def cli(obj: Config, dirpath: Path, **options: Any) -> None:
     env["repo_name"] = options.get("repo_name", env["name"])
     env["rtfd_name"] = options.get("rtfd_name", env["name"])
 
-    jenv = get_jinja_env()
-
-    env["author_email"] = jenv.from_string(options["author_email"]).render(
-        project_name=env["name"]
+    env["author_email"] = (
+        Environment()
+        .from_string(options["author_email"])
+        .render(project_name=env["name"])
     )
 
     log.info("Checking for requirements.txt ...")
@@ -198,6 +199,7 @@ def cli(obj: Config, dirpath: Path, **options: Any) -> None:
         raise click.UsageError(
             f"No Python versions in pyversions range matching {python_requires!r}"
         )
+    minver = str(min(env["python_versions"], key=PyVersion.parse))
 
     if "command" not in options:
         env["commands"] = {}
@@ -206,36 +208,37 @@ def cli(obj: Config, dirpath: Path, **options: Any) -> None:
     else:
         env["commands"] = {options["command"]: f'{env["import_name"]}.__main__:main'}
 
+    if env["has_ci"]:
+        env["extra_testenvs"]["lint"] = minver
+        if env["has_typing"]:
+            env["extra_testenvs"]["typing"] = minver
+
     project = Project(directory=dirpath, details=env)
-    project.write_template(".gitignore", jenv, force=False)
-    project.write_template(".pre-commit-config.yaml", jenv, force=False)
-    project.write_template("MANIFEST.in", jenv, force=False)
-    project.write_template("README.rst", jenv, force=False)
-    project.write_template("pyproject.toml", jenv, force=False)
-    project.write_template("setup.cfg", jenv, force=False)
-    project.write_template("tox.ini", jenv, force=False)
+    twriter = project.get_template_writer()
+    twriter.write(".gitignore", force=False)
+    twriter.write(".pre-commit-config.yaml", force=False)
+    twriter.write("MANIFEST.in", force=False)
+    twriter.write("README.rst", force=False)
+    twriter.write("pyproject.toml", force=False)
+    twriter.write("setup.cfg", force=False)
+    twriter.write("tox.ini", force=False)
 
     if env["has_typing"]:
         log.info("Creating src/%s/py.typed ...", env["import_name"])
         (project.directory / "src" / env["import_name"] / "py.typed").touch()
     if env["has_ci"]:
-        project.details.extra_testenvs["lint"] = str(project.details.python_versions[0])
-        if env["has_typing"]:
-            project.details.extra_testenvs["typing"] = str(
-                project.details.python_versions[0]
-            )
-        project.write_template(".github/workflows/test.yml", jenv, force=False)
+        twriter.write(".github/workflows/test.yml", force=False)
     if env["has_docs"]:
-        project.write_template(".readthedocs.yml", jenv, force=False)
-        project.write_template("docs/index.rst", jenv, force=False)
-        project.write_template("docs/conf.py", jenv, force=False)
-        project.write_template("docs/requirements.txt", jenv, force=False)
+        twriter.write(".readthedocs.yml", force=False)
+        twriter.write("docs/index.rst", force=False)
+        twriter.write("docs/conf.py", force=False)
+        twriter.write("docs/requirements.txt", force=False)
 
     if (dirpath / "LICENSE").exists():
         log.info("Setting copyright year in LICENSE ...")
         ensure_license_years(dirpath / "LICENSE", env["copyright_years"])
     else:
-        project.write_template("LICENSE", jenv, force=False)
+        twriter.write("LICENSE", force=False)
 
     log.info("Adding intro block to initfile ...")
     with InPlace(initfile, mode="t", encoding="utf-8") as fp:
@@ -247,12 +250,11 @@ def cli(obj: Config, dirpath: Path, **options: Any) -> None:
             ):
                 pass
             elif not started:
-                print(jenv.get_template("init.j2").render(env), file=fp)
-                print(file=fp)
+                print(twriter.render("init"), file=fp)
                 started = True
             print(line, file=fp, end="")
         if not started:  # if initfile is empty
-            print(jenv.get_template("init.j2").render(env), file=fp)
+            print(twriter.render("init"), file=fp, end="")
 
     with suppress(FileNotFoundError):
         (dirpath / "requirements.txt").unlink()
