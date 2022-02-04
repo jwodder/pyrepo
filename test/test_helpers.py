@@ -3,7 +3,6 @@ from pathlib import Path
 from traceback import format_exception
 from typing import Any, Tuple
 from unittest.mock import MagicMock
-from _pytest.mark.structures import MarkDecorator
 from click.testing import Result
 import pytest
 from pytest_mock import MockerFixture
@@ -38,7 +37,7 @@ def mock_git(mocker: MockerFixture, **kwargs: Any) -> Tuple[MagicMock, MagicMock
     return (cls, instance)
 
 
-def case_dirs(*dirpath: str) -> MarkDecorator:
+def case_dirs(*dirpath: str) -> pytest.MarkDecorator:
     return pytest.mark.parametrize(
         "dirpath",
         sorted(Path(DATA_DIR, *dirpath).iterdir()),
