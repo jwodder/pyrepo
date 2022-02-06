@@ -16,6 +16,7 @@
 
 `GitHub <https://github.com/jwodder/pyrepo>`_
 | `Issues <https://github.com/jwodder/pyrepo/issues>`_
+| `Changelog <https://github.com/jwodder/pyrepo/blob/master/CHANGELOG.md>`_
 
 .. contents::
     :backlinks: top
