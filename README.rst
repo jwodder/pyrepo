@@ -415,6 +415,18 @@ Options
                         Whether to created detached PGP signatures for the
                         release assets; default: ``--no-sign-assets``
 
+--major                 Set the release's version to the next major version
+
+--minor                 Set the release's version to the next minor version
+
+--micro                 Set the release's version to the next micro/patch
+                        version
+
+--post                  Set the release's version to the next post version
+
+--date                  Set the release's version to the current date in
+                        ``YYYY.MM.DD`` format
+
 
 ``pyrepo template``
 -------------------
