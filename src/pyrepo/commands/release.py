@@ -10,8 +10,6 @@
 
 # Notable assumptions made by this code:
 # - There is no CHANGELOG file until after the initial release has been made.
-# - The version is set as `__version__` in `packagename/__init__.py` or
-#   `packagename.py`.
 
 from datetime import date
 from functools import partial

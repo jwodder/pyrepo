@@ -37,5 +37,6 @@
     "extra_testenvs": {},
     "has_typing": false,
     "name": "foobar",
-    "default_branch": "master"
+    "default_branch": "master",
+    "uses_versioningit": false
 }

@@ -22,7 +22,7 @@
   (The function will still need folders full of test cases, though)
 - `Project.add_ci_testenv()`: "Manually" add in the new lines instead of
   retemplating?
-- Support versioningit
+- Change the config file format to TOML
 
 - Support projects supporting multiple major versions of Python
     - Make `Project.add_pyversion()` add a "Programming Language :: Python ::
@@ -53,6 +53,7 @@
       `inspect_new_project()` function
     - Should `has_doctests` be autodetected the same way as for an initialized
       project?
+    - Add an option for using versioningit
 
 - `pyrepo release`:
     - Support configuring the following via the config file (either global or

@@ -7,6 +7,7 @@ from intspan import intspan
 from pydantic import BaseModel, Field
 from read_version import read_version
 from setuptools.config import read_configuration
+import versioningit
 import yaml
 from . import git, util  # Import modules to keep mocking easy
 from .readme import Readme
@@ -56,15 +57,18 @@ def inspect_project(dirpath: Optional[Union[str, Path]] = None) -> dict:
     if cfg["options"].get("packages"):
         env["is_flat_module"] = False
         env["import_name"] = cfg["options"]["packages"][0]
-        env["version"] = read_version(
-            (directory / "src" / env["import_name"] / "__init__.py").resolve()
-        )
+        initfile = directory / "src" / env["import_name"] / "__init__.py"
     else:
         env["is_flat_module"] = True
         env["import_name"] = cfg["options"]["py_modules"][0]
-        env["version"] = read_version(
-            (directory / "src" / (env["import_name"] + ".py")).resolve()
-        )
+        initfile = directory / "src" / (env["import_name"] + ".py")
+
+    try:
+        env["version"] = versioningit.get_version(directory)
+        env["uses_versioningit"] = True
+    except versioningit.NotVersioningitError:
+        env["version"] = read_version(initfile.resolve())
+        env["uses_versioningit"] = False
 
     env["python_versions"] = []
     for clsfr in cfg["metadata"]["classifiers"]:

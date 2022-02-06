@@ -25,6 +25,7 @@ class ProjectDetails(BaseModel):
 
     is_flat_module: bool
     import_name: str
+    uses_versioningit: bool
 
     #: Sorted list of supported Python versions
     python_versions: List[PyVersion]

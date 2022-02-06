@@ -290,6 +290,8 @@ section to the top of the CHANGELOG (creating a CHANGELOG if necessary) and to
 the top of ``docs/changelog.rst`` (creating it if a ``docs`` directory already
 exists).  This is the same behavior as the last step of ``pyrepo release``.
 
+If the project uses versioningit_, the ``__version__`` variable is left alone.
+
 
 ``pyrepo inspect``
 ------------------
@@ -361,9 +363,10 @@ Create & publish a new release for a project.  This command performs the
 following operations in order:
 
 - If the version for the new release is not specified on the command line, it
-  is calculated by removing any prerelease & dev components from
-  ``__version__``
-- Set ``__version__`` to the version of the new release
+  is calculated by removing any prerelease & dev components from the project's
+  current version
+- If the project does not use versioningit_, set ``__version__`` to the version
+  of the new release
 - If a CHANGELOG exists, set the date for the newest version section
 - If ``docs/changelog.rst`` exists, set the date for the newest version section
 - Update the copyright year ranges in ``LICENSE`` and (if present)
@@ -397,6 +400,9 @@ following operations in order:
   next minor version number plus ".dev1" and adding a new section to the top of
   the CHANGELOG (creating a CHANGELOG if necessary) and to the top of
   ``docs/changelog.rst`` (creating it if a ``docs`` directory already exists)
+
+  If the project uses versioningit_, the ``__version__`` variable is left
+  alone.
 
 
 Options
@@ -448,16 +454,20 @@ project's ``setup.cfg`` is updated for the change in configuration.
 Restrictions
 ============
 ``jwodder-pyrepo`` relies on various assumptions about project layout and
-formatting; see the project wiki on GitHub for details.  Most notably, it does
-not support the following types of projects:
+formatting; see `the project wiki on GitHub`__ for details.  Most notably, it
+does not support the following types of projects:
+
+__ https://github.com/jwodder/pyrepo/wiki/Project-Layout-Specification
 
 - projects that do not use setuptools
 - projects that do not use a ``src/`` layout
 - projects that do not declare all of their project metadata in ``setup.cfg``
-- projects that do not declare their version in ``setup.cfg`` (either literally
-  or via an ``attr:`` directive)
+- projects that neither store their version in a ``__version__`` variable in
+  the initfile nor use versioningit_
 - projects that are not pure Python
 - projects containing more than one root-level module/package
 - namespace packages
 - (``pyrepo init``) projects that support Python 2
 - (``pyrepo release``) projects that only support Python 2
+
+.. _versioningit: https://github.com/jwodder/versioningit

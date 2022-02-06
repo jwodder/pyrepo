@@ -31,5 +31,6 @@
     "extra_testenvs": {},
     "has_typing": false,
     "name": "py-foo_bar",
-    "default_branch": "master"
+    "default_branch": "master",
+    "uses_versioningit": false
 }

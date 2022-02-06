@@ -103,6 +103,7 @@ def cli(obj: Config, dirpath: Path, **options: Any) -> None:
         "supports_pypy3": True,
         "extra_testenvs": {},
         "default_branch": repo.get_default_branch(),
+        "uses_versioningit": False,
     }
 
     log.info("Determining Python module ...")

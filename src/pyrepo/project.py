@@ -62,16 +62,17 @@ class Project(BaseModel):
 
     def set_version(self, version: str) -> None:
         log.info("Setting __version__ to %r ...", version)
-        map_lines(
-            self.initfile,
-            partial(
-                replace_group,
-                # Preserve quotation marks around version:
-                r'^__version__\s*=\s*([\x27"])(?P<version>.+)\1\s*$',
-                lambda _: version,
-                group="version",
-            ),
-        )
+        if not self.details.uses_versioningit:
+            map_lines(
+                self.initfile,
+                partial(
+                    replace_group,
+                    # Preserve quotation marks around version:
+                    r'^__version__\s*=\s*([\x27"])(?P<version>.+)\1\s*$',
+                    lambda _: version,
+                    group="version",
+                ),
+            )
         self.details.version = version
 
     def get_changelog_paths(
