@@ -1,7 +1,9 @@
 import json
-from typing import List, Optional, Tuple
+import time
+from typing import Iterator, List, Optional, Tuple
 from packaging.specifiers import SpecifierSet
 import pytest
+from pytest_mock import MockerFixture
 from pyrepo.util import (
     Bump,
     PyVersion,
@@ -104,6 +106,20 @@ def test_mkversion(
     assert mkversion(epoch=epoch, release=release, post=post) == v
 
 
+@pytest.fixture()
+def use_fixed_time(
+    monkeypatch: pytest.MonkeyPatch, mocker: MockerFixture
+) -> Iterator[None]:
+    with monkeypatch.context() as m:
+        m.setenv("TZ", "EST5EDT,M3.2.0,M11.1.0")
+        time.tzset()
+        mocker.patch("time.time", return_value=1612373696)
+        # Time is now 2021-02-03T12:34:56-05:00
+        yield
+    time.tzset()
+
+
+@pytest.mark.usefixtures("use_fixed_time")
 @pytest.mark.parametrize(
     "v1,bump,v2",
     [
@@ -135,6 +151,11 @@ def test_mkversion(
         ("1", Bump.POST, "1.post1"),
         ("1.2.3", Bump.POST, "1.2.3.post1"),
         ("1.2.3.4", Bump.POST, "1.2.3.4.post1"),
+        ("1.2.3", Bump.DATE, "2021.2.3"),
+        ("1!1.2.3", Bump.DATE, "1!2021.2.3"),
+        ("2021.2.3", Bump.DATE, "2021.2.3.1"),
+        ("2021.2.3.4.5", Bump.DATE, "2021.2.3.5"),
+        ("1!2021.2.3", Bump.DATE, "1!2021.2.3.1"),
     ],
 )
 def test_bump_version(v1: str, bump: Bump, v2: str) -> None:

@@ -343,6 +343,13 @@ class Releaser(BaseModel):
     type=click.UNPROCESSED,
     help="Release the next post version",
 )
+@click.option(
+    "--date",
+    "bump",
+    flag_value=Bump.DATE,
+    type=click.UNPROCESSED,
+    help="Release a date-versioned version",
+)
 @click.argument("version", required=False)
 @click.pass_obj
 @with_project

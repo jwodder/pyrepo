@@ -1,3 +1,4 @@
+from datetime import date
 from enum import Enum
 from functools import partial, wraps
 import logging
@@ -276,6 +277,7 @@ class Bump(Enum):
     MINOR = 1
     MICRO = 2
     POST = -1
+    DATE = -2
 
 
 def bump_version(v: Union[str, Version], level: Bump) -> str:
@@ -288,6 +290,16 @@ def bump_version(v: Union[str, Version], level: Bump) -> str:
     if level is Bump.POST:
         post = vobj.post if vobj.post is not None else 0
         return mkversion(epoch=vobj.epoch, release=vobj.release, post=post + 1)
+    elif level is Bump.DATE:
+        today = date.today()
+        release: Tuple[int, ...] = (today.year, today.month, today.day)
+        if vobj.release[:3] == release:
+            if len(vobj.release) > 3:
+                subver = vobj.release[3] + 1
+            else:
+                subver = 1
+            release += (subver,)
+        return mkversion(epoch=vobj.epoch, release=release)
     else:
         vs = list(vobj.release) + [0] * (level.value + 1 - len(vobj.release))
         vs[level.value] += 1

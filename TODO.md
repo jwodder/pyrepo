@@ -14,8 +14,7 @@
   file instead of under just `[options]`?  I.e., don't copy values from
   `[options]` to other sections?
 - Is `codecov_user` ever not the same as `github_user`?
-- Support reading project-specific configuration from `pyproject.toml` and/or
-  some dotfile?
+- Support reading project-specific configuration from `pyproject.toml`
 - Figure out how to rewrite the dynamic module loading in `__main__.py` using
   `pkgutil.iter_modules()`
 - Instead of filling up `test/data` with folders full of test cases, write a
@@ -23,6 +22,7 @@
   (The function will still need folders full of test cases, though)
 - `Project.add_ci_testenv()`: "Manually" add in the new lines instead of
   retemplating?
+- Support versioningit
 
 - Support projects supporting multiple major versions of Python
     - Make `Project.add_pyversion()` add a "Programming Language :: Python ::
@@ -55,12 +55,15 @@
       project?
 
 - `pyrepo release`:
-    - Support configuring the following via the config file and command line:
+    - Support configuring the following via the config file (either global or
+      `pyproject.toml`) and command line:
         - whether to sign the version tag
         - whether to create a GitHub release
         - whether to upload to GitHub
         - whether to start a shell to examine the assets after building but
           before uploading?
+        - whether to upload to PyPI
+        - whether to use date versioning
     - Move the signing of the build assets to after committing & tagging?
 
 - `pyrepo mkgithub`:
