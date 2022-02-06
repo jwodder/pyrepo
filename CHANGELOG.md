@@ -1,6 +1,9 @@
 In Development
 --------------
 - Give `pyrepo release` a `--date` flag
+- Internal API:
+    - Store project details in a `ProjectDetails` class
+    - Add `Templater` and `TemplateWriter` classes
 
 v2022.2.6
 ---------
