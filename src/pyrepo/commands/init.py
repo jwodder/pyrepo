@@ -230,7 +230,7 @@ def cli(obj: Config, dirpath: Path, **options: Any) -> None:
     if env["has_ci"]:
         twriter.write(".github/workflows/test.yml", force=False)
     if env["has_docs"]:
-        twriter.write(".readthedocs.yml", force=False)
+        twriter.write(".readthedocs.yaml", force=False)
         twriter.write("docs/index.rst", force=False)
         twriter.write("docs/conf.py", force=False)
         twriter.write("docs/requirements.txt", force=False)
