@@ -91,9 +91,14 @@ class Releaser(BaseModel):
         self.end_dev()
         if self.tox:
             self.tox_check()
-        self.build(sign_assets=self.sign_assets)
-        self.twine_check()
+        if not self.project.details.uses_versioningit:
+            self.build(sign_assets=self.sign_assets)
+            self.twine_check()
         self.commit_version()
+        if self.project.details.uses_versioningit:
+            self.build(sign_assets=self.sign_assets)
+            self.twine_check()
+        self.project.repo.run("push", "--follow-tags")
         self.mkghrelease()
         self.upload()
         self.project.begin_dev()  # Not idempotent
@@ -144,7 +149,6 @@ class Releaser(BaseModel):
             "v" + self.version,
             env={**os.environ, "GPG_TTY": os.ttyname(0)},
         )
-        self.project.repo.run("push", "--follow-tags")
 
     def mkghrelease(self) -> None:  ### Not idempotent
         log.info("Creating GitHub release ...")

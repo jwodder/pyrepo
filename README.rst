@@ -384,12 +384,15 @@ following operations in order:
   signatures with GPG
 - Run ``twine check`` on the sdist & wheel
 - Commit all changes made to the repository; the most recent CHANGELOG section
-  is included in the commit message template
+  is included in the commit message template.  The commit is then tagged &
+  signed.
 
   - The release can be cancelled at this point by leaving the commit message
     unchanged.
 
-- Tag the commit and sign the tag
+  - If the project uses ``versioningit``, this step is moved to before building
+    the sdist & wheel.
+
 - Push the commit & tag to GitHub
 - Convert the tag to a release on GitHub, using the commit messsage for the
   name and body
