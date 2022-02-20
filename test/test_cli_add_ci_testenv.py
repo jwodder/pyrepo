@@ -2,12 +2,14 @@ import os
 from pathlib import Path
 from shutil import copytree
 from click.testing import CliRunner
+import pytest
 from pytest_mock import MockerFixture
 from pyrepo.__main__ import main
 from test_helpers import assert_dirtrees_eq, case_dirs, mock_git, show_result
 
 
 @case_dirs("add_ci_testenv")
+@pytest.mark.usefixtures("mock_pypy_supported")
 def test_pyrepo_add_ci_testenv(
     dirpath: Path, mocker: MockerFixture, tmp_path: Path
 ) -> None:
