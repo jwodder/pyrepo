@@ -1,9 +1,12 @@
 import json
+from pathlib import Path
+import shutil
 import time
 from typing import Iterator, List, Optional, Tuple
 from packaging.specifiers import SpecifierSet
 import pytest
 from pytest_mock import MockerFixture
+from pyrepo.commands.release import advance_devstatus
 from pyrepo.util import (
     Bump,
     PyVersion,
@@ -13,6 +16,7 @@ from pyrepo.util import (
     sort_specifier,
     update_years2str,
 )
+from test_helpers import case_dirs
 
 
 @pytest.mark.parametrize(
@@ -168,3 +172,12 @@ def test_bump_version_prerelease(v: str, bump: Bump) -> None:
     with pytest.raises(ValueError) as excinfo:
         bump_version(v, bump)
     assert str(excinfo.value) == f"Cannot bump pre-release versions: {v!r}"
+
+
+@case_dirs("advance_devstatus")
+def test_advance_devstatus(dirpath: Path, tmp_path: Path) -> None:
+    shutil.copyfile(dirpath / "before.cfg", tmp_path / "setup.cfg")
+    advance_devstatus(tmp_path / "setup.cfg")
+    assert (tmp_path / "setup.cfg").read_text(encoding="utf-8") == (
+        dirpath / "after.cfg"
+    ).read_text(encoding="utf-8")

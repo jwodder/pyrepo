@@ -21,8 +21,10 @@ from pathlib import Path
 import re
 import sys
 from tempfile import NamedTemporaryFile
+from textwrap import indent
 from typing import Any, Callable, List, Optional, Sequence
 import click
+from configupdater import ConfigUpdater
 from in_place import InPlace
 from linesep import read_paragraphs
 from packaging.version import Version
@@ -273,22 +275,7 @@ class Releaser(BaseModel):
                     print(para, file=fp, end="")
         # Set "Development Status" classifier to "Beta" or higher:
         log.info("Advancing Development Status classifier ...")
-        with InPlace(
-            self.project.directory / "setup.cfg",
-            mode="t",
-            encoding="utf-8",
-        ) as fp:
-            matched = False
-            for line in fp:
-                if re.match(r"^\s*#?\s*Development Status :: [123] ", line):
-                    continue
-                elif (
-                    re.match(r"^\s*#?\s*Development Status :: [4567] ", line)
-                    and not matched
-                ):
-                    matched = True
-                    line = line.replace("#", "", 1)
-                print(line, file=fp, end="")
+        advance_devstatus(self.project.directory / "setup.cfg")
         log.info("Updating GitHub topics ...")
         ### TODO: Check that the repository has topics first?
         self.update_gh_topics(
@@ -407,3 +394,26 @@ def mime_type(filename: str) -> str:
         # return mtype + '+gzip'
     else:
         return "application/x-" + encoding
+
+
+def advance_devstatus(cfgpath: Path) -> None:
+    setup_cfg = ConfigUpdater(delimiters=("=",))
+    setup_cfg.read(str(cfgpath), encoding="utf-8")
+    clsf = setup_cfg["metadata"]["classifiers"].value
+    if clsf is not None:
+        output = []
+        matched = False
+        for line in clsf.splitlines(True):
+            if re.match(r"^\s*#?\s*Development Status :: [123] ", line):
+                continue
+            elif (
+                re.match(r"^\s*#?\s*Development Status :: [4567] ", line)
+                and not matched
+            ):
+                matched = True
+                line = line.replace("#", "", 1)
+            output.append(line)
+        # The `indent()` is to work around
+        # <https://github.com/pyscaffold/configupdater/issues/87>
+        setup_cfg["metadata"]["classifiers"].value = indent("".join(output), " " * 4)
+        setup_cfg.update_file()
