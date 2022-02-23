@@ -21,7 +21,6 @@ from pathlib import Path
 import re
 import sys
 from tempfile import NamedTemporaryFile
-from textwrap import indent
 from typing import Any, Callable, List, Optional, Sequence
 import click
 from configupdater import ConfigUpdater
@@ -404,7 +403,7 @@ def advance_devstatus(cfgpath: Path) -> None:
     if clsf is not None:
         output = []
         matched = False
-        for line in clsf.splitlines(True):
+        for line in clsf.strip().splitlines():
             if re.match(r"^\s*#?\s*Development Status :: [123] ", line):
                 continue
             elif (
@@ -414,7 +413,5 @@ def advance_devstatus(cfgpath: Path) -> None:
                 matched = True
                 line = line.replace("#", "", 1)
             output.append(line)
-        # The `indent()` is to work around
-        # <https://github.com/pyscaffold/configupdater/issues/87>
-        setup_cfg["metadata"]["classifiers"].value = indent("".join(output), " " * 4)
+        setup_cfg["metadata"]["classifiers"].set_values(output)
         setup_cfg.update_file()
