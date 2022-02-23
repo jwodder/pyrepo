@@ -10,7 +10,7 @@ from shutil import rmtree
 import sys
 from typing import Any, Callable, Iterator, List, Optional, Union
 import click
-from in_place import InPlace
+from configupdater import ConfigUpdater
 from lineinfile import AfterLast, add_line_to_file
 from packaging.specifiers import SpecifierSet
 from pydantic import BaseModel, DirectoryPath
@@ -19,14 +19,7 @@ from .changelog import Changelog, ChangelogSection
 from .details import ProjectDetails
 from .inspecting import InvalidProjectError, find_project_root
 from .tmpltr import TemplateWriter
-from .util import (
-    PyVersion,
-    map_lines,
-    next_version,
-    replace_group,
-    runcmd,
-    split_ini_sections,
-)
+from .util import PyVersion, map_lines, next_version, replace_group, runcmd
 
 log = logging.getLogger(__name__)
 
@@ -139,27 +132,18 @@ class Project(BaseModel):
         )
         old_initfile.rename(new_initfile)
         log.info("Updating setup.cfg ...")
-        with InPlace(
-            self.directory / "setup.cfg",
-            mode="t",
-            encoding="utf-8",
-        ) as fp:
-            in_options = False
-            for ln in fp:
-                if re.match(r"^py_modules\s*=", ln):
-                    ln = "packages = find:\n"
-                print(ln, end="", file=fp)
-                if ln == "[options]\n":
-                    in_options = True
-                elif in_options and ln.isspace():
-                    print("[options.packages.find]", file=fp)
-                    print("where = src", file=fp)
-                    print("", file=fp)
-                    in_options = False
-            if in_options:
-                print("", file=fp)
-                print("[options.packages.find]", file=fp)
-                print("where = src", file=fp)
+        setup_cfg = ConfigUpdater()
+        setup_cfg.read(str(self.directory / "setup.cfg"), encoding="utf-8")
+        setup_cfg["options"]["py_modules"].value = "find:"
+        setup_cfg["options"]["py_modules"].key = "packages"
+        setup_cfg["options"].add_after.section("options.packages.find")
+        opf = setup_cfg["options.packages.find"]
+        opf["where"] = "src"
+        if opf.next_block is not None:
+            opf.add_after.space()
+        else:
+            opf.add_before.space()
+        setup_cfg.update_file()
         self.details.is_flat_module = False
 
     def add_typing(self) -> None:
@@ -172,53 +156,35 @@ class Project(BaseModel):
         (self.directory / "src" / self.details.import_name / "py.typed").touch()
         templater = self.details.get_templater()
         log.info("Updating setup.cfg ...")
-        with InPlace(
-            self.directory / "setup.cfg",
-            mode="t",
-            encoding="utf-8",
-        ) as fp:
-            in_classifiers = False
-            for ln in fp:
-                if re.match(r"^classifiers\s*=", ln):
-                    in_classifiers = True
-                elif ln.isspace():
-                    if in_classifiers:
-                        print("    Typing :: Typed", file=fp)
-                    in_classifiers = False
-                print(ln, end="", file=fp)
-            if in_classifiers:
-                print("Typing :: Typed", file=fp)
-            print(file=fp)
-            print(
-                templater.get_template_block("setup.cfg.j2", "mypy"),
-                end="",
-                file=fp,
-            )
+        setup_cfg = ConfigUpdater()
+        setup_cfg.read(str(self.directory / "setup.cfg"), encoding="utf-8")
+        setup_cfg["metadata"]["classifiers"].lines.append("    Typing :: Typed\n")
+        mypy_cfg = ConfigUpdater()
+        mypy_cfg.read_string(templater.get_template_block("setup.cfg.j2", "mypy"))
+        setup_cfg.add_section(mypy_cfg["mypy"].detach())
+        setup_cfg["mypy"].add_before.space()
+        setup_cfg.update_file()
         if self.details.has_tests:
             log.info("Updating tox.ini ...")
-            toxfile = self.directory / "tox.ini"
-            sections = split_ini_sections(toxfile.read_text(encoding="utf-8"))
-            with toxfile.open("w", encoding="utf-8") as fp:
-                for sectname, sect in sections:
-                    if sectname == "tox":
-                        sect2 = replace_group(
-                            re.compile(r"^envlist\s*=[ \t]*(.+)$", flags=re.M),
-                            add_typing_env,
-                            sect,
-                        )
-                        if sect == sect2:
-                            raise RuntimeError("Could not find [tox]envlist in tox.ini")
-                        sect = sect2
-                    if sectname == "pytest":
-                        print(
-                            templater.get_template_block(
-                                "tox.ini.j2",
-                                "testenv_typing",
-                                vars={"has_tests": self.details.has_tests},
-                            ),
-                            file=fp,
-                        )
-                    print(sect, end="", file=fp)
+            toxfile = ConfigUpdater()
+            toxfile.read(str(self.directory / "tox.ini"), encoding="utf-8")
+            envlist = toxfile["tox"]["envlist"].value
+            if envlist is not None:
+                toxfile["tox"]["envlist"].value = add_typing_env(envlist)
+            else:
+                raise RuntimeError("Could not find [tox]envlist in tox.ini")
+            testenv_typing = ConfigUpdater()
+            testenv_typing.read_string(
+                templater.get_template_block(
+                    "tox.ini.j2",
+                    "testenv_typing",
+                    vars={"has_tests": self.details.has_tests},
+                )
+            )
+            toxfile["pytest"].add_before.section(
+                testenv_typing["testenv:typing"].detach()
+            ).space()
+            toxfile.update_file()
         if self.details.has_ci:
             self.add_ci_testenv("typing", str(self.details.python_versions[0]))
         self.details.has_typing = True
