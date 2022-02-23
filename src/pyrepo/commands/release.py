@@ -219,7 +219,7 @@ class Releaser(BaseModel):
         for asset in self.assets:
             url = expand(self.release_upload_url, name=asset.name, label=None)
             self.ghrepo[url].post(
-                headers={"Content-Type": mime_type(asset.name)},
+                headers={"Content-Type": get_mime_type(asset.name)},
                 data=asset.read_bytes(),
             )
 
@@ -378,19 +378,20 @@ def cli(
     ).run()
 
 
-def mime_type(filename: str) -> str:
+def get_mime_type(filename: str, strict: bool = False) -> str:
     """
     Like `mimetypes.guess_type()`, except that if the file is compressed, the
-    MIME type for the compression is returned
+    MIME type for the compression is returned.  Also, the default return value
+    is now ``"application/octet-stream"`` instead of `None`.
     """
-    mtype, encoding = guess_type(filename, False)
+    mtype, encoding = guess_type(filename, strict)
     if encoding is None:
         return mtype or "application/octet-stream"
     elif encoding == "gzip":
         # application/gzip is defined by RFC 6713
         return "application/gzip"
-        # Note that there is a "+gzip" MIME structured syntax suffix specified
-        # in an RFC draft that may one day mean the correct code is:
+        # There is also a "+gzip" MIME structured syntax suffix defined by RFC
+        # 8460; exactly when can that be used?
         # return mtype + '+gzip'
     else:
         return "application/x-" + encoding
