@@ -399,11 +399,10 @@ def get_mime_type(filename: str, strict: bool = False) -> str:
 def advance_devstatus(cfgpath: Path) -> None:
     setup_cfg = ConfigUpdater(delimiters=("=",))
     setup_cfg.read(str(cfgpath), encoding="utf-8")
-    clsf = setup_cfg["metadata"]["classifiers"].value
-    if clsf is not None:
+    if setup_cfg.has_option("metadata", "classifiers"):
         output = []
         matched = False
-        for line in clsf.strip().splitlines():
+        for line in setup_cfg["metadata"]["classifiers"].as_list():
             if re.match(r"^\s*#?\s*Development Status :: [123] ", line):
                 continue
             elif (

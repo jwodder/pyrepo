@@ -158,7 +158,7 @@ class Project(BaseModel):
         log.info("Updating setup.cfg ...")
         setup_cfg = ConfigUpdater()
         setup_cfg.read(str(self.directory / "setup.cfg"), encoding="utf-8")
-        setup_cfg["metadata"]["classifiers"].lines.append("    Typing :: Typed\n")
+        setup_cfg["metadata"]["classifiers"].append("Typing :: Typed")
         mypy_cfg = ConfigUpdater()
         mypy_cfg.read_string(templater.get_template_block("setup.cfg.j2", "mypy"))
         setup_cfg.add_section(mypy_cfg["mypy"].detach())
@@ -168,11 +168,13 @@ class Project(BaseModel):
             log.info("Updating tox.ini ...")
             toxfile = ConfigUpdater()
             toxfile.read(str(self.directory / "tox.ini"), encoding="utf-8")
-            envlist = toxfile["tox"]["envlist"].value
-            if envlist is not None:
-                toxfile["tox"]["envlist"].value = add_typing_env(envlist)
-            else:
+            try:
+                envlist = toxfile["tox"]["envlist"].value
+            except KeyError:
                 raise RuntimeError("Could not find [tox]envlist in tox.ini")
+            else:
+                assert envlist is not None
+                toxfile["tox"]["envlist"].value = add_typing_env(envlist)
             testenv_typing = ConfigUpdater()
             testenv_typing.read_string(
                 templater.get_template_block(
