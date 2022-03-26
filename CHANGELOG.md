@@ -3,6 +3,7 @@ In Development
 - Give `pyrepo release` a `--date` flag
 - Support projects that use versioningit
     - Add a `uses_versioningit: bool` template variable
+- Update for setuptools 61.0.0
 - Templates:
     - Update `sphinx-copybutton` version to `~=0.5.0`
     - Update `.readthedocs.yml` to use a `build:` section and rename the file

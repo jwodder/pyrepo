@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional, Union
 from intspan import intspan
 from pydantic import BaseModel, Field
 from read_version import read_version
-from setuptools.config import read_configuration
+from setuptools.config.setupcfg import read_configuration
 import versioningit
 import yaml
 from . import git, util  # Import modules to keep mocking easy
@@ -34,7 +34,7 @@ def inspect_project(dirpath: Optional[Union[str, Path]] = None) -> dict:
     if not exists("src"):
         raise InvalidProjectError("Project does not have src/ layout")
 
-    cfg = read_configuration(str(directory / "setup.cfg"))
+    cfg = read_configuration(directory / "setup.cfg")
     env = {
         "name": cfg["metadata"]["name"],
         "short_description": cfg["metadata"]["description"],
