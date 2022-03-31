@@ -8,6 +8,7 @@ In Development
     - Update `sphinx-copybutton` version to `~=0.5.0`
     - Update `.readthedocs.yml` to use a `build:` section and rename the file
       to `.readthedocs.yaml`
+    - Update `.pre-commit-config.yaml`
 - Internal API:
     - Store project details in a `ProjectDetails` class
     - Add `Templater` and `TemplateWriter` classes
