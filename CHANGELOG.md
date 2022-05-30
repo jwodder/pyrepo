@@ -10,6 +10,7 @@ In Development
     - Update `.readthedocs.yml` to use a `build:` section and rename the file
       to `.readthedocs.yaml`
     - Update `.pre-commit-config.yaml`
+    - Update `Sphinx` version to `~=5.0`
 - Internal API:
     - Store project details in a `ProjectDetails` class
     - Add `Templater` and `TemplateWriter` classes
