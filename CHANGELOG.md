@@ -11,6 +11,8 @@ In Development
       to `.readthedocs.yaml`
     - Update `.pre-commit-config.yaml`
     - Update `Sphinx` version to `~=5.0`
+    - `setup.cfg`: Use `find_namespace:` instead of `find:` (See
+      <https://github.com/pypa/setuptools/issues/3340>)
 - Internal API:
     - Store project details in a `ProjectDetails` class
     - Add `Templater` and `TemplateWriter` classes

@@ -134,7 +134,7 @@ class Project(BaseModel):
         log.info("Updating setup.cfg ...")
         setup_cfg = ConfigUpdater()
         setup_cfg.read(str(self.directory / "setup.cfg"), encoding="utf-8")
-        setup_cfg["options"]["py_modules"].value = "find:"
+        setup_cfg["options"]["py_modules"].value = "find_namespace:"
         setup_cfg["options"]["py_modules"].key = "packages"
         setup_cfg["options"].add_after.section("options.packages.find")
         opf = setup_cfg["options.packages.find"]
@@ -229,7 +229,7 @@ class Project(BaseModel):
             add_line_to_file(
                 self.directory / ".github" / "workflows" / "test.yml",
                 f"{' ' * 10}- '{pyv}'\n",
-                inserter=AfterLast(fr"^{' ' * 10}- ['\x22]?\d+\.\d+['\x22]?$"),
+                inserter=AfterLast(rf"^{' ' * 10}- ['\x22]?\d+\.\d+['\x22]?$"),
                 encoding="utf-8",
             )
         insort(self.details.python_versions, pyv)

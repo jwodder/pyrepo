@@ -49,7 +49,7 @@ project_urls =
 {% if is_flat_module %}
 py_modules = {{import_name}}
 {% else %}
-packages = find:
+packages = find_namespace:
 {% endif %}
 package_dir =
     =src
