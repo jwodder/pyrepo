@@ -394,8 +394,8 @@ following operations in order:
     the sdist & wheel.
 
 - Push the commit & tag to GitHub
-- Convert the tag to a release on GitHub, using the commit messsage for the
-  name and body
+- Convert the tag to a release on GitHub, using the commit message for the name
+  and body
 - Upload the build assets to PyPI (including detached signatures, if any)
 - Upload the build assets to GitHub as release assets (*not* including detached
   signatures)
