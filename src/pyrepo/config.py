@@ -56,16 +56,15 @@ def configure(ctx: click.Context, filename: str | Path) -> None:
     from .__main__ import main
 
     for cmdname, cmdobj in main.commands.items():
-        defaults: dict[str, Any] = dict(cfg["options"])
-        if cfg.has_section("options." + cmdname):
-            defaults.update(cfg["options." + cmdname])
-        for p in cmdobj.params:
-            if isinstance(p, click.Option) and p.is_flag and p.name in defaults:
-                try:
-                    defaults[p.name] = cfg.BOOLEAN_STATES[defaults[p.name].lower()]
-                except KeyError:
-                    raise click.UsageError(
-                        f"Invalid boolean value for config option {p.name}:"
-                        f" {defaults[p.name]!r}"
-                    )
-        ctx.obj.defaults[cmdname] = defaults
+        if cfg.has_section(f"options.{cmdname}"):
+            defaults: dict[str, Any] = dict(cfg[f"options.{cmdname}"])
+            for p in cmdobj.params:
+                if isinstance(p, click.Option) and p.is_flag and p.name in defaults:
+                    try:
+                        defaults[p.name] = cfg.BOOLEAN_STATES[defaults[p.name].lower()]
+                    except KeyError:
+                        raise click.UsageError(
+                            f"Invalid boolean value for config option {p.name}:"
+                            f" {defaults[p.name]!r}"
+                        )
+            ctx.obj.defaults[cmdname] = defaults

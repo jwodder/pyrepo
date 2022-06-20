@@ -80,9 +80,6 @@ INI file with the following sections:
    section should contain a ``token`` option, giving an OAuth2 token to use; if
    not present, API calls to GitHub will fail.
 
-``[options]``
-   Sets default values for the options in the ``[options.COMMAND]`` sections
-
 ``[options.COMMAND]``
    (where ``COMMAND`` is the name of a ``pyrepo`` subcommand) Sets default
    values for options passed to ``pyrepo COMMAND``
