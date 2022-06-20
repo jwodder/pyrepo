@@ -1,8 +1,10 @@
-from datetime import date
+from datetime import date, datetime
 import json
 import re
 from typing import IO, List, Optional, cast
 from pydantic import BaseModel
+
+DATE_VERSION = re.compile(r"v\d{4}\.\d?\d\.\d?\d")
 
 
 class ChangelogSection(BaseModel):
@@ -15,6 +17,8 @@ class ChangelogSection(BaseModel):
     def __str__(self) -> str:
         if self.version is None:
             header = "In Development"
+        elif DATE_VERSION.fullmatch(self.version):
+            header = self.version
         else:
             if self.release_date is None:
                 rdate = "in development"
@@ -67,6 +71,14 @@ class Changelog(BaseModel):
                         ChangelogSection(
                             version=m["version"],
                             release_date=rdate,
+                            content="",
+                        )
+                    )
+                elif m := DATE_VERSION.fullmatch(prevt := prev.rstrip()):
+                    sections.append(
+                        ChangelogSection(
+                            version=prevt,
+                            release_date=datetime.strptime(prevt, "v%Y.%m.%d").date(),
                             content="",
                         )
                     )

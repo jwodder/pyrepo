@@ -1,0 +1,15 @@
+{
+    "intro": "",
+    "sections": [
+        {
+            "version": null,
+            "release_date": null,
+            "content": "- Dropped support for Python 3.4"
+        },
+        {
+            "version": "v2020.7.16",
+            "release_date": "2020-07-16",
+            "content": "Initial release"
+        }
+    ]
+}

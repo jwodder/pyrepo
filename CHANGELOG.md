@@ -5,6 +5,7 @@ In Development
 - `pyrepo release`: Don't upload projects with "Private" classifiers to PyPI
 - Support projects that use versioningit
     - Add a `uses_versioningit: bool` template variable
+- Support CHANGELOG headers of the form `vDATEVERSION`
 - Update for setuptools 61.0.0
 - Update twine dependency to 4.0
 - Templates:
