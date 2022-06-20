@@ -29,6 +29,7 @@ from linesep import read_paragraphs
 from packaging.version import Version
 from pydantic import BaseModel, Field
 from uritemplate import expand
+from ..clack import ConfigurableCommand
 from ..config import Config
 from ..gh import GitHub
 from ..project import Project, with_project
@@ -295,11 +296,9 @@ class Releaser(BaseModel):
             self.ghrepo.topics.put(json={"names": list(new_topics)})
 
 
-@click.command()
-@click.option("--tox/--no-tox", default=None, help="Run tox before building")
-@click.option(
-    "--sign-assets/--no-sign-assets", default=None, help="Sign built assets with PGP"
-)
+@click.command(cls=ConfigurableCommand, allow_config=["sign_assets", "tox"])
+@click.option("--sign-assets/--no-sign-assets", help="Sign built assets with PGP")
+@click.option("--tox/--no-tox", help="Run tox before building")
 @click.option(
     "--major",
     "bump",
@@ -350,16 +349,11 @@ def cli(
     obj: Config,
     project: Project,
     version: Optional[str],
-    tox: Optional[bool],
-    sign_assets: Optional[bool],
+    tox: bool,
+    sign_assets: bool,
     bump: Optional[Bump],
 ) -> None:
     """Make a new release of the project"""
-    defaults = obj.defaults["release"]
-    if tox is None:
-        tox = defaults.get("tox", False)
-    if sign_assets is None:
-        sign_assets = defaults.get("sign_assets", False)
     if bump is not None:
         if version is not None:
             raise click.UsageError(

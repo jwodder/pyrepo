@@ -3,6 +3,8 @@ In Development
 - Drop support for the `[pyversions]` config section
 - Option defaults given in the `[options]` config section are no longer copied
   to command subsections
+- Internal API:
+    - Make `configure()` store option defaults in `ctx.default_map`
 
 v2022.6.20
 ----------

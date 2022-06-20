@@ -7,10 +7,15 @@ import click
 from click_loglevel import LogLevel
 import colorlog
 from . import __version__
+from .clack import ConfigurableGroup
 from .config import DEFAULT_CFG, configure
 
 
-@click.group(context_settings={"help_option_names": ["-h", "--help"]})
+@click.group(
+    cls=ConfigurableGroup,
+    allow_config=["log_level"],
+    context_settings={"help_option_names": ["-h", "--help"]},
+)
 @click.option(
     "-c",
     "--config",
@@ -18,6 +23,9 @@ from .config import DEFAULT_CFG, configure
     default=DEFAULT_CFG,
     show_default=True,
     help="Use the specified configuration file",
+    callback=configure,
+    is_eager=True,
+    expose_value=False,
 )
 @click.option(
     "-C",
@@ -39,12 +47,8 @@ from .config import DEFAULT_CFG, configure
     "--version",
     message="jwodder-pyrepo %(version)s",
 )
-@click.pass_context
-def main(
-    ctx: click.Context, chdir: Optional[Path], config: Path, log_level: int
-) -> None:
+def main(chdir: Optional[Path], log_level: int) -> None:
     """Manage Python packaging boilerplate"""
-    configure(ctx, config)
     if chdir is not None:
         os.chdir(chdir)
     colorlog.basicConfig(

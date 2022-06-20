@@ -65,6 +65,8 @@ Global Options
                         ``INFO``.  The level can be given as a case-insensitive
                         level name or as a numeric value.
 
+                        This option can be set via the configuration file.
+
 .. _logging level: https://docs.python.org/3/library/logging.html
                    #logging-levels
 
@@ -80,9 +82,15 @@ INI file with the following sections:
    section should contain a ``token`` option, giving an OAuth2 token to use; if
    not present, API calls to GitHub will fail.
 
+``[options]``
+    Sets default values for global options
+
 ``[options.COMMAND]``
    (where ``COMMAND`` is the name of a ``pyrepo`` subcommand) Sets default
-   values for options passed to ``pyrepo COMMAND``
+   values for options passed to ``pyrepo COMMAND``.
+
+Not all options can be configured via the configuration file; see the
+documentation for the respective options to find out which can.
 
 Option names are case insensitive and treat hyphens & underscores as equal.
 
@@ -137,6 +145,9 @@ the user to run ``pre-commit run -a`` after adding new files to the index.
 Options
 ^^^^^^^
 
+All of the following can be set via the configuration file, in the
+``[options.init]`` section.
+
 --author NAME           Set the name of the project's author
 
 --author-email EMAIL    Set the project's author's e-mail address.  This may be
@@ -160,8 +171,7 @@ Options
 -d TEXT, --description TEXT
                         Set the project's short description.  If no description
                         is specified on the command line, the user will be
-                        prompted for one.  This option cannot be set via the
-                        configuration file.
+                        prompted for one.
 
 --docs, --no-docs       Whether to generate templates for Sphinx documentation;
                         default: ``--no-docs``
@@ -316,8 +326,6 @@ Build an sdist and/or wheel for the project.
 Options
 ^^^^^^^
 
-These options cannot be set via the configuration file.
-
 -c, --clean             Delete the ``build/`` and ``dist/`` directories from
                         the project root before building
 
@@ -343,12 +351,10 @@ repository.
 Options
 ^^^^^^^
 
--P, --private           Make the new repository private.  This option cannot be
-                        set via the configuration file.
+-P, --private           Make the new repository private.
 
 --repo-name NAME        The name of the new repository; defaults to the
-                        repository name used in the project's URL.  This option
-                        cannot be set via the configuration file.
+                        repository name used in the project's URL.
 
 
 ``pyrepo release``
@@ -413,11 +419,15 @@ Options
 ^^^^^^^
 
 --tox, --no-tox         Whether to run ``tox`` on the project before building;
-                        default: ``--no-tox``
+                        default: ``--no-tox``.
+
+                        This option can be set via the configuration file.
 
 --sign-assets, --no-sign-assets
                         Whether to created detached PGP signatures for the
-                        release assets; default: ``--no-sign-assets``
+                        release assets; default: ``--no-sign-assets``.
+
+                        This option can be set via the configuration file.
 
 --major                 Set the release's version to the next major version
 
@@ -449,8 +459,7 @@ Options
                         Write output to ``<file>`` instead of overwriting the
                         file given on the command line.  This option may only
                         be used when exactly one argument is given on the
-                        command line.  This option cannot be set via the
-                        configuration file.
+                        command line.
 
 
 ``pyrepo unflatten``

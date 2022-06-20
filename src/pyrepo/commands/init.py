@@ -2,7 +2,7 @@ from contextlib import suppress
 import logging
 from pathlib import Path
 import re
-from typing import Any
+from typing import Any, Optional
 import click
 from in_place import InPlace
 from jinja2 import Environment
@@ -10,23 +10,26 @@ from packaging.requirements import Requirement
 from packaging.specifiers import SpecifierSet
 from packaging.utils import canonicalize_name as normalize
 from .. import git, inspecting, util
-from ..config import Config
+from ..clack import ConfigurableCommand
 from ..project import Project
-from ..util import cpe_no_tb, ensure_license_years, optional, runcmd
+from ..util import cpe_no_tb, ensure_license_years, runcmd
 
 log = logging.getLogger(__name__)
 
 
-@click.command()
-@optional("--author", metavar="NAME", help="Project author's name")
-@optional(
+@click.command(cls=ConfigurableCommand)
+@click.option(
+    "--author", metavar="NAME", help="Project author's name", default="Anonymous"
+)
+@click.option(
     "--author-email",
     metavar="EMAIL",
     help="Project author's e-mail address",
+    default="USER@HOST",
 )
-@optional("--ci/--no-ci", help="Whether to generate CI configuration")
-@optional("--codecov-user", metavar="USER", help="Codecov.io username")
-@optional(
+@click.option("--ci/--no-ci", help="Whether to generate CI configuration")
+@click.option("--codecov-user", metavar="USER", help="Codecov.io username")
+@click.option(
     "-c",
     "--command",
     metavar="NAME",
@@ -38,26 +41,26 @@ log = logging.getLogger(__name__)
     prompt=True,
     help="Project's summary/short description",
 )
-@optional(
+@click.option(
     "--docs/--no-docs",
     help="Whether to generate Sphinx/RTD documentation boilerplate",
 )
-@optional(
+@click.option(
     "--doctests/--no-doctests",
     help="Whether to include running doctests in test configuration",
 )
-@optional("--github-user", metavar="USER", help="Username of GitHub repository")
-@optional("-p", "--project-name", metavar="NAME", help="Name of project")
-@optional(
+@click.option("--github-user", metavar="USER", help="Username of GitHub repository")
+@click.option("-p", "--project-name", metavar="NAME", help="Name of project")
+@click.option(
     "-P",
     "--python-requires",
     metavar="SPEC",
     help="Python versions required by project",
 )
-@optional("--repo-name", metavar="NAME", help="Name of GitHub repository")
-@optional("--rtfd-name", metavar="NAME", help="Name of RTFD.io site")
-@optional("--tests/--no-tests", help="Whether to generate test configuration")
-@optional(
+@click.option("--repo-name", metavar="NAME", help="Name of GitHub repository")
+@click.option("--rtfd-name", metavar="NAME", help="Name of RTFD.io site")
+@click.option("--tests/--no-tests", help="Whether to generate test configuration")
+@click.option(
     "--typing/--no-typing",
     help="Whether to configure for type annotations",
 )
@@ -66,35 +69,49 @@ log = logging.getLogger(__name__)
     type=click.Path(exists=True, file_okay=False, dir_okay=True, path_type=Path),
     default=Path(),
 )
-@click.pass_obj
+@click.pass_context
 @cpe_no_tb
-def cli(obj: Config, dirpath: Path, **options: Any) -> None:
+def cli(
+    ctx: click.Context,
+    dirpath: Path,
+    author: str,
+    author_email: str,
+    ci: bool,
+    codecov_user: Optional[str],
+    command: Optional[str],
+    description: str,
+    docs: bool,
+    doctests: bool,
+    github_user: Optional[str],
+    project_name: Optional[str],
+    python_requires: Optional[str],
+    repo_name: Optional[str],
+    rtfd_name: Optional[str],
+    tests: bool,
+    typing: bool,
+) -> None:
     """Create packaging boilerplate for a new project"""
     for fname in ["setup.py", "setup.cfg", "pyproject.toml"]:
         if (dirpath / fname).exists():
             raise click.UsageError(f"{fname} already exists")
 
-    defaults = obj.defaults["init"]
-    pyreq_cfg = defaults.pop("python_requires", None)
-    options = {**defaults, **options}
-
-    if "github_user" not in options:
-        options["github_user"] = obj.gh.user.get()["login"]
+    if github_user is None:
+        github_user = ctx.obj.gh.user.get()["login"]
 
     repo = git.Git(dirpath=dirpath)
 
     env = {
-        "author": options["author"],
-        "short_description": options["description"],
+        "author": author,
+        "short_description": description,
         "copyright_years": repo.get_commit_years(),
-        "has_doctests": options.get("doctests", False),
-        "has_tests": options.get("tests", False) or options.get("ci", False),
-        "has_typing": options.get("typing", False),
-        "has_ci": options.get("ci", False),
-        "has_docs": options.get("docs", False),
+        "has_doctests": doctests,
+        "has_tests": tests or ci,
+        "has_typing": typing,
+        "has_ci": ci,
+        "has_docs": docs,
         "has_pypi": False,
-        "github_user": options["github_user"],
-        "codecov_user": options.get("codecov_user", options["github_user"]),
+        "github_user": github_user,
+        "codecov_user": none_or(codecov_user, github_user),
         "keywords": [],
         "classifiers": [],
         "version": "0.1.0.dev1",
@@ -130,14 +147,12 @@ def cli(obj: Config, dirpath: Path, **options: Any) -> None:
         )
         env["is_flat_module"] = False
 
-    env["name"] = options.get("project_name", env["import_name"])
-    env["repo_name"] = options.get("repo_name", env["name"])
-    env["rtfd_name"] = options.get("rtfd_name", env["name"])
+    env["name"] = none_or(project_name, env["import_name"])
+    env["repo_name"] = none_or(repo_name, env["name"])
+    env["rtfd_name"] = none_or(rtfd_name, env["name"])
 
     env["author_email"] = (
-        Environment()
-        .from_string(options["author_email"])
-        .render(project_name=env["name"])
+        Environment().from_string(author_email).render(project_name=env["name"])
     )
 
     log.info("Checking for requirements.txt ...")
@@ -168,10 +183,13 @@ def cli(obj: Config, dirpath: Path, **options: Any) -> None:
 
     supported_pythons = util.cpython_supported()
 
-    python_requires = options.get("python_requires")
-    if python_requires is not None:
+    if (
+        python_requires is not None
+        and ctx.get_parameter_source("python_requires")
+        is not click.core.ParameterSource.DEFAULT_MAP
+    ):
         if re.fullmatch(r"\d+\.\d+", python_requires):
-            python_requires = "~=" + python_requires
+            python_requires = f"~={python_requires}"
     else:
         pyreq_req = req_vars.python_requires
         pyreq_src = src_vars.python_requires
@@ -186,9 +204,7 @@ def cli(obj: Config, dirpath: Path, **options: Any) -> None:
             python_requires = pyreq_req
         elif pyreq_src is not None:
             python_requires = pyreq_src
-        elif pyreq_cfg is not None:
-            python_requires = pyreq_cfg
-        else:
+        elif python_requires is None:
             python_requires = f"~={supported_pythons[0]}"
 
     env["python_requires"] = python_requires
@@ -205,12 +221,12 @@ def cli(obj: Config, dirpath: Path, **options: Any) -> None:
         )
     minver = env["python_versions"][0]
 
-    if "command" not in options:
+    if command is None:
         env["commands"] = {}
     elif env["is_flat_module"]:
-        env["commands"] = {options["command"]: f'{env["import_name"]}:main'}
+        env["commands"] = {command: f'{env["import_name"]}:main'}
     else:
-        env["commands"] = {options["command"]: f'{env["import_name"]}.__main__:main'}
+        env["commands"] = {command: f'{env["import_name"]}.__main__:main'}
 
     if env["has_ci"]:
         env["extra_testenvs"]["lint"] = minver
@@ -265,3 +281,7 @@ def cli(obj: Config, dirpath: Path, **options: Any) -> None:
 
     runcmd("pre-commit", "install", cwd=dirpath)
     log.info("TODO: Run `pre-commit run -a` after adding new files")
+
+
+def none_or(x: Any, y: Any) -> Any:
+    return x if x is not None else y
