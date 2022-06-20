@@ -70,16 +70,13 @@ log = logging.getLogger(__name__)
 @cpe_no_tb
 def cli(obj: Config, dirpath: Path, **options: Any) -> None:
     """Create packaging boilerplate for a new project"""
-    if (dirpath / "setup.py").exists():
-        raise click.UsageError("setup.py already exists")
-    if (dirpath / "setup.cfg").exists():
-        raise click.UsageError("setup.cfg already exists")
-    if (dirpath / "pyproject.toml").exists():
-        raise click.UsageError("pyproject.toml already exists")
+    for fname in ["setup.py", "setup.cfg", "pyproject.toml"]:
+        if (dirpath / fname).exists():
+            raise click.UsageError(f"{fname} already exists")
 
     defaults = obj.defaults["init"]
     pyreq_cfg = defaults.pop("python_requires")
-    options = dict(defaults, **options)
+    options = {**defaults, **options}
 
     if "github_user" not in options:
         options["github_user"] = obj.gh.user.get()["login"]
@@ -107,14 +104,15 @@ def cli(obj: Config, dirpath: Path, **options: Any) -> None:
     }
 
     log.info("Determining Python module ...")
-    # "import_name", "is_flat_module", and "src_layout"
-    env.update(inspecting.find_module(dirpath).dict())
+    mod = inspecting.find_module(dirpath)
+    env["import_name"] = mod.import_name
+    env["is_flat_module"] = mod.is_flat_module
     if env["is_flat_module"]:
         log.info("Found flat module %s.py", env["import_name"])
     else:
         log.info("Found package %s", env["import_name"])
 
-    if not env.pop("src_layout", False):
+    if not mod.src_layout:
         log.info("Moving code to src/ directory ...")
         (dirpath / "src").mkdir(exist_ok=True)
         code_path = env["import_name"]

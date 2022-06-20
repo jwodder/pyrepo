@@ -1,5 +1,6 @@
 import ast
 from configparser import ConfigParser
+from dataclasses import dataclass
 from pathlib import Path
 import re
 from typing import Any, Dict, List, Optional, Union
@@ -149,7 +150,8 @@ def inspect_project(dirpath: Optional[Union[str, Path]] = None) -> dict:
     return env
 
 
-class ModuleInfo(BaseModel):
+@dataclass
+class ModuleInfo:
     import_name: str
     is_flat_module: bool
     src_layout: bool
