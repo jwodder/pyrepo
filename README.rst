@@ -282,7 +282,7 @@ Add configuration for type annotations and the checking thereof:
 
 ::
 
-    pyrepo [<global-options>] begin-dev
+    pyrepo [<global-options>] begin-dev [<options>]
 
 Prepare for development on the next version of a project by setting
 ``__version__`` to the next minor version number plus ".dev1" and adding a new
@@ -291,6 +291,15 @@ the top of ``docs/changelog.rst`` (creating it if a ``docs`` directory already
 exists).  This is the same behavior as the last step of ``pyrepo release``.
 
 If the project uses versioningit_, the ``__version__`` variable is left alone.
+
+Options
+^^^^^^^
+
+-N, --no-next-version           Do not calculate the next version for the
+                                project: set ``__version__`` (if not using
+                                versioningit) to the current version plus
+                                ".post1" and omit the version from the new
+                                CHANGELOG section
 
 
 ``pyrepo inspect``
