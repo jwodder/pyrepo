@@ -1,3 +1,4 @@
+from __future__ import annotations
 from datetime import date, datetime
 import json
 import re
@@ -46,7 +47,7 @@ class Changelog(BaseModel):
     sections: List[ChangelogSection]
 
     @classmethod
-    def load(cls, fp: IO[str]) -> "Changelog":
+    def load(cls, fp: IO[str]) -> Changelog:
         intro = ""
         prev: Optional[str] = None
         sections: List[ChangelogSection] = []

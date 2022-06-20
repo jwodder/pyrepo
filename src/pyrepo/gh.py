@@ -40,10 +40,10 @@ class GitHub:
         self._session = session
         self._method = _method
 
-    def __getattr__(self, key: str) -> "GitHub":
+    def __getattr__(self, key: str) -> GitHub:
         return self[key]
 
-    def __getitem__(self, name: str) -> "GitHub":
+    def __getitem__(self, name: str) -> GitHub:
         url = self._url
         if self._method is not None:
             p = str(self._method)

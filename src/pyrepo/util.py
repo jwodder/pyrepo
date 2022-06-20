@@ -38,7 +38,7 @@ class PyVersion(str):
         self.minor = int(minor)
 
     @classmethod
-    def __get_validators__(cls) -> "CallableGenerator":
+    def __get_validators__(cls) -> CallableGenerator:
         yield str_validator
         yield cls._validate
         yield cls
@@ -82,11 +82,11 @@ class PyVersion(str):
             return NotImplemented
 
     @classmethod
-    def parse(cls, s: Any) -> "PyVersion":
+    def parse(cls, s: Any) -> PyVersion:
         return parse_obj_as(cls, s)
 
     @classmethod
-    def construct(cls, major: int, minor: int) -> "PyVersion":
+    def construct(cls, major: int, minor: int) -> PyVersion:
         return cls.parse(f"{major}.{minor}")
 
     @property
