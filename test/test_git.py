@@ -1,6 +1,6 @@
+from __future__ import annotations
 from pathlib import Path
 import time
-from typing import List
 import pytest
 from pytest_mock import MockerFixture
 from pyrepo.git import Git
@@ -18,7 +18,7 @@ from pyrepo.inspecting import InvalidProjectError
     ],
 )
 def test_get_commit_years_include_now(
-    gitoutput: str, result: List[int], mocker: MockerFixture
+    gitoutput: str, result: list[int], mocker: MockerFixture
 ) -> None:
     # Set current time to 2019-04-16T18:17:14Z:
     mlocaltime = mocker.patch("time.localtime", return_value=time.localtime(1555438634))
@@ -41,7 +41,7 @@ def test_get_commit_years_include_now(
     ],
 )
 def test_get_commit_years_no_include_now(
-    gitoutput: str, result: List[int], mocker: MockerFixture
+    gitoutput: str, result: list[int], mocker: MockerFixture
 ) -> None:
     # Set current time to 2019-04-16T18:17:14Z:
     mlocaltime = mocker.patch("time.localtime", return_value=time.localtime(1555438634))

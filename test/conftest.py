@@ -1,5 +1,5 @@
+from __future__ import annotations
 import logging
-from typing import List
 import pytest
 from pytest_mock import MockerFixture
 from pyrepo import util
@@ -12,7 +12,7 @@ def capture_all_logs(caplog: pytest.LogCaptureFixture) -> None:
 
 @pytest.fixture
 def mock_pypy_supported(monkeypatch: pytest.MonkeyPatch) -> None:
-    def mocked(cpython_versions: List[util.PyVersion]) -> List[util.PyVersion]:
+    def mocked(cpython_versions: list[util.PyVersion]) -> list[util.PyVersion]:
         pypy_supports = {"2.7", "3.6", "3.7", "3.8"}
         return [cpy for cpy in cpython_versions if cpy in pypy_supports]
 

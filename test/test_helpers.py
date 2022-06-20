@@ -1,7 +1,8 @@
+from __future__ import annotations
 from operator import attrgetter
 from pathlib import Path
 from traceback import format_exception
-from typing import Any, Tuple
+from typing import Any
 from unittest.mock import MagicMock
 from click.testing import Result
 import pytest
@@ -31,7 +32,7 @@ def show_result(r: Result) -> str:
         return r.output
 
 
-def mock_git(mocker: MockerFixture, **kwargs: Any) -> Tuple[MagicMock, MagicMock]:
+def mock_git(mocker: MockerFixture, **kwargs: Any) -> tuple[MagicMock, MagicMock]:
     instance = MagicMock(**{f"{k}.return_value": v for k, v in kwargs.items()})
     cls = mocker.patch("pyrepo.git.Git", return_value=instance)
     return (cls, instance)

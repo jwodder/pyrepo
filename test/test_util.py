@@ -1,8 +1,10 @@
+from __future__ import annotations
+from collections.abc import Iterator
 import json
 from pathlib import Path
 import shutil
 import time
-from typing import Iterator, List, Optional, Tuple
+from typing import Optional
 from packaging.specifiers import SpecifierSet
 import pytest
 from pytest_mock import MockerFixture
@@ -30,7 +32,7 @@ from test_helpers import case_dirs
         ("2013, 2015", [2017, 2014], "2013-2015, 2017"),
     ],
 )
-def test_update_years2str(year_str: str, years: List[int], result: str) -> None:
+def test_update_years2str(year_str: str, years: list[int], result: str) -> None:
     assert update_years2str(year_str, years) == result
 
 
@@ -105,7 +107,7 @@ def test_pyversion_cmp() -> None:
     ],
 )
 def test_mkversion(
-    epoch: int, release: Tuple[int, ...], post: Optional[int], v: str
+    epoch: int, release: tuple[int, ...], post: Optional[int], v: str
 ) -> None:
     assert mkversion(epoch=epoch, release=release, post=post) == v
 
