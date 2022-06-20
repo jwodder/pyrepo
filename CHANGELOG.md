@@ -17,6 +17,7 @@ In Development
 - Internal API:
     - Store project details in a `ProjectDetails` class
     - Add `Templater` and `TemplateWriter` classes
+    - Include classifiers in project details
 
 v2022.2.6
 ---------

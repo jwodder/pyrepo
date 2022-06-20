@@ -96,6 +96,7 @@ def cli(obj: Config, dirpath: Path, **options: Any) -> None:
         "github_user": options["github_user"],
         "codecov_user": options.get("codecov_user", options["github_user"]),
         "keywords": [],
+        "classifiers": [],
         "version": "0.1.0.dev1",
         "supports_pypy3": True,
         "extra_testenvs": {},
