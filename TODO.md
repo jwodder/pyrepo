@@ -1,18 +1,9 @@
 - Write more tests
-- Rename the actual Python import package to `jwodder_pyrepo`?
-- Make `configure()` store the config file values in `ctx.default_map`
-    - Use Click 8's new features to handle the precedence order of `pyrepo init
-      --python-requires`
-    - Simplify the option handling in `pyrepo release` to take advantage of
-      this
 - Change `__python_requires__` to `__requires_python__` to match PEP 621?
     - Accept both forms as synonyms?
 - Rename `supports_pypy3` to `supports_pypy` and determine what versions of
   PyPy to support based on the supported Python versions
 - Make `inspect_project()` and `init` log at DEBUG level
-- Require default `init` config values to be in `[options.init]` in the config
-  file instead of under just `[options]`?  I.e., don't copy values from
-  `[options]` to other sections?
 - Is `codecov_user` ever not the same as `github_user`?
 - Support reading project-specific configuration from `pyproject.toml`
 - Figure out how to rewrite the dynamic module loading in `__main__.py` using
@@ -22,15 +13,14 @@
   (The function will still need folders full of test cases, though)
 - `Project.add_ci_testenv()`: "Manually" add in the new lines instead of
   retemplating?
-- Change the config file format to TOML
+- Try to cut down on the number of pydantic classes
+    - Switch to cattrs?
 
 - Support projects supporting multiple major versions of Python
     - Make `Project.add_pyversion()` add a "Programming Language :: Python ::
       X" classifier when adding the first minor version of a major version.
     - Make `Project.add_pyversion()` remove a "Programming Language :: Python
       :: X :: Only" classifier when it no longer applies
-    - Support versions with different major versions in the config file's
-      "[pyversions]"
 
 - `pyrepo init`:
     - Support `project_name`, `repo_name`, and `rtfd_name` as Jinja2 templates
@@ -64,7 +54,7 @@
         - whether to start a shell to examine the assets after building but
           before uploading?
         - whether to upload to PyPI
-        - whether to use date versioning
+        - whether to use date versioning / default version bump level
     - Move the signing of the build assets to after committing & tagging?
 
 - `pyrepo mkgithub`:
