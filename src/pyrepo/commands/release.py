@@ -11,6 +11,9 @@
 # Notable assumptions made by this code:
 # - There is no CHANGELOG file until after the initial release has been made.
 
+from __future__ import annotations
+from collections.abc import Callable, Sequence
+from dataclasses import dataclass, field
 from datetime import date
 from functools import partial
 import logging
@@ -21,13 +24,12 @@ from pathlib import Path
 import re
 import sys
 from tempfile import NamedTemporaryFile
-from typing import Any, Callable, List, Optional, Sequence
+from typing import Any, Optional
 import click
 from configupdater import ConfigUpdater
 from in_place import InPlace
 from linesep import read_paragraphs
 from packaging.version import Version
-from pydantic import BaseModel, Field
 from uritemplate import expand
 from ..clack import ConfigurableCommand
 from ..config import Config
@@ -54,18 +56,16 @@ ACTIVE_BADGE = """\
 """
 
 
-class Releaser(BaseModel):
+@dataclass
+class Releaser:
     project: Project
     version: str
     ghrepo: GitHub
     tox: bool
     sign_assets: bool
-    assets: List[Path] = Field(default_factory=list)
-    assets_asc: List[Path] = Field(default_factory=list)
+    assets: list[Path] = field(default_factory=list)
+    assets_asc: list[Path] = field(default_factory=list)
     release_upload_url: Optional[str] = None
-
-    class Config:
-        arbitrary_types_allowed = True
 
     @classmethod
     def from_project(
@@ -75,7 +75,7 @@ class Releaser(BaseModel):
         version: Optional[str] = None,
         tox: bool = False,
         sign_assets: bool = False,
-    ) -> "Releaser":
+    ) -> Releaser:
         if version is None:
             # Remove prerelease & dev release from __version__
             v = Version(project.details.version).base_version
