@@ -1,5 +1,5 @@
 """
-Python repository packager & releaser
+Python repository templater & releaser
 
 ``jwodder-pyrepo`` is my personal project for managing my Python package
 repositories, including generating packaging boilerplate and performing
