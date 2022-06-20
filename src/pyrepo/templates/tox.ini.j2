@@ -1,7 +1,7 @@
 {% if has_tests or has_typing or has_docs %}
 [tox]
 {% if has_tests or has_typing %}
-envlist = lint{% if has_typing %},typing{% endif %}{% if has_tests %}{% for v in python_versions %},{{v.pyenv}}{% endfor %}{% if supports_pypy3 %}{% for v in python_versions|major_pypy_supported %},pypy{{v}}{% endfor %}{% endif %}{% endif +%}
+envlist = lint{% if has_typing %},typing{% endif %}{% if has_tests %}{% for v in python_versions %},{{v.pyenv}}{% endfor %}{% if supports_pypy %}{% for v in python_versions|major_pypy_supported %},pypy{{v}}{% endfor %}{% endif %}{% endif +%}
 {% if has_tests %}
 skip_missing_interpreters = True
 {% endif %}

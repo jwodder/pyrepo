@@ -42,7 +42,7 @@
         "Typing :: Typed"
     ],
     "has_ci": true,
-    "supports_pypy3": true,
+    "supports_pypy": true,
     "extra_testenvs": {
         "typing": "3.6"
     },

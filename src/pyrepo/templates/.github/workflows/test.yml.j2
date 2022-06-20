@@ -16,7 +16,7 @@ jobs:
           {% for v in python_versions %}
           - '{{v}}'
           {% endfor %}
-          {% if supports_pypy3 %}
+          {% if supports_pypy %}
           {% for pyv in python_versions|pypy_supported %}
           - 'pypy-{{pyv}}'
           {% endfor %}

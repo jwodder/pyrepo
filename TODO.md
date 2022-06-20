@@ -1,8 +1,6 @@
 - Write more tests
 - Change `__python_requires__` to `__requires_python__` to match PEP 621?
     - Accept both forms as synonyms?
-- Rename `supports_pypy3` to `supports_pypy` and determine what versions of
-  PyPy to support based on the supported Python versions
 - Is `codecov_user` ever not the same as `github_user`?
 - Support reading project-specific configuration from `pyproject.toml`
 - Figure out how to rewrite the dynamic module loading in `__main__.py` using

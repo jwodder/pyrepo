@@ -18,7 +18,7 @@ class ProjectDetails(BaseModel):
     install_requires: List[str]
     keywords: List[str]
     classifiers: List[str]
-    supports_pypy3: bool
+    supports_pypy: bool
 
     #: Extra testenvs to include runs for in CI, as a mapping from testenv name
     #: to Python version

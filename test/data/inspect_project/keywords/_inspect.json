@@ -45,7 +45,7 @@
         "License :: OSI Approved :: MIT License"
     ],
     "has_ci": false,
-    "supports_pypy3": true,
+    "supports_pypy": true,
     "extra_testenvs": {},
     "has_typing": false,
     "name": "foobar",

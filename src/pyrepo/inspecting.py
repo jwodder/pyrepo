@@ -51,7 +51,7 @@ def inspect_project(dirpath: str | Path | None = None) -> dict:
         # "version": cfg["metadata"].get("version"),
         "keywords": cfg["metadata"].get("keywords", []),
         "classifiers": cfg["metadata"].get("classifiers", []),
-        "supports_pypy3": False,
+        "supports_pypy": False,
         "default_branch": git.Git(dirpath=directory).get_default_branch(),
     }
 
@@ -79,7 +79,7 @@ def inspect_project(dirpath: str | Path | None = None) -> dict:
         if m := re.fullmatch(r"Programming Language :: Python :: (\d+\.\d+)", clsfr):
             env["python_versions"].append(PyVersion.parse(m[1]))
         if clsfr == "Programming Language :: Python :: Implementation :: PyPy":
-            env["supports_pypy3"] = True
+            env["supports_pypy"] = True
 
     env["commands"] = {}
     try:

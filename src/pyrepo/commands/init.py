@@ -116,7 +116,7 @@ def cli(
         "keywords": [],
         "classifiers": [],
         "version": "0.1.0.dev1",
-        "supports_pypy3": True,
+        "supports_pypy": True,
         "extra_testenvs": {},
         "default_branch": repo.get_default_branch(),
         "uses_versioningit": False,
