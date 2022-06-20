@@ -9,8 +9,9 @@ from jinja2 import Environment
 from packaging.requirements import Requirement
 from packaging.specifiers import SpecifierSet
 from packaging.utils import canonicalize_name as normalize
-from .. import git, inspecting, util
+from .. import git, util
 from ..clack import ConfigurableCommand
+from ..inspecting import extract_requires, find_module, parse_requirements
 from ..project import Project
 from ..util import cpe_no_tb, ensure_license_years, runcmd
 
@@ -122,7 +123,7 @@ def cli(
     }
 
     log.info("Determining Python module ...")
-    mod = inspecting.find_module(dirpath)
+    mod = find_module(dirpath)
     env["import_name"] = mod.import_name
     env["is_flat_module"] = mod.is_flat_module
     if env["is_flat_module"]:
@@ -156,14 +157,14 @@ def cli(
     )
 
     log.info("Checking for requirements.txt ...")
-    req_vars = inspecting.parse_requirements(dirpath / "requirements.txt")
+    req_vars = parse_requirements(dirpath / "requirements.txt")
 
     if env["is_flat_module"]:
         initfile = dirpath / "src" / f"{env['import_name']}.py"
     else:
         initfile = dirpath / "src" / env["import_name"] / "__init__.py"
     log.info("Checking for __requires__ ...")
-    src_vars = inspecting.extract_requires(initfile)
+    src_vars = extract_requires(initfile)
 
     requirements = {}
     for r in (req_vars.requires or []) + (src_vars.requires or []):

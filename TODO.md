@@ -103,7 +103,5 @@
     - `.github/workflows/test.yml`: Add an option for testing against different
       OSes?
 
-- Write a command for adding new repositories to Read the Docs
-    - Not possible?  Double-check
-      <https://docs.readthedocs.io/en/stable/api/v3.html>
-    - Write a module with `mechanicalsoup` to do this?
+- Write a command for adding new repositories to Read the Docs?
+    - See <https://docs.readthedocs.io/en/stable/api/v3.html#project-create>

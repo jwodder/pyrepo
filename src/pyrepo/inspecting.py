@@ -11,8 +11,9 @@ from read_version import read_version
 from setuptools.config.setupcfg import read_configuration
 import versioningit
 import yaml
-from . import git, util  # Import modules to keep mocking easy
+from . import git  # Import module to keep mocking easy
 from .readme import Readme
+from .util import PyVersion, sort_specifier, yield_lines
 
 
 class InvalidProjectError(Exception):
@@ -42,7 +43,7 @@ def inspect_project(dirpath: str | Path | None = None) -> dict:
         "short_description": cfg["metadata"]["description"],
         "author": cfg["metadata"]["author"],
         "author_email": cfg["metadata"]["author_email"],
-        "python_requires": util.sort_specifier(cfg["options"]["python_requires"]),
+        "python_requires": sort_specifier(cfg["options"]["python_requires"]),
         "install_requires": cfg["options"].get("install_requires", []),
         # Until <https://github.com/pypa/setuptools/issues/2575> is fixed, we
         # have to determine versions via read_version() instead of
@@ -76,7 +77,7 @@ def inspect_project(dirpath: str | Path | None = None) -> dict:
     env["python_versions"] = []
     for clsfr in env["classifiers"]:
         if m := re.fullmatch(r"Programming Language :: Python :: (\d+\.\d+)", clsfr):
-            env["python_versions"].append(util.PyVersion.parse(m[1]))
+            env["python_versions"].append(PyVersion.parse(m[1]))
         if clsfr == "Programming Language :: Python :: Implementation :: PyPy":
             env["supports_pypy3"] = True
 
@@ -242,7 +243,7 @@ def parse_requirements(filepath: Path) -> Requirements:
                     reqs.python_requires = m[1]
                     break
             fp.seek(0)
-            reqs.requires = list(util.yield_lines(fp))
+            reqs.requires = list(yield_lines(fp))
     except FileNotFoundError:
         pass
     return reqs
