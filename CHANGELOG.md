@@ -5,6 +5,9 @@ In Development
   to command subsections
 - Change the config file format to TOML
     - Config keys are no longer case-insensitive
+- Templates:
+    - The presence of `pypy3` in the envlist in `tox.ini` is now affected by
+      `supports_pypy3`
 - Internal API:
     - Make `configure()` store option defaults in `ctx.default_map`
 

@@ -100,7 +100,6 @@
     - Add template for `CONTRIBUTORS.md`?
     - Support having the same extra testenv run against multiple Python
       versions
-    - Make `supports_pypy3` affect the envlist in `tox.ini`
     - `.github/workflows/test.yml`: Add an option for testing against different
       OSes?
 
