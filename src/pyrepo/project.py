@@ -59,8 +59,8 @@ class Project(BaseModel):
         return TemplateWriter(context=self.details.dict(), basedir=self.directory)
 
     def set_version(self, version: str) -> None:
-        log.info("Setting __version__ to %r ...", version)
         if not self.details.uses_versioningit:
+            log.info("Setting __version__ to %r ...", version)
             map_lines(
                 self.initfile,
                 partial(
@@ -243,8 +243,12 @@ class Project(BaseModel):
         log.info("Preparing for work on next version ...")
         # Set __version__ to the next version number plus ".dev1"
         old_version = self.details.version
-        new_version = next_version(old_version, post=not use_next_version)
-        self.set_version(new_version + ".dev1")
+        if use_next_version:
+            new_version = next_version(old_version)
+            self.set_version(new_version + ".dev1")
+        else:
+            new_version = next_version(old_version, post=True)
+            self.set_version(new_version)
         # Add new section to top of CHANGELOGs
         new_sect = ChangelogSection(
             version=f"v{new_version}" if use_next_version else None,

@@ -230,12 +230,12 @@ class Releaser(BaseModel):
         self.project.set_version(self.version)
         # Set release date in CHANGELOGs
         for docs in (False, True):
-            if docs:
-                log.info("Updating docs/changelog.rst ...")
-            else:
-                log.info("Updating CHANGELOG ...")
             chlog = self.project.get_changelog(docs=docs)
             if chlog and chlog.sections:
+                if docs:
+                    log.info("Updating docs/changelog.rst ...")
+                else:
+                    log.info("Updating CHANGELOG ...")
                 chlog.sections[0].version = f"v{self.version}"
                 chlog.sections[0].release_date = date.today()
                 self.project.set_changelog(chlog, docs=docs)
