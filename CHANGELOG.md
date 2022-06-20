@@ -2,6 +2,7 @@ In Development
 --------------
 - Give `pyrepo release` a `--date` flag
 - Give `pyrepo begin-dev` a `--no-next-version` flag
+- `pyrepo release`: Don't upload projects with "Private" classifiers to PyPI
 - Support projects that use versioningit
     - Add a `uses_versioningit: bool` template variable
 - Update for setuptools 61.0.0

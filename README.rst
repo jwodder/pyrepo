@@ -376,8 +376,9 @@ following operations in order:
 
   - Update the repostatus badge in the README from "WIP" to "Active"
   - Set the "Development Status" classifier in ``setup.cfg`` to "4 - Beta"
-  - Remove the "work-in-progress" topic from the repository on GitHub and add
-    the topic "available-on-pypi"
+  - If the project does not have a "Private" classifier, remove the
+    "work-in-progress" topic from the repository on GitHub and add the topic
+    "available-on-pypi"
 
 - If the ``--tox`` option is given, run tox, failing if it fails
 - Build the sdist & wheel and (if ``--sign-assets`` is given) create detached
@@ -396,7 +397,8 @@ following operations in order:
 - Push the commit & tag to GitHub
 - Convert the tag to a release on GitHub, using the commit message for the name
   and body
-- Upload the build assets to PyPI (including detached signatures, if any)
+- If the project does not have a "Private" classifier, upload the build assets
+  to PyPI (including detached signatures, if any)
 - Upload the build assets to GitHub as release assets (*not* including detached
   signatures)
 - Prepare for development on the next version by setting ``__version__`` to the

@@ -200,15 +200,18 @@ class Releaser(BaseModel):
         self.upload_github()
 
     def upload_pypi(self) -> None:  # Idempotent
-        log.info("Uploading artifacts to PyPI ...")
-        runcmd(
-            sys.executable,
-            "-m",
-            "twine",
-            "upload",
-            "--skip-existing",
-            *(self.assets + self.assets_asc),
-        )
+        if self.project.private:
+            log.info("Private project; not uploading to PyPI")
+        else:
+            log.info("Uploading artifacts to PyPI ...")
+            runcmd(
+                sys.executable,
+                "-m",
+                "twine",
+                "upload",
+                "--skip-existing",
+                *(self.assets + self.assets_asc),
+            )
 
     def upload_github(self) -> None:  ### Not idempotent
         log.info("Uploading artifacts to GitHub release ...")
@@ -275,12 +278,13 @@ class Releaser(BaseModel):
         # Set "Development Status" classifier to "Beta" or higher:
         log.info("Advancing Development Status classifier ...")
         advance_devstatus(self.project.directory / "setup.cfg")
-        log.info("Updating GitHub topics ...")
-        ### TODO: Check that the repository has topics first?
-        self.update_gh_topics(
-            add=["available-on-pypi"],
-            remove=["work-in-progress"],
-        )
+        if not self.project.private:
+            log.info("Updating GitHub topics ...")
+            ### TODO: Check that the repository has topics first?
+            self.update_gh_topics(
+                add=["available-on-pypi"],
+                remove=["work-in-progress"],
+            )
 
     def update_gh_topics(
         self, add: Sequence[str] = (), remove: Sequence[str] = ()

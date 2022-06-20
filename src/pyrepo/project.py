@@ -51,6 +51,10 @@ class Project(BaseModel):
     def repo(self) -> git.Git:
         return git.Git(dirpath=self.directory)
 
+    @property
+    def private(self) -> bool:
+        return any(c.startswith("Private") for c in self.details.classifiers)
+
     def get_template_writer(self) -> TemplateWriter:
         return TemplateWriter(context=self.details.dict(), basedir=self.directory)
 
