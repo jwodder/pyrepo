@@ -43,7 +43,7 @@ class Project(BaseModel):
     @property
     def initfile(self) -> Path:
         if self.details.is_flat_module:
-            return self.directory / "src" / (self.details.import_name + ".py")
+            return self.directory / "src" / f"{self.details.import_name}.py"
         else:
             return self.directory / "src" / self.details.import_name / "__init__.py"
 
@@ -245,7 +245,7 @@ class Project(BaseModel):
         old_version = self.details.version
         if use_next_version:
             new_version = next_version(old_version)
-            self.set_version(new_version + ".dev1")
+            self.set_version(f"{new_version}.dev1")
         else:
             new_version = next_version(old_version, post=True)
             self.set_version(new_version)
@@ -271,7 +271,7 @@ class Project(BaseModel):
                     sections=[
                         new_sect,
                         ChangelogSection(
-                            version="v" + old_version,
+                            version=f"v{old_version}",
                             release_date=date.today(),
                             content="Initial release",
                         ),

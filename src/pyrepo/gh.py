@@ -34,7 +34,7 @@ class GitHub:
                 except FileNotFoundError:
                     pass
             if token is not None:
-                session.headers["Authorization"] = "token " + token
+                session.headers["Authorization"] = f"token {token}"
             if headers is not None:
                 session.headers.update(headers)
         self._session = session

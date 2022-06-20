@@ -16,7 +16,7 @@ class Templater:
 
     def render(self, template_path: str) -> str:
         return (
-            self.jinja_env.get_template(template_path + ".j2")
+            self.jinja_env.get_template(f"{template_path}.j2")
             .render(self.context)
             .rstrip()
             + "\n"

@@ -142,7 +142,7 @@ def cli(
         log.info("Unflattening for py.typed file ...")
         pkgdir = dirpath / "src" / env["import_name"]
         pkgdir.mkdir(parents=True, exist_ok=True)
-        (dirpath / "src" / (env["import_name"] + ".py")).rename(
+        (dirpath / "src" / f"{env['import_name']}.py").rename(
             dirpath / pkgdir / "__init__.py"
         )
         env["is_flat_module"] = False
@@ -159,7 +159,7 @@ def cli(
     req_vars = inspecting.parse_requirements(dirpath / "requirements.txt")
 
     if env["is_flat_module"]:
-        initfile = dirpath / "src" / (env["import_name"] + ".py")
+        initfile = dirpath / "src" / f"{env['import_name']}.py"
     else:
         initfile = dirpath / "src" / env["import_name"] / "__init__.py"
     log.info("Checking for __requires__ ...")

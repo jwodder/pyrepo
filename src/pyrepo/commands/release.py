@@ -147,8 +147,8 @@ class Releaser(BaseModel):
             "tag",
             "-s",
             "-m",
-            "Version " + self.version,
-            "v" + self.version,
+            f"Version {self.version}",
+            f"v{self.version}",
             env={**os.environ, "GPG_TTY": os.ttyname(0)},
         )
 
@@ -158,11 +158,11 @@ class Releaser(BaseModel):
             "show",
             "-s",
             "--format=%s%x00%b",
-            "v" + self.version + "^{commit}",
+            f"v{self.version}^{{commit}}",
         ).split("\0", 1)
         reldata = self.ghrepo.releases.post(
             json={
-                "tag_name": "v" + self.version,
+                "tag_name": f"v{self.version}",
                 "name": subject,
                 "body": body.strip(),  ### TODO: Remove line wrapping?
                 "draft": False,
@@ -192,7 +192,7 @@ class Releaser(BaseModel):
             self.assets.append(distfile)
             if signer is not None:
                 signer(distfile)  # type: ignore[unreachable]
-                self.assets_asc.append(distfile.with_name(distfile.name + ".asc"))
+                self.assets_asc.append(distfile.with_name(f"{distfile.name}.asc"))
 
     def upload(self) -> None:
         log.info("Uploading artifacts ...")
@@ -392,7 +392,7 @@ def get_mime_type(filename: str, strict: bool = False) -> str:
         # 8460; exactly when can that be used?
         # return mtype + '+gzip'
     else:
-        return "application/x-" + encoding
+        return f"application/x-{encoding}"
 
 
 def advance_devstatus(cfgpath: Path) -> None:

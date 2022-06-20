@@ -54,9 +54,9 @@ class Image(BaseModel):
     def __str__(self) -> str:
         s = IMAGE_START + self.href
         if self.target is not None:
-            s += "\n    :target: " + self.target
+            s += f"\n    :target: {self.target}"
         if self.alt is not None:
-            s += "\n    :alt: " + self.alt
+            s += f"\n    :alt: {self.alt}"
         return s
 
 
@@ -146,13 +146,13 @@ class Readme(BaseModel):
     def __str__(self) -> str:
         s = ""
         for b in self.badges:
-            s += str(b) + "\n\n"
+            s += f"{b}\n\n"
         if self.header_links:
             s += "\n| ".join(map("`{label} <{url}>`_".format_map, self.header_links))
         if self.contents:
             s += "\n\n.. contents::\n    :backlinks: top"
         if self.introduction is not None:
-            s += "\n\n" + self.introduction
+            s += f"\n\n{self.introduction}"
         for i, sect in enumerate(self.sections):
             if i or self.introduction:
                 s += "\n"

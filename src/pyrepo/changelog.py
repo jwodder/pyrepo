@@ -29,7 +29,7 @@ class ChangelogSection(BaseModel):
             header
             + "\n"
             + "-" * len(header)
-            + ("\n" + self.content if self.content else "")
+            + (f"\n{self.content}" if self.content else "")
         )
 
     def _end(self) -> None:

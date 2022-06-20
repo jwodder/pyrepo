@@ -64,7 +64,7 @@ def inspect_project(dirpath: str | Path | None = None) -> dict:
     else:
         env["is_flat_module"] = True
         env["import_name"] = cfg["options"]["py_modules"][0]
-        initfile = directory / "src" / (env["import_name"] + ".py")
+        initfile = directory / "src" / f"{env['import_name']}.py"
 
     try:
         env["version"] = versioningit.get_version(directory)
