@@ -1,5 +1,5 @@
-In Development
---------------
+v2022.6.20
+----------
 - Give `pyrepo release` a `--date` flag
 - Give `pyrepo begin-dev` a `--no-next-version` flag
 - `pyrepo release`: Don't upload projects with "Private" classifiers to PyPI
