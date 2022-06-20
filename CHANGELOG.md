@@ -7,7 +7,8 @@ In Development
     - Config keys are no longer case-insensitive
 - Templates:
     - The presence of `pypy3` in the envlist in `tox.ini` is now affected by
-      `supports_pypy3`
+      `supports_pypy3`, and the exact PyPy version used is now based on the
+      CPython major versions supported by the latest PyPy series
 - Internal API:
     - Make `configure()` store option defaults in `ctx.default_map`
 

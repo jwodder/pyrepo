@@ -151,12 +151,24 @@ def pypy_supported(cpython_versions: list[PyVersion]) -> list[PyVersion]:
     return sorted(pypy_supports.intersection(cpython_versions))
 
 
+def major_pypy_supported(cpython_versions: list[PyVersion]) -> list[int]:
+    # Returns the subset of major versions of `cpython_versions` that are
+    # supported by the latest PyPy minor version
+    info = VersionDatabase.fetch().pypy
+    *_, latest_series = filter(info.is_released, info.minor_versions())
+    pypy_supports = {
+        PyVersion.parse(v).major for v in info.supported_cpython_series(latest_series)
+    }
+    return sorted(pypy_supports.intersection(v.major for v in cpython_versions))
+
+
 def get_jinja_env() -> Environment:
     jenv = Environment(
         loader=PackageLoader("pyrepo", "templates"),
         trim_blocks=True,
         lstrip_blocks=True,
     )
+    jenv.filters["major_pypy_supported"] = major_pypy_supported
     jenv.filters["pypy_supported"] = pypy_supported
     jenv.filters["repr"] = repr
     jenv.filters["rewrap"] = rewrap

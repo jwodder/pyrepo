@@ -11,7 +11,9 @@ CONFIG = DATA_DIR / "config.toml"
 
 
 @case_dirs("pyrepo_init")
-@pytest.mark.usefixtures("mock_cpython_supported")
+@pytest.mark.usefixtures(
+    "mock_cpython_supported", "mock_major_pypy_supported", "mock_pypy_supported"
+)
 def test_pyrepo_init(dirpath: Path, mocker: MockerFixture, tmp_path: Path) -> None:
     tmp_path /= "tmp"  # copytree() can't copy to a dir that already exists
     copytree(dirpath / "before", tmp_path)

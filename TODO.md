@@ -3,7 +3,6 @@
     - Accept both forms as synonyms?
 - Rename `supports_pypy3` to `supports_pypy` and determine what versions of
   PyPy to support based on the supported Python versions
-- Make `inspect_project()` and `init` log at DEBUG level
 - Is `codecov_user` ever not the same as `github_user`?
 - Support reading project-specific configuration from `pyproject.toml`
 - Figure out how to rewrite the dynamic module loading in `__main__.py` using
@@ -44,6 +43,7 @@
     - Should `has_doctests` be autodetected the same way as for an initialized
       project?
     - Add an option for using versioningit
+    - Add an option for setting PyPy support
 
 - `pyrepo release`:
     - Support configuring the following via the config file (either global or
