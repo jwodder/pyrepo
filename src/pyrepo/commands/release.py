@@ -88,7 +88,7 @@ class Releaser(BaseModel):
             sign_assets=sign_assets,
         )
 
-    def run(self) -> None:
+    def run(self, use_next_version: bool = True) -> None:
         self.end_dev()
         if self.tox:
             self.tox_check()
@@ -102,7 +102,7 @@ class Releaser(BaseModel):
         self.project.repo.run("push", "--follow-tags")
         self.mkghrelease()
         self.upload()
-        self.project.begin_dev()  # Not idempotent
+        self.project.begin_dev(use_next_version)  # Not idempotent
 
     def tox_check(self) -> None:  # Idempotent
         if (self.project.directory / "tox.ini").exists():
@@ -363,6 +363,7 @@ def cli(
             )
         last_tag = project.repo.get_latest_tag()
         if last_tag is None:
+            ### TODO: Permit this when --date is given
             raise click.UsageError(
                 "Cannot use version bump options when there are no tags"
             )
@@ -374,7 +375,7 @@ def cli(
         gh=obj.gh,
         tox=tox,
         sign_assets=sign_assets,
-    ).run()
+    ).run(use_next_version=bump is not Bump.DATE)
 
 
 def get_mime_type(filename: str, strict: bool = False) -> str:

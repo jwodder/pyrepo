@@ -299,13 +299,14 @@ def mkversion(
     return s
 
 
-def next_version(v: str) -> str:
+def next_version(v: str, post: bool = False) -> str:
     """
     If ``v`` is a prerelease version, returns the base version.  Otherwise,
-    returns the next minor version after the base version.
+    returns the next minor version (or the next postrelease version, if
+    ``post`` is true) after the base version.
     """
     vobj = Version(v)
     if vobj.is_prerelease:
         return vobj.base_version
     else:
-        return bump_version(vobj, Bump.MINOR)
+        return bump_version(vobj, Bump.POST if post else Bump.MINOR)

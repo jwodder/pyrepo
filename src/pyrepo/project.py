@@ -234,15 +234,15 @@ class Project(BaseModel):
             )
         insort(self.details.python_versions, pyv)
 
-    def begin_dev(self) -> None:
+    def begin_dev(self, use_next_version: bool = True) -> None:
         log.info("Preparing for work on next version ...")
         # Set __version__ to the next version number plus ".dev1"
         old_version = self.details.version
-        new_version = next_version(old_version)
+        new_version = next_version(old_version, post=not use_next_version)
         self.set_version(new_version + ".dev1")
         # Add new section to top of CHANGELOGs
         new_sect = ChangelogSection(
-            version="v" + new_version,
+            version=f"v{new_version}" if use_next_version else None,
             release_date=None,
             content="",
         )
