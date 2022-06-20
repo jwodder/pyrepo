@@ -87,13 +87,6 @@ INI file with the following sections:
    (where ``COMMAND`` is the name of a ``pyrepo`` subcommand) Sets default
    values for options passed to ``pyrepo COMMAND``
 
-``[pyversions]``
-   Contains two options, ``minimum`` and ``maximum``, which give the upper &
-   lower bounds of the Python versions to support in a new project.  Both
-   values must be of the form ``3.X``.  The options default to the minimum &
-   maximum released Python 3 minor versions that have not yet reached
-   end-of-life.
-
 Option names are case insensitive and treat hyphens & underscores as equal.
 
 
@@ -202,15 +195,15 @@ Options
                         of these sources are present, ``pyrepo init`` falls
                         back to the value of ``python_requires`` in the
                         ``[options.init]`` section of the configuration file,
-                        which in turn defaults to ``~= pyversions.minimum``.
+                        which in turn defaults to ``~=`` plus the current
+                        minimum supported Python series.
 
                         Besides setting ``python_requires``, the value of this
-                        option will also be applied as a filter to all ``X.Y``
-                        versions from ``pyversions.minimum`` through
-                        ``pyversions.maximum`` in order to determine what
-                        Python subversions to include classifiers for in
-                        ``setup.cfg`` and what subversions to test against with
-                        tox and CI.
+                        option will also be applied as a filter to all
+                        currently-supported Python series in order to determine
+                        what Python series to include classifiers for in
+                        ``setup.cfg`` and what series to test against with tox
+                        and CI.
 
 --repo-name NAME        The name of the project's repository on GitHub;
                         defaults to the project name

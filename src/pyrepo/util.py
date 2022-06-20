@@ -136,6 +136,11 @@ def update_years2str(year_str: str, years: Optional[list[int]] = None) -> str:
     return years2str(yearspan)
 
 
+def cpython_supported() -> list[str]:
+    pyvinfo = VersionDatabase.fetch().cpython
+    return [v for v in pyvinfo.minor_versions() if pyvinfo.is_supported(v)]
+
+
 def pypy_supported(cpython_versions: list[PyVersion]) -> list[PyVersion]:
     # Returns the subset of `cpython_versions` that are supported by the latest
     # PyPy minor version

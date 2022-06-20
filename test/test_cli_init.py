@@ -1,6 +1,7 @@
 from pathlib import Path
 from shutil import copytree
 from click.testing import CliRunner
+import pytest
 from pytest_mock import MockerFixture
 import responses
 from pyrepo.__main__ import main
@@ -10,6 +11,7 @@ CONFIG = DATA_DIR / "config.cfg"
 
 
 @case_dirs("pyrepo_init")
+@pytest.mark.usefixtures("mock_cpython_supported")
 def test_pyrepo_init(dirpath: Path, mocker: MockerFixture, tmp_path: Path) -> None:
     tmp_path /= "tmp"  # copytree() can't copy to a dir that already exists
     copytree(dirpath / "before", tmp_path)

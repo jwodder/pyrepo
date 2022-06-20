@@ -2,14 +2,12 @@ from __future__ import annotations
 from configparser import ConfigParser
 from pathlib import Path
 import platform
-from typing import Any, Dict, List
+from typing import Any, Dict
 import click
 from pydantic import BaseModel
-from pyversion_info import VersionDatabase
 import requests
 from pyrepo import __url__, __version__
 from .gh import GitHub
-from .util import PyVersion
 
 DEFAULT_CFG = Path.home() / ".config" / "pyrepo.cfg"
 
@@ -30,13 +28,9 @@ USER_AGENT = "jwodder-pyrepo/{} ({}) requests/{} {}/{}".format(
     platform.python_version(),
 )
 
-MAJOR_PYTHON_VERSIONS = [3]
-PYVER_TEMPLATE = '"3.X"'
-
 
 class Config(BaseModel):
     defaults: Dict[str, Any]
-    pyversions: List[PyVersion]
     gh: GitHub
 
     class Config:
@@ -50,52 +44,14 @@ def configure(ctx: click.Context, filename: str | Path) -> None:
     ### TODO: Check the return value and raise an exception if it's empty:
     cfg.read(filename)
 
-    pyvinfo = VersionDatabase.fetch().cpython
-    supported_series = [
-        v
-        for m in map(str, MAJOR_PYTHON_VERSIONS)
-        for v in pyvinfo.subversions(m)
-        if pyvinfo.is_supported(v)
-    ]
-
-    try:
-        min_pyversion = parse_pyversion(cfg["pyversions"]["minimum"])
-    except KeyError:
-        min_pyversion = parse_pyversion(supported_series[0])
-    except ValueError:
-        raise click.UsageError(
-            f"Invalid setting for pyversions.minimum config option:"
-            f' {cfg["pyversions"]["minimum"]!r}: must be in form'
-            f" {PYVER_TEMPLATE}"
-        )
-    try:
-        max_pyversion = parse_pyversion(cfg["pyversions"]["maximum"])
-    except KeyError:
-        max_pyversion = parse_pyversion(supported_series[-1])
-    except ValueError:
-        raise click.UsageError(
-            f"Invalid setting for pyversions.maximum config option:"
-            f' {cfg["pyversions"]["maximum"]!r}: must be in form'
-            f" {PYVER_TEMPLATE}"
-        )
-    if min_pyversion > max_pyversion:
-        raise click.UsageError(
-            "Config option pyversions.minimum cannot be greater than"
-            " pyversions.maximum"
-        )
-
     ctx.obj = Config(
         defaults={},
-        pyversions=pyver_range(min_pyversion, max_pyversion),
         gh=GitHub(
             token=cfg.get("auth.github", "token", fallback=None),
             headers={"User-Agent": USER_AGENT},
             extra_accept=EXTRA_ACCEPT,
         ),
     )
-
-    if not cfg.has_option("options", "python_requires"):
-        cfg["options"]["python_requires"] = f"~={min_pyversion}"
 
     from .__main__ import main
 
@@ -113,23 +69,3 @@ def configure(ctx: click.Context, filename: str | Path) -> None:
                         f" {defaults[p.name]!r}"
                     )
         ctx.obj.defaults[cmdname] = defaults
-
-
-def parse_pyversion(s: str) -> PyVersion:
-    v = PyVersion.parse(s)
-    if v.major not in MAJOR_PYTHON_VERSIONS:
-        raise NotImplementedError(
-            "Only the following major Python versions are supported:"
-            f" {', '.join(map(str, MAJOR_PYTHON_VERSIONS))}"
-        )
-    return v
-
-
-def pyver_range(minv: PyVersion, maxv: PyVersion) -> list[PyVersion]:
-    if minv.major != maxv.major:
-        raise NotImplementedError(
-            "Python versions with different major versions not supported"
-        )
-    return [
-        PyVersion.construct(minv.major, i) for i in range(minv.minor, maxv.minor + 1)
-    ]

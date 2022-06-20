@@ -9,10 +9,10 @@ from jinja2 import Environment
 from packaging.requirements import Requirement
 from packaging.specifiers import SpecifierSet
 from packaging.utils import canonicalize_name as normalize
-from .. import git, inspecting
+from .. import git, inspecting, util
 from ..config import Config
 from ..project import Project
-from ..util import PyVersion, cpe_no_tb, ensure_license_years, optional, runcmd
+from ..util import cpe_no_tb, ensure_license_years, optional, runcmd
 
 log = logging.getLogger(__name__)
 
@@ -75,7 +75,7 @@ def cli(obj: Config, dirpath: Path, **options: Any) -> None:
             raise click.UsageError(f"{fname} already exists")
 
     defaults = obj.defaults["init"]
-    pyreq_cfg = defaults.pop("python_requires")
+    pyreq_cfg = defaults.pop("python_requires", None)
     options = {**defaults, **options}
 
     if "github_user" not in options:
@@ -166,6 +166,8 @@ def cli(obj: Config, dirpath: Path, **options: Any) -> None:
             )
     env["install_requires"] = [r for _, (r, _) in sorted(requirements.items())]
 
+    supported_pythons = util.cpython_supported()
+
     python_requires = options.get("python_requires")
     if python_requires is not None:
         if re.fullmatch(r"\d+\.\d+", python_requires):
@@ -184,8 +186,10 @@ def cli(obj: Config, dirpath: Path, **options: Any) -> None:
             python_requires = pyreq_req
         elif pyreq_src is not None:
             python_requires = pyreq_src
-        else:
+        elif pyreq_cfg is not None:
             python_requires = pyreq_cfg
+        else:
+            python_requires = f"~={supported_pythons[0]}"
 
     env["python_requires"] = python_requires
     try:
@@ -194,12 +198,12 @@ def cli(obj: Config, dirpath: Path, **options: Any) -> None:
         raise click.UsageError(
             f"Invalid specifier for python_requires: {python_requires!r}"
         )
-    env["python_versions"] = list(pyspec.filter(obj.pyversions))
+    env["python_versions"] = list(pyspec.filter(supported_pythons))
     if not env["python_versions"]:
         raise click.UsageError(
-            f"No Python versions in pyversions range matching {python_requires!r}"
+            f"No supported Python versions matching {python_requires!r}"
         )
-    minver = str(min(env["python_versions"], key=PyVersion.parse))
+    minver = env["python_versions"][0]
 
     if "command" not in options:
         env["commands"] = {}

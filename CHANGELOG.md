@@ -1,3 +1,7 @@
+In Development
+--------------
+- Drop support for the `[pyversions]` config section
+
 v2022.6.20
 ----------
 - Give `pyrepo release` a `--date` flag

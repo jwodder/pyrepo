@@ -1,6 +1,7 @@
 import logging
 from typing import List
 import pytest
+from pytest_mock import MockerFixture
 from pyrepo import util
 
 
@@ -16,3 +17,10 @@ def mock_pypy_supported(monkeypatch: pytest.MonkeyPatch) -> None:
         return [cpy for cpy in cpython_versions if cpy in pypy_supports]
 
     monkeypatch.setattr(util, "pypy_supported", mocked)
+
+
+@pytest.fixture
+def mock_cpython_supported(mocker: MockerFixture) -> None:
+    mocker.patch(
+        "pyrepo.util.cpython_supported", return_value=["3.5", "3.6", "3.7", "3.8"]
+    )
