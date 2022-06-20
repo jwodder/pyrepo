@@ -7,7 +7,7 @@ import responses
 from pyrepo.__main__ import main
 from test_helpers import DATA_DIR, assert_dirtrees_eq, case_dirs, mock_git, show_result
 
-CONFIG = DATA_DIR / "config.cfg"
+CONFIG = DATA_DIR / "config.toml"
 
 
 @case_dirs("pyrepo_init")
@@ -16,8 +16,8 @@ def test_pyrepo_init(dirpath: Path, mocker: MockerFixture, tmp_path: Path) -> No
     tmp_path /= "tmp"  # copytree() can't copy to a dir that already exists
     copytree(dirpath / "before", tmp_path)
     options = (dirpath / "options.txt").read_text().splitlines()
-    if (dirpath / "config.cfg").exists():
-        cfg = dirpath / "config.cfg"
+    if (dirpath / "config.toml").exists():
+        cfg = dirpath / "config.toml"
     else:
         cfg = CONFIG
     mgitcls, mgit = mock_git(

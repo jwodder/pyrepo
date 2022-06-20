@@ -1,0 +1,5 @@
+[options.init]
+author = "John Thorvald Wodder II"
+author-email = "{{project_name|replace('_', '-')}}@varonathe.org"
+github_user = "jwodder"
+python-requires = "~= 3.6"

@@ -1,16 +1,15 @@
 from __future__ import annotations
-from configparser import ConfigParser
 from dataclasses import dataclass
 from pathlib import Path
 import platform
-from typing import Any
 import click
 import requests
+import tomli
 from pyrepo import __url__, __version__
 from .clack import ConfigurableGroup
 from .gh import GitHub
 
-DEFAULT_CFG = Path.home() / ".config" / "pyrepo.cfg"
+DEFAULT_CFG = Path.home() / ".config" / "pyrepo.toml"
 
 EXTRA_ACCEPT = ["application/vnd.github.mercy-preview"]  # topics
 
@@ -31,26 +30,28 @@ class Config:
 def configure(
     ctx: click.Context, _param: click.Parameter, filename: str | Path
 ) -> None:
-    cfg = ConfigParser(interpolation=None)
-    ### TODO: Check the return value and raise an exception if it's empty:
-    cfg.read(filename)
+    try:
+        with open(filename, "rb") as fp:
+            cfg = tomli.load(fp)
+    except FileNotFoundError:
+        cfg = {}
+
+    try:
+        token = cfg["auth"]["github"]["token"]
+    except (KeyError, AttributeError):
+        token = None
 
     ctx.obj = Config(
         gh=GitHub(
-            token=cfg.get("auth.github", "token", fallback=None),
+            token=token,
             headers={"User-Agent": USER_AGENT},
             extra_accept=EXTRA_ACCEPT,
         ),
     )
 
-    defaults: dict[str, Any] = {}
-    for k, v in cfg.items():
-        if k == "options":
-            defaults.update(v)
-        elif k.startswith("options."):
-            defaults[k[8:]] = dict(v)
+    opts = cfg.get("options")
+    if isinstance(opts, dict):  ### TODO: else: warn? error?
+        from .__main__ import main
 
-    from .__main__ import main
-
-    assert isinstance(main, ConfigurableGroup)
-    ctx.default_map = main.process_config(defaults)
+        assert isinstance(main, ConfigurableGroup)
+        ctx.default_map = main.process_config(opts)

@@ -55,7 +55,7 @@ Global Options
 --------------
 
 -c FILE, --config FILE  Read configuration from ``FILE``; by default,
-                        configuration is read from ``~/.config/pyrepo.cfg``
+                        configuration is read from ``~/.config/pyrepo.toml``
 
 -C DIR, --chdir DIR     Change to directory ``DIR`` before taking any further
                         actions
@@ -74,12 +74,14 @@ Global Options
 Configuration File
 ------------------
 
-The configuration file (located at ``~/.config/pyrepo.cfg`` by default) is an
-INI file with the following sections:
+The configuration file (located at ``~/.config/pyrepo.toml`` by default) is a
+TOML_ file with the following tables:
+
+.. _TOML: https://toml.io
 
 ``[auth.github]``
    Contains credentials for interacting with GitHub over v3 of its API.  This
-   section should contain a ``token`` option, giving an OAuth2 token to use; if
+   table should contain a ``token`` option, giving an OAuth2 token to use; if
    not present, API calls to GitHub will fail.
 
 ``[options]``
@@ -92,7 +94,8 @@ INI file with the following sections:
 Not all options can be configured via the configuration file; see the
 documentation for the respective options to find out which can.
 
-Option names are case insensitive and treat hyphens & underscores as equal.
+Hyphens & underscores are interchangeable in option names in the configuration
+file.
 
 
 ``pyrepo init``
@@ -146,7 +149,7 @@ Options
 ^^^^^^^
 
 All of the following can be set via the configuration file, in the
-``[options.init]`` section.
+``[options.init]`` table.
 
 --author NAME           Set the name of the project's author
 
@@ -201,7 +204,7 @@ All of the following can be set via the configuration file, in the
                         error if these sources have different values.  If none
                         of these sources are present, ``pyrepo init`` falls
                         back to the value of ``python_requires`` in the
-                        ``[options.init]`` section of the configuration file,
+                        ``[options.init]`` table of the configuration file,
                         which in turn defaults to ``~=`` plus the current
                         minimum supported Python series.
 
