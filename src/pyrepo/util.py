@@ -12,7 +12,7 @@ import subprocess
 import sys
 from textwrap import fill
 import time
-from typing import TYPE_CHECKING, Any, Optional, TextIO, TypeVar
+from typing import TYPE_CHECKING, Any, Optional, TextIO
 import click
 from in_place import InPlace
 from intspan import intspan
@@ -25,8 +25,6 @@ from pyversion_info import VersionDatabase
 
 if TYPE_CHECKING:
     from pydantic.typing import CallableGenerator
-
-FC = TypeVar("FC", Callable[..., Any], click.Command)
 
 log = logging.getLogger(__name__)
 
@@ -174,7 +172,9 @@ def rewrap(s: str) -> str:
     )
 
 
-def optional(*decls: str, nilstr: bool = False, **attrs: Any) -> Callable[[FC], FC]:
+def optional(
+    *decls: str, nilstr: bool = False, **attrs: Any
+) -> Callable[[click.decorators.FC], click.decorators.FC]:
     """
     Like `click.option`, but no value (not even `None`) is passed to the
     command callback if the user doesn't use the option.  If ``nilstr`` is
