@@ -1,6 +1,7 @@
+from __future__ import annotations
 from enum import Enum
 import re
-from typing import Dict, List, Optional, TextIO
+from typing import List, Optional, TextIO
 from linesep import read_paragraphs
 from pydantic import BaseModel
 
@@ -22,7 +23,7 @@ class Image(BaseModel):
             raise ValueError(f"Not an RST image: {s!r}")
         lines = s.splitlines(keepends=True)
         href = lines[0][len(IMAGE_START) :].strip()
-        options: Dict[str, Optional[str]] = {
+        options: dict[str, Optional[str]] = {
             "target": None,
             "alt": None,
         }
@@ -79,11 +80,11 @@ class Readme(BaseModel):
     @classmethod
     def load(cls, fp: TextIO) -> "Readme":
         state = ParserState.BADGES
-        badges: List[Image] = []
-        header_links: List[dict] = []
+        badges: list[Image] = []
+        header_links: list[dict] = []
         contents = False
         introduction = ""
-        sections: List[Section] = []
+        sections: list[Section] = []
         section_name: Optional[str] = None
         section_body: Optional[str] = None
         for para in read_paragraphs(fp):

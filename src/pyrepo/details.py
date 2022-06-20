@@ -1,6 +1,6 @@
 from __future__ import annotations
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Dict, List
 from pydantic import BaseModel, validator
 from .inspecting import inspect_project
 from .tmpltr import Templater
@@ -51,11 +51,11 @@ class ProjectDetails(BaseModel):
 
     @validator("python_versions")
     @classmethod
-    def _sort_python_versions(cls, v: List[PyVersion]) -> List[PyVersion]:
+    def _sort_python_versions(cls, v: list[PyVersion]) -> list[PyVersion]:
         return sorted(v)
 
     @classmethod
-    def inspect(cls, dirpath: Optional[Union[str, Path]] = None) -> ProjectDetails:
+    def inspect(cls, dirpath: str | Path | None = None) -> ProjectDetails:
         return cls.parse_obj(inspect_project(dirpath))
 
     def get_templater(self) -> Templater:

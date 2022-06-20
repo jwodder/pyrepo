@@ -1,5 +1,6 @@
 from __future__ import annotations
 from bisect import insort
+from collections.abc import Callable, Iterator
 from contextlib import suppress
 from datetime import date
 from functools import cached_property, partial, wraps
@@ -8,7 +9,7 @@ from pathlib import Path
 import re
 from shutil import rmtree
 import sys
-from typing import Any, Callable, Iterator, List, Optional, Union
+from typing import Any, Optional
 import click
 from configupdater import ConfigUpdater
 from lineinfile import AfterLast, add_line_to_file
@@ -71,7 +72,7 @@ class Project(BaseModel):
     def get_changelog_paths(
         self, docs: bool = False, extant: bool = True
     ) -> Iterator[Path]:
-        paths: List[Union[str, Path]]
+        paths: list[str | Path]
         if docs:
             paths = [Path("docs", "changelog.rst")]
         else:

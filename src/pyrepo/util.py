@@ -1,3 +1,5 @@
+from __future__ import annotations
+from collections.abc import Callable, Iterable, Iterator
 from datetime import date
 from enum import Enum
 from functools import partial, wraps
@@ -10,20 +12,7 @@ import subprocess
 import sys
 from textwrap import fill
 import time
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Iterable,
-    Iterator,
-    List,
-    Optional,
-    Pattern,
-    TextIO,
-    Tuple,
-    TypeVar,
-    Union,
-)
+from typing import TYPE_CHECKING, Any, Optional, TextIO, TypeVar
 import click
 from in_place import InPlace
 from intspan import intspan
@@ -108,13 +97,13 @@ class PyVersion(str):
         return f"py{self.major}{self.minor}"
 
 
-def runcmd(*args: Union[str, Path], **kwargs: Any) -> subprocess.CompletedProcess:
+def runcmd(*args: str | Path, **kwargs: Any) -> subprocess.CompletedProcess:
     log.debug("Running: %s", shlex.join(map(str, args)))
     kwargs.setdefault("check", True)
     return subprocess.run(args, **kwargs)
 
 
-def readcmd(*args: Union[str, Path], **kwargs: Any) -> str:
+def readcmd(*args: str | Path, **kwargs: Any) -> str:
     kwargs["stdout"] = subprocess.PIPE
     kwargs["text"] = True
     r = runcmd(*args, **kwargs)
@@ -122,7 +111,7 @@ def readcmd(*args: Union[str, Path], **kwargs: Any) -> str:
     return r.stdout.strip()
 
 
-def ensure_license_years(filepath: Union[str, Path], years: List[int]) -> None:
+def ensure_license_years(filepath: str | Path, years: list[int]) -> None:
     map_lines(
         filepath,
         partial(
@@ -133,11 +122,11 @@ def ensure_license_years(filepath: Union[str, Path], years: List[int]) -> None:
     )
 
 
-def years2str(years: List[int]) -> str:
+def years2str(years: list[int]) -> str:
     return str(intspan(years)).replace(",", ", ")
 
 
-def update_years2str(year_str: str, years: Optional[List[int]] = None) -> str:
+def update_years2str(year_str: str, years: Optional[list[int]] = None) -> str:
     """
     Given a string of years of the form ``"2014, 2016-2017"``, update the
     string if necessary to include the given years (default: the current year).
@@ -149,7 +138,7 @@ def update_years2str(year_str: str, years: Optional[List[int]] = None) -> str:
     return years2str(yearspan)
 
 
-def pypy_supported(cpython_versions: List[PyVersion]) -> List[PyVersion]:
+def pypy_supported(cpython_versions: list[PyVersion]) -> list[PyVersion]:
     # Returns the subset of `cpython_versions` that are supported by the latest
     # PyPy minor version
     info = VersionDatabase.fetch().pypy
@@ -226,17 +215,17 @@ def sort_specifier(specset: SpecifierSet) -> str:
 
 
 def replace_group(
-    rgx: Union[str, Pattern[str]],
+    rgx: str | re.Pattern[str],
     replacer: Callable[[str], str],
     s: str,
-    group: Union[int, str] = 1,
+    group: int | str = 1,
 ) -> str:
     if m := re.search(rgx, s):
         s = s[: m.start(group)] + replacer(m[group]) + s[m.end(group) :]
     return s
 
 
-def map_lines(filepath: Union[str, Path], func: Callable[[str], str]) -> None:
+def map_lines(filepath: str | Path, func: Callable[[str], str]) -> None:
     with InPlace(filepath, mode="t", encoding="utf-8") as fp:
         for line in fp:
             print(func(line), file=fp, end="")
@@ -261,7 +250,7 @@ class Bump(Enum):
     DATE = -2
 
 
-def bump_version(v: Union[str, Version], level: Bump) -> str:
+def bump_version(v: str | Version, level: Bump) -> str:
     if isinstance(v, Version):
         vobj = v
     else:
@@ -273,7 +262,7 @@ def bump_version(v: Union[str, Version], level: Bump) -> str:
         return mkversion(epoch=vobj.epoch, release=vobj.release, post=post + 1)
     elif level is Bump.DATE:
         today = date.today()
-        release: Tuple[int, ...] = (today.year, today.month, today.day)
+        release: tuple[int, ...] = (today.year, today.month, today.day)
         if vobj.release[:3] == release:
             if len(vobj.release) > 3:
                 subver = vobj.release[3] + 1

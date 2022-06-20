@@ -1,7 +1,8 @@
+from __future__ import annotations
 from configparser import ConfigParser
 from pathlib import Path
 import platform
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List
 import click
 from pydantic import BaseModel
 from pyversion_info import VersionDatabase
@@ -42,7 +43,7 @@ class Config(BaseModel):
         arbitrary_types_allowed = True
 
 
-def configure(ctx: click.Context, filename: Union[str, Path]) -> None:
+def configure(ctx: click.Context, filename: str | Path) -> None:
     cfg = ConfigParser(interpolation=None)
     cfg.optionxform = lambda s: s.lower().replace("-", "_")  # type: ignore[assignment]
     cfg.read_dict(DEFAULTS)
@@ -99,7 +100,7 @@ def configure(ctx: click.Context, filename: Union[str, Path]) -> None:
     from .__main__ import main
 
     for cmdname, cmdobj in main.commands.items():
-        defaults: Dict[str, Any] = dict(cfg["options"])
+        defaults: dict[str, Any] = dict(cfg["options"])
         if cfg.has_section("options." + cmdname):
             defaults.update(cfg["options." + cmdname])
         for p in cmdobj.params:
@@ -124,7 +125,7 @@ def parse_pyversion(s: str) -> PyVersion:
     return v
 
 
-def pyver_range(minv: PyVersion, maxv: PyVersion) -> List[PyVersion]:
+def pyver_range(minv: PyVersion, maxv: PyVersion) -> list[PyVersion]:
     if minv.major != maxv.major:
         raise NotImplementedError(
             "Python versions with different major versions not supported"

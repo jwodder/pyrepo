@@ -1,6 +1,8 @@
+from __future__ import annotations
+from collections.abc import Iterable, Iterator
 import json
 from pathlib import Path
-from typing import Any, Dict, Iterable, Iterator, Optional, Union
+from typing import Any, Optional
 import requests
 
 ACCEPT = ("application/vnd.github.v3+json",)
@@ -15,10 +17,10 @@ class GitHub:
         self,
         url: str = API_ENDPOINT,
         token: Optional[str] = None,
-        token_file: Union[str, Path] = DEFAULT_TOKEN_FILE,
+        token_file: str | Path = DEFAULT_TOKEN_FILE,
         session: Optional[requests.Session] = None,
         extra_accept: Iterable[str] = (),
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
         _method: Optional[str] = None,
     ):
         self._url = url

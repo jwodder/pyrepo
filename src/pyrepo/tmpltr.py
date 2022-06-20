@@ -2,7 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 import logging
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 from jinja2 import Environment
 from .util import get_jinja_env
 
@@ -12,7 +12,7 @@ log = logging.getLogger(__name__)
 @dataclass
 class Templater:
     jinja_env: Environment = field(init=False, default_factory=get_jinja_env)
-    context: Dict[str, Any]
+    context: dict[str, Any]
 
     def render(self, template_path: str) -> str:
         return (
@@ -26,7 +26,7 @@ class Templater:
         self,
         template_name: str,
         block_name: str,
-        vars: Optional[Dict[str, Any]] = None,
+        vars: Optional[dict[str, Any]] = None,
     ) -> str:
         tmpl = self.jinja_env.get_template(template_name)
         context = tmpl.new_context(vars=vars)

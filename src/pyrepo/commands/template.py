@@ -1,4 +1,5 @@
-from typing import Optional, Sequence, TextIO
+from __future__ import annotations
+from typing import Optional, TextIO
 import click
 from ..project import Project, with_project
 from ..util import cpe_no_tb
@@ -9,7 +10,7 @@ from ..util import cpe_no_tb
 @click.argument("template", nargs=-1)
 @with_project
 @cpe_no_tb
-def cli(project: Project, template: Sequence[str], outfile: Optional[TextIO]) -> None:
+def cli(project: Project, template: tuple[str, ...], outfile: Optional[TextIO]) -> None:
     """Replace files with their re-evaluated templates"""
     twriter = project.get_template_writer()
     if outfile is not None:

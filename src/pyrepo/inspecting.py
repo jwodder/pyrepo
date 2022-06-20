@@ -1,9 +1,10 @@
+from __future__ import annotations
 import ast
 from configparser import ConfigParser
 from dataclasses import dataclass
 from pathlib import Path
 import re
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, List, Optional
 from intspan import intspan
 from pydantic import BaseModel, Field
 from read_version import read_version
@@ -18,7 +19,7 @@ class InvalidProjectError(Exception):
     pass
 
 
-def inspect_project(dirpath: Optional[Union[str, Path]] = None) -> dict:
+def inspect_project(dirpath: str | Path | None = None) -> dict:
     """Fetch various information about an already-initialized project"""
     if dirpath is None:
         directory = Path()
@@ -158,7 +159,7 @@ class ModuleInfo:
 
 
 def find_module(dirpath: Path) -> ModuleInfo:
-    results: List[ModuleInfo] = []
+    results: list[ModuleInfo] = []
     if (dirpath / "src").exists():
         dirpath /= "src"
         src_layout = True
@@ -200,13 +201,13 @@ class Requirements(BaseModel):
 def extract_requires(filename: Path) -> Requirements:
     ### TODO: Split off the destructive functionality so that this can be run
     ### idempotently/in a read-only manner
-    variables: Dict[str, Any] = {
+    variables: dict[str, Any] = {
         "__python_requires__": None,
         "__requires__": None,
     }
     src = filename.read_bytes()
     lines = src.splitlines(keepends=True)
-    dellines: List[slice] = []
+    dellines: list[slice] = []
     tree = ast.parse(src)
     for i, node in enumerate(tree.body):
         if (
@@ -246,7 +247,7 @@ def parse_requirements(filepath: Path) -> Requirements:
     return reqs
 
 
-def parse_extra_testenvs(filepath: Path) -> Dict[str, str]:
+def parse_extra_testenvs(filepath: Path) -> dict[str, str]:
     try:
         with filepath.open(encoding="utf-8") as fp:
             workflow = yaml.safe_load(fp)
