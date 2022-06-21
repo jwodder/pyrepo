@@ -1,9 +1,10 @@
 from __future__ import annotations
+from dataclasses import dataclass
 from enum import Enum
 import re
-from typing import List, Optional, TextIO
+from typing import Optional, TextIO
 from linesep import read_paragraphs
-from pydantic import BaseModel
+from .util import JSONable
 
 ParserState = Enum("ParserState", "BADGES POST_LINKS POST_CONTENTS INTRO SECTIONS")
 
@@ -12,70 +13,18 @@ HEADER_LINK_RGX = r"`(?P<label>[^`<>]+) <(?P<url>[^>]+)>`_"
 IMAGE_START = ".. image:: "
 
 
-class Image(BaseModel):
-    href: str
-    target: Optional[str]
-    alt: Optional[str]
-
-    @classmethod
-    def parse(cls, s: str) -> Image:
-        if not s.startswith(IMAGE_START):
-            raise ValueError(f"Not an RST image: {s!r}")
-        lines = s.splitlines(keepends=True)
-        href = lines[0][len(IMAGE_START) :].strip()
-        options: dict[str, Optional[str]] = {
-            "target": None,
-            "alt": None,
-        }
-        opt_name: Optional[str] = None
-        opt_value: Optional[str] = None
-        for ln in lines[1:]:
-            if m := re.match(r"^\s*:(\w+):\s*", ln):
-                label = m[1]
-                if label not in options:
-                    raise ValueError(f"Unknown image option: ':{label}:'")
-                elif options[label] is not None or label == opt_name:
-                    raise ValueError(f"Image has multiple :{label}: options")
-                if opt_name is not None:
-                    assert opt_value is not None
-                    options[opt_name] = opt_value.rstrip()
-                opt_name = label
-                opt_value = ln[m.end() :]
-            elif opt_name is not None:
-                assert opt_value is not None
-                opt_value += ln
-            elif ln.strip() != "":
-                raise ValueError(f"Non-option line in image: {ln!r}")
-        if opt_name is not None:
-            assert opt_value is not None
-            options[opt_name] = opt_value.rstrip()
-        return cls.parse_obj({"href": href, **options})
-
-    def __str__(self) -> str:
-        s = IMAGE_START + self.href
-        if self.target is not None:
-            s += f"\n    :target: {self.target}"
-        if self.alt is not None:
-            s += f"\n    :alt: {self.alt}"
-        return s
-
-
-class Section(BaseModel):
-    name: str
-    body: str
-
-
-class Readme(BaseModel):
+@dataclass
+class Readme(JSONable):
     """
     See <https://github.com/jwodder/pyrepo/wiki/README-Format> for a
     description of the format parsed & emitted by this class
     """
 
-    badges: List[Image]
-    header_links: List[dict]
+    badges: list[Image]
+    header_links: list[dict]
     contents: bool
     introduction: Optional[str]
-    sections: List[Section]
+    sections: list[Section]
 
     @classmethod
     def load(cls, fp: TextIO) -> Readme:
@@ -159,8 +108,60 @@ class Readme(BaseModel):
             s += f'\n\n{sect.name}\n{"="*len(sect.name)}\n{sect.body}'
         return s + "\n"
 
-    def for_json(self) -> dict:
-        return self.dict()
+
+@dataclass
+class Image(JSONable):
+    href: str
+    target: Optional[str]
+    alt: Optional[str]
+
+    @classmethod
+    def parse(cls, s: str) -> Image:
+        if not s.startswith(IMAGE_START):
+            raise ValueError(f"Not an RST image: {s!r}")
+        lines = s.splitlines(keepends=True)
+        href = lines[0][len(IMAGE_START) :].strip()
+        options: dict[str, Optional[str]] = {
+            "target": None,
+            "alt": None,
+        }
+        opt_name: Optional[str] = None
+        opt_value: Optional[str] = None
+        for ln in lines[1:]:
+            if m := re.match(r"^\s*:(\w+):\s*", ln):
+                label = m[1]
+                if label not in options:
+                    raise ValueError(f"Unknown image option: ':{label}:'")
+                elif options[label] is not None or label == opt_name:
+                    raise ValueError(f"Image has multiple :{label}: options")
+                if opt_name is not None:
+                    assert opt_value is not None
+                    options[opt_name] = opt_value.rstrip()
+                opt_name = label
+                opt_value = ln[m.end() :]
+            elif opt_name is not None:
+                assert opt_value is not None
+                opt_value += ln
+            elif ln.strip() != "":
+                raise ValueError(f"Non-option line in image: {ln!r}")
+        if opt_name is not None:
+            assert opt_value is not None
+            options[opt_name] = opt_value.rstrip()
+        return cls.parse_obj({"href": href, **options})
+
+    def __str__(self) -> str:
+        s = IMAGE_START + self.href
+        if self.target is not None:
+            s += f"\n    :target: {self.target}"
+        if self.alt is not None:
+            s += f"\n    :alt: {self.alt}"
+        return s
+
+
+@dataclass
+class Section:
+    name: str
+    body: str
 
 
 def is_section_start(para: str) -> bool:

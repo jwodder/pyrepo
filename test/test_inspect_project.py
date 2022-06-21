@@ -78,4 +78,4 @@ def test_inspect_project(dirpath: Path, mocker: MockerFixture) -> None:
         details = ProjectDetails.inspect(dirpath)
         mgitcls.assert_called_once_with(dirpath=dirpath)
         mgit.get_default_branch.assert_called_once_with()
-        assert details.dict() == json.loads((dirpath / "_inspect.json").read_text())
+        assert details.for_json() == json.loads((dirpath / "_inspect.json").read_text())

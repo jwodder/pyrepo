@@ -1,8 +1,9 @@
 from __future__ import annotations
 from collections.abc import Callable, Iterable, Iterator
-from datetime import date
+from datetime import date, datetime
 from enum import Enum
 from functools import partial, wraps
+import json
 import logging
 from operator import attrgetter
 from pathlib import Path
@@ -12,41 +13,25 @@ import subprocess
 import sys
 from textwrap import fill
 import time
-from typing import TYPE_CHECKING, Any, Optional, TextIO
+from typing import Any, Optional, TextIO, TypeVar, cast
+import cattrs
 from in_place import InPlace
 from intspan import intspan
 from jinja2 import Environment, PackageLoader
 from packaging.specifiers import SpecifierSet
 from packaging.version import Version
-from pydantic import parse_obj_as
-from pydantic.validators import str_validator
 from pyversion_info import VersionDatabase
-
-if TYPE_CHECKING:
-    from pydantic.typing import CallableGenerator
 
 log = logging.getLogger(__name__)
 
 
 class PyVersion(str):
-    major: int
-    minor: int
+    __slots__ = ("major", "minor")
 
     def __init__(self, s: str) -> None:
-        major, _, minor = s.partition(".")
-        self.major = int(major)
-        self.minor = int(minor)
-
-    @classmethod
-    def __get_validators__(cls) -> CallableGenerator:
-        yield str_validator
-        yield cls._validate
-        yield cls
-
-    @classmethod
-    def _validate(cls, s: str) -> str:
-        if re.fullmatch(r"(\d+)\.(\d+)", s):
-            return s
+        if m := re.fullmatch(r"(\d+)\.(\d+)", s):
+            self.major = int(m[1])
+            self.minor = int(m[2])
         else:
             raise ValueError(f"Invalid Python series: {s!r}")
 
@@ -83,7 +68,7 @@ class PyVersion(str):
 
     @classmethod
     def parse(cls, s: Any) -> PyVersion:
-        return parse_obj_as(cls, s)
+        return cls(s)
 
     @classmethod
     def construct(cls, major: int, minor: int) -> PyVersion:
@@ -92,6 +77,32 @@ class PyVersion(str):
     @property
     def pyenv(self) -> str:
         return f"py{self.major}{self.minor}"
+
+
+# TODO: Switch to cattrs.Converter() once cattrs 22.2.0 is out
+conv = cattrs.GenConverter()
+conv.register_structure_hook(date, lambda v, _: date.fromisoformat(v))
+conv.register_unstructure_hook(date, str)
+conv.register_structure_hook(datetime, lambda v, _: datetime.fromisoformat(v))
+conv.register_unstructure_hook(datetime, str)
+conv.register_structure_hook(PyVersion, lambda v, _: PyVersion.parse(v))
+
+
+J = TypeVar("J", bound="JSONable")
+
+
+class JSONable:
+    @classmethod
+    def parse_obj(cls: type[J], data: Any) -> J:
+        return conv.structure(data, cls)
+
+    @classmethod
+    def parse_file(cls: type[J], path: str | Path) -> J:
+        with open(path, "r", encoding="utf-8") as fp:
+            return cls.parse_obj(json.load(fp))
+
+    def for_json(self) -> dict:
+        return cast(dict, conv.unstructure(self))
 
 
 def runcmd(*args: str | Path, **kwargs: Any) -> subprocess.CompletedProcess:

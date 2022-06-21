@@ -1,6 +1,6 @@
 {
-    "__python_requires__": null,
-    "__requires__": [
+    "python_requires": null,
+    "requires": [
         "attrs ~= 19.1",
         "click ~= 7.0"
     ]

@@ -4,16 +4,15 @@ from configparser import ConfigParser
 from dataclasses import dataclass
 from pathlib import Path
 import re
-from typing import Any, List, Optional
+from typing import Any, Optional
 from intspan import intspan
-from pydantic import BaseModel, Field
 from read_version import read_version
 from setuptools.config.setupcfg import read_configuration
 import versioningit
 import yaml
 from . import git  # Import module to keep mocking easy
 from .readme import Readme
-from .util import PyVersion, sort_specifier, yield_lines
+from .util import JSONable, PyVersion, sort_specifier, yield_lines
 
 
 class InvalidProjectError(Exception):
@@ -195,17 +194,22 @@ def find_module(dirpath: Path) -> ModuleInfo:
         return results[0]
 
 
-class Requirements(BaseModel):
-    python_requires: Optional[str] = Field(None, alias="__python_requires__")
-    requires: Optional[List[str]] = Field(None, alias="__requires__")
+@dataclass
+class Requirements(JSONable):
+    python_requires: Optional[str] = None
+    requires: Optional[list[str]] = None
 
 
 def extract_requires(filename: Path) -> Requirements:
     ### TODO: Split off the destructive functionality so that this can be run
     ### idempotently/in a read-only manner
     variables: dict[str, Any] = {
-        "__python_requires__": None,
-        "__requires__": None,
+        "python_requires": None,
+        "requires": None,
+    }
+    field_map = {
+        "__python_requires__": "python_requires",
+        "__requires__": "requires",
     }
     src = filename.read_bytes()
     lines = src.splitlines(keepends=True)
@@ -216,9 +220,9 @@ def extract_requires(filename: Path) -> Requirements:
             isinstance(node, ast.Assign)
             and len(node.targets) == 1
             and isinstance(node.targets[0], ast.Name)
-            and node.targets[0].id in variables
+            and node.targets[0].id in field_map
         ):
-            variables[node.targets[0].id] = ast.literal_eval(node.value)
+            variables[field_map[node.targets[0].id]] = ast.literal_eval(node.value)
             if i + 1 < len(tree.body):
                 dellines.append(slice(node.lineno - 1, tree.body[i + 1].lineno - 1))
             else:

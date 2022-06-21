@@ -2,6 +2,7 @@ from __future__ import annotations
 from bisect import insort
 from collections.abc import Callable, Iterator
 from contextlib import suppress
+from dataclasses import dataclass
 from datetime import date
 from functools import cached_property, partial, wraps
 import logging
@@ -14,7 +15,6 @@ import click
 from configupdater import ConfigUpdater
 from lineinfile import AfterLast, add_line_to_file
 from packaging.specifiers import SpecifierSet
-from pydantic import BaseModel, DirectoryPath
 from . import git
 from .changelog import Changelog, ChangelogSection
 from .details import ProjectDetails
@@ -25,14 +25,10 @@ from .util import PyVersion, map_lines, next_version, replace_group, runcmd
 log = logging.getLogger(__name__)
 
 
-class Project(BaseModel):
-    directory: DirectoryPath
+@dataclass
+class Project:
+    directory: Path
     details: ProjectDetails
-
-    class Config:
-        # <https://github.com/samuelcolvin/pydantic/issues/1241>
-        arbitrary_types_allowed = True
-        keep_untouched = (cached_property,)
 
     @classmethod
     def from_directory(cls, dirpath: Optional[Path] = None) -> Project:
@@ -56,7 +52,7 @@ class Project(BaseModel):
         return any(c.startswith("Private") for c in self.details.classifiers)
 
     def get_template_writer(self) -> TemplateWriter:
-        return TemplateWriter(context=self.details.dict(), basedir=self.directory)
+        return TemplateWriter(context=self.details.for_json(), basedir=self.directory)
 
     def set_version(self, version: str) -> None:
         if not self.details.uses_versioningit:

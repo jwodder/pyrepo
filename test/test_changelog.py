@@ -11,7 +11,7 @@ from test_helpers import DATA_DIR
     [p for p in (DATA_DIR / "changelog").iterdir() if p.suffix in (".md", ".rst")],
     ids=attrgetter("name"),
 )
-def test_readme(filepath: Path) -> None:
+def test_changelog(filepath: Path) -> None:
     with filepath.open(encoding="utf-8") as fp:
         chlog = Changelog.load(fp)
     assert chlog.for_json() == json.loads(filepath.with_suffix(".json").read_text())

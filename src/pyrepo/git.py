@@ -1,17 +1,18 @@
 from __future__ import annotations
+from dataclasses import dataclass
 import logging
 from pathlib import Path
 import subprocess
 import time
 from typing import Any, Optional
-from pydantic import BaseModel, DirectoryPath
 from . import util
 
 log = logging.getLogger(__name__)
 
 
-class Git(BaseModel):
-    dirpath: DirectoryPath
+@dataclass
+class Git:
+    dirpath: Path
 
     def run(self, *args: str | Path, **kwargs: Any) -> subprocess.CompletedProcess:
         return util.runcmd("git", *args, cwd=self.dirpath, **kwargs)

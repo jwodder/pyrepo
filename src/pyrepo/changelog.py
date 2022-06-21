@@ -1,56 +1,28 @@
 from __future__ import annotations
+from dataclasses import dataclass
 from datetime import date, datetime
-import json
 import re
-from typing import IO, List, Optional, cast
-from pydantic import BaseModel
+from typing import IO, Optional
+from .util import JSONable
 
 DATE_VERSION = re.compile(r"v\d{4}\.\d?\d\.\d?\d")
 
 
-class ChangelogSection(BaseModel):
-    # If `version` is unset, then `release_date` should be unset as well; this
-    # denotes a section header of just "In Development"
-    version: Optional[str]
-    release_date: Optional[date]  # None = "in development"
-    content: str  # has trailing newlines stripped
-
-    def __str__(self) -> str:
-        if self.version is None:
-            header = "In Development"
-        elif DATE_VERSION.fullmatch(self.version):
-            header = self.version
-        else:
-            if self.release_date is None:
-                rdate = "in development"
-            else:
-                rdate = str(self.release_date)
-            header = f"{self.version} ({rdate})"
-        return (
-            header
-            + "\n"
-            + "-" * len(header)
-            + (f"\n{self.content}" if self.content else "")
-        )
-
-    def _end(self) -> None:
-        self.content = self.content.rstrip("\r\n")
-
-
-class Changelog(BaseModel):
+@dataclass
+class Changelog(JSONable):
     """
     See <https://github.com/jwodder/pyrepo/wiki/CHANGELOG-Format> for a
     description of the format parsed & emitted by this class
     """
 
     intro: str
-    sections: List[ChangelogSection]
+    sections: list[ChangelogSection]
 
     @classmethod
     def load(cls, fp: IO[str]) -> Changelog:
         intro = ""
         prev: Optional[str] = None
-        sections: List[ChangelogSection] = []
+        sections: list[ChangelogSection] = []
         for line in fp:
             if re.fullmatch(r"---+\s*", line):
                 if sections:
@@ -66,12 +38,15 @@ class Changelog(BaseModel):
                     flags=re.I,
                 ):
                     rdate: Optional[str] = m["date"]
-                    if rdate is not None and rdate.lower() == "in development":
-                        rdate = None
+                    release_date: Optional[date]
+                    if rdate is None or rdate.lower() == "in development":
+                        release_date = None
+                    else:
+                        release_date = date.fromisoformat(rdate)
                     sections.append(
                         ChangelogSection(
                             version=m["version"],
-                            release_date=rdate,
+                            release_date=release_date,
                             content="",
                         )
                     )
@@ -125,5 +100,32 @@ class Changelog(BaseModel):
         else:
             return self.intro
 
-    def for_json(self) -> dict:
-        return cast(dict, json.loads(self.json()))
+
+@dataclass
+class ChangelogSection:
+    # If `version` is unset, then `release_date` should be unset as well; this
+    # denotes a section header of just "In Development"
+    version: Optional[str]
+    release_date: Optional[date]  # None = "in development"
+    content: str  # has trailing newlines stripped
+
+    def __str__(self) -> str:
+        if self.version is None:
+            header = "In Development"
+        elif DATE_VERSION.fullmatch(self.version):
+            header = self.version
+        else:
+            if self.release_date is None:
+                rdate = "in development"
+            else:
+                rdate = str(self.release_date)
+            header = f"{self.version} ({rdate})"
+        return (
+            header
+            + "\n"
+            + "-" * len(header)
+            + (f"\n{self.content}" if self.content else "")
+        )
+
+    def _end(self) -> None:
+        self.content = self.content.rstrip("\r\n")

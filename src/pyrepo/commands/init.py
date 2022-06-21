@@ -11,6 +11,7 @@ from packaging.specifiers import SpecifierSet
 from packaging.utils import canonicalize_name as normalize
 from .. import git, util
 from ..clack import ConfigurableCommand
+from ..details import ProjectDetails
 from ..inspecting import extract_requires, find_module, parse_requirements
 from ..project import Project
 from ..util import cpe_no_tb, ensure_license_years, runcmd
@@ -234,7 +235,7 @@ def cli(
         if env["has_typing"]:
             env["extra_testenvs"]["typing"] = minver
 
-    project = Project(directory=dirpath, details=env)
+    project = Project(directory=dirpath, details=ProjectDetails.parse_obj(env))
     twriter = project.get_template_writer()
     twriter.write(".gitignore", force=False)
     twriter.write(".pre-commit-config.yaml", force=False)

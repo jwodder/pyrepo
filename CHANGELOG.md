@@ -12,6 +12,7 @@ In Development
 - Internal API:
     - Make `configure()` store option defaults in `ctx.default_map`
     - Rename `supports_pypy3` to `supports_pypy`
+    - Replace pydantic with dataclasses + cattrs
 
 v2022.6.20
 ----------
