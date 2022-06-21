@@ -52,15 +52,31 @@ log = logging.getLogger(__name__)
     help="Whether to include running doctests in test configuration",
 )
 @click.option("--github-user", metavar="USER", help="Username of GitHub repository")
-@click.option("-p", "--project-name", metavar="NAME", help="Name of project")
+@click.option(
+    "-p",
+    "--project-name",
+    metavar="NAME",
+    help="Name of project",
+    default="{{import_name}}",
+)
 @click.option(
     "-P",
     "--python-requires",
     metavar="SPEC",
     help="Python versions required by project",
 )
-@click.option("--repo-name", metavar="NAME", help="Name of GitHub repository")
-@click.option("--rtfd-name", metavar="NAME", help="Name of RTFD.io site")
+@click.option(
+    "--repo-name",
+    metavar="NAME",
+    help="Name of GitHub repository",
+    default="{{project_name}}",
+)
+@click.option(
+    "--rtfd-name",
+    metavar="NAME",
+    help="Name of RTFD.io site",
+    default="{{project_name}}",
+)
 @click.option("--tests/--no-tests", help="Whether to generate test configuration")
 @click.option(
     "--typing/--no-typing",
@@ -85,10 +101,10 @@ def cli(
     docs: bool,
     doctests: bool,
     github_user: Optional[str],
-    project_name: Optional[str],
+    project_name: str,
     python_requires: Optional[str],
-    repo_name: Optional[str],
-    rtfd_name: Optional[str],
+    repo_name: str,
+    rtfd_name: str,
     tests: bool,
     typing: bool,
 ) -> None:
@@ -149,13 +165,20 @@ def cli(
         )
         env["is_flat_module"] = False
 
-    env["name"] = none_or(project_name, env["import_name"])
-    env["repo_name"] = none_or(repo_name, env["name"])
-    env["rtfd_name"] = none_or(rtfd_name, env["name"])
+    jenv = Environment()
 
-    env["author_email"] = (
-        Environment().from_string(author_email).render(project_name=env["name"])
-    )
+    env["name"] = jenv.from_string(project_name).render(import_name=env["import_name"])
+    log.debug("Computed project name as %r", env["name"])
+    jenv_ctx = {"import_name": env["import_name"], "project_name": env["name"]}
+
+    env["repo_name"] = jenv.from_string(repo_name).render(jenv_ctx)
+    log.debug("Computed repo name as %r", env["repo_name"])
+
+    env["rtfd_name"] = jenv.from_string(rtfd_name).render(jenv_ctx)
+    log.debug("Computed RTFD name as %r", env["rtfd_name"])
+
+    env["author_email"] = jenv.from_string(author_email).render(jenv_ctx)
+    log.debug("Computed author email as %r", env["author_email"])
 
     log.info("Checking for requirements.txt ...")
     req_vars = parse_requirements(dirpath / "requirements.txt")

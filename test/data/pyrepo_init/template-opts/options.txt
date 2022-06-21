@@ -1,0 +1,11 @@
+-d
+A project
+--docs
+--project-name
+project-name
+--repo-name
+{{import_name}}-{{project_name}}
+--rtfd-name
+{{import_name}}-{{project_name}}-docs
+--author-email
+{{import_name}}-{{project_name}}@example.com

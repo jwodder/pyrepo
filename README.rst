@@ -155,7 +155,8 @@ All of the following can be set via the configuration file, in the
 
 --author-email EMAIL    Set the project's author's e-mail address.  This may be
                         either a plain e-mail address or a Jinja2 template
-                        defined in terms of the variable ``project_name``.
+                        defined in terms of the variables ``project_name`` and
+                        ``import_name``.
 
 --ci, --no-ci           Whether to generate templates for testing with GitHub
                         Actions; implies ``--tests``; default: ``--no-ci``
@@ -190,7 +191,10 @@ All of the following can be set via the configuration file, in the
 
 -p NAME, --project-name NAME
                         Set the name of the project as it will be known on
-                        PyPI; defaults to the import name
+                        PyPI; defaults to the import name.
+
+                        This can be set to a Jinja2 template defined in terms
+                        of the variable ``import_name``.
 
 -P SPEC, --python-requires SPEC
                         Set the project's ``python_requires`` value.  ``SPEC``
@@ -216,10 +220,16 @@ All of the following can be set via the configuration file, in the
                         and CI.
 
 --repo-name NAME        The name of the project's repository on GitHub;
-                        defaults to the project name
+                        defaults to the project name.
+
+                        This can be set to a Jinja2 template defined in terms
+                        of the variables ``project_name`` and ``import_name``.
 
 --rtfd-name NAME        The name of the project's Read the Docs site; defaults
-                        to the project name
+                        to the project name.
+
+                        This can be set to a Jinja2 template defined in terms
+                        of the variables ``project_name`` and ``import_name``.
 
 --tests, --no-tests     Whether to generate templates for testing with pytest
                         and tox; default: ``--no-tests``

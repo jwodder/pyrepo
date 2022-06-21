@@ -5,6 +5,10 @@ In Development
   to command subsections
 - Change the config file format to TOML
     - Config keys are no longer case-insensitive
+- `pyrepo init`: The `--project-name`, `--repo-name`, and `--rtfd-name` options
+  may now be set to Jinja2 templates using the variables `project_name` (except
+  `--project-name` itself) and `import_name`, and `--author-email` templates
+  may now use the variable `import_name`.
 - Templates:
     - The presence of `pypy3` in the envlist in `tox.ini` is now affected by
       `supports_pypy`, and the exact PyPy version(s) used is now based on the

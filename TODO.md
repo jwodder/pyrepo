@@ -18,9 +18,6 @@
       :: X :: Only" classifier when it no longer applies
 
 - `pyrepo init`:
-    - Support `project_name`, `repo_name`, and `rtfd_name` as Jinja2 templates
-      with access to `import_name` and (except for `project_name` itself)
-      `project_name`
     - If the repository already has a GitHub remote, use that to set the
       default `repo_name` (and `github_user`?)
     - `--command`: Support setting the entry point function name to something
