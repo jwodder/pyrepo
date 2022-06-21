@@ -13,7 +13,7 @@ import subprocess
 import sys
 from textwrap import fill
 import time
-from typing import Any, Optional, TextIO, TypeVar, cast
+from typing import Any, Optional, TextIO, TypeVar
 import cattrs
 from in_place import InPlace
 from intspan import intspan
@@ -102,7 +102,9 @@ class JSONable:
             return cls.parse_obj(json.load(fp))
 
     def for_json(self) -> dict:
-        return cast(dict, conv.unstructure(self))
+        d = conv.unstructure(self)
+        assert isinstance(d, dict)
+        return d
 
 
 def runcmd(*args: str | Path, **kwargs: Any) -> subprocess.CompletedProcess:
