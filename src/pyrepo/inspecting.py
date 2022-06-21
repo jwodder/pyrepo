@@ -4,7 +4,7 @@ from configparser import ConfigParser
 from dataclasses import dataclass
 from pathlib import Path
 import re
-from typing import Any, Optional
+from typing import Any, List, Optional
 from intspan import intspan
 from read_version import read_version
 from setuptools.config.setupcfg import read_configuration
@@ -197,7 +197,7 @@ def find_module(dirpath: Path) -> ModuleInfo:
 @dataclass
 class Requirements(JSONable):
     python_requires: Optional[str] = None
-    requires: Optional[list[str]] = None
+    requires: Optional[List[str]] = None
 
 
 def extract_requires(filename: Path) -> Requirements:

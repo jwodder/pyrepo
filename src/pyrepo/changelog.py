@@ -2,7 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import date, datetime
 import re
-from typing import IO, Optional
+from typing import IO, List, Optional
 from .util import JSONable
 
 DATE_VERSION = re.compile(r"v\d{4}\.\d?\d\.\d?\d")
@@ -16,7 +16,7 @@ class Changelog(JSONable):
     """
 
     intro: str
-    sections: list[ChangelogSection]
+    sections: List[ChangelogSection]
 
     @classmethod
     def load(cls, fp: IO[str]) -> Changelog:

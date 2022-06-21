@@ -1,6 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Dict, List
 from .inspecting import inspect_project
 from .tmpltr import Templater
 from .util import JSONable, PyVersion
@@ -15,27 +16,27 @@ class ProjectDetails(JSONable):
     short_description: str
     author: str
     author_email: str
-    install_requires: list[str]
-    keywords: list[str]
-    classifiers: list[str]
+    install_requires: List[str]
+    keywords: List[str]
+    classifiers: List[str]
     supports_pypy: bool
 
     #: Extra testenvs to include runs for in CI, as a mapping from testenv name
     #: to Python version
-    extra_testenvs: dict[str, str]
+    extra_testenvs: Dict[str, str]
 
     is_flat_module: bool
     import_name: str
     uses_versioningit: bool
 
     #: Sorted list of supported Python versions
-    python_versions: list[PyVersion]
+    python_versions: List[PyVersion]
 
     python_requires: str
 
     #: Mapping from command (`console_scripts`) names to entry point
     #: specifications
-    commands: dict[str, str]
+    commands: Dict[str, str]
 
     github_user: str
     codecov_user: str
@@ -47,7 +48,7 @@ class ProjectDetails(JSONable):
     has_docs: bool
     has_ci: bool
     has_pypi: bool
-    copyright_years: list[int]
+    copyright_years: List[int]
     default_branch: str
 
     def __post_init__(self) -> None:

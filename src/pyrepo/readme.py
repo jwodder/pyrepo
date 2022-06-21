@@ -2,7 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum
 import re
-from typing import Optional, TextIO
+from typing import List, Optional, TextIO
 from linesep import read_paragraphs
 from .util import JSONable
 
@@ -20,11 +20,11 @@ class Readme(JSONable):
     description of the format parsed & emitted by this class
     """
 
-    badges: list[Image]
-    header_links: list[dict]
+    badges: List[Image]
+    header_links: List[dict]
     contents: bool
     introduction: Optional[str]
-    sections: list[Section]
+    sections: List[Section]
 
     @classmethod
     def load(cls, fp: TextIO) -> Readme:
