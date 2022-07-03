@@ -13,6 +13,9 @@ In Development
     - The presence of `pypy3` in the envlist in `tox.ini` is now affected by
       `supports_pypy`, and the exact PyPy version(s) used is now based on the
       CPython major versions supported by the latest PyPy series
+    - The installation instructions in `README.rst` and `docs/index.rst` have
+      been changed from "to install {name} and its dependencies" to "to install
+      it"
 - Internal API:
     - Make `configure()` store option defaults in `ctx.default_map`
     - Rename `supports_pypy3` to `supports_pypy`
