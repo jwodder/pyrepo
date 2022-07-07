@@ -16,6 +16,7 @@ In Development
     - The installation instructions in `README.rst` and `docs/index.rst` have
       been changed from "to install {name} and its dependencies" to "to install
       it"
+    - `pyproject.toml`: Remove `wheel` from `build-system.requires`
 - Internal API:
     - Make `configure()` store option defaults in `ctx.default_map`
     - Rename `supports_pypy3` to `supports_pypy`

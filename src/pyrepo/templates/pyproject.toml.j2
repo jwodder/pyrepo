@@ -1,11 +1,12 @@
 [build-system]
+{% if uses_versioningit %}
 requires = [
     "setuptools >= 46.4.0",
-    {% if uses_versioningit %}
-    "versioningit ~= 1.0",
-    {% endif %}
-    "wheel ~= 0.32"
+    "versioningit",
 ]
+{% else %}
+requires = ["setuptools >= 46.4.0"]
+{% endif %}
 build-backend = "setuptools.build_meta"
 {% if uses_versioningit %}
 
