@@ -17,6 +17,7 @@ In Development
       been changed from "to install {name} and its dependencies" to "to install
       it"
     - `pyproject.toml`: Remove `wheel` from `build-system.requires`
+    - `test.yml`: Update action versions
 - Internal API:
     - Make `configure()` store option defaults in `ctx.default_map`
     - Rename `supports_pypy3` to `supports_pypy`
