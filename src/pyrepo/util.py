@@ -79,8 +79,7 @@ class PyVersion(str):
         return f"py{self.major}{self.minor}"
 
 
-# TODO: Switch to cattrs.Converter() once cattrs 22.2.0 is out
-conv = cattrs.GenConverter()
+conv = cattrs.Converter()
 conv.register_structure_hook(date, lambda v, _: date.fromisoformat(v))
 conv.register_unstructure_hook(date, str)
 conv.register_structure_hook(datetime, lambda v, _: datetime.fromisoformat(v))
