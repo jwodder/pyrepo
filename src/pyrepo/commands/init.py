@@ -214,7 +214,7 @@ def cli(
         is not click.core.ParameterSource.DEFAULT_MAP
     ):
         if re.fullmatch(r"\d+\.\d+", python_requires):
-            python_requires = f"~={python_requires}"
+            python_requires = f">={python_requires}"
     else:
         pyreq_req = req_vars.python_requires
         pyreq_src = src_vars.python_requires
@@ -230,7 +230,7 @@ def cli(
         elif pyreq_src is not None:
             python_requires = pyreq_src
         elif python_requires is None:
-            python_requires = f"~={supported_pythons[0]}"
+            python_requires = f">={supported_pythons[0]}"
 
     env["python_requires"] = python_requires
     try:

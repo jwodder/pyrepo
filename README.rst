@@ -200,7 +200,7 @@ All of the following can be set via the configuration file, in the
                         Set the project's ``python_requires`` value.  ``SPEC``
                         may be either a PEP 440 version specifier (e.g., ``>=
                         3.3, != 3.4.0``) or a bare ``X.Y`` version (to which
-                        ``~=`` will be prepended).  When not specified on the
+                        ``>=`` will be prepended).  When not specified on the
                         command line, this value is instead extracted from
                         either a "``# Python SPEC``" comment in
                         ``requirements.txt`` or a ``__python_requires__ =
@@ -209,7 +209,7 @@ All of the following can be set via the configuration file, in the
                         of these sources are present, ``pyrepo init`` falls
                         back to the value of ``python_requires`` in the
                         ``[options.init]`` table of the configuration file,
-                        which in turn defaults to ``~=`` plus the current
+                        which in turn defaults to ``>=`` plus the current
                         minimum supported Python series.
 
                         Besides setting ``python_requires``, the value of this

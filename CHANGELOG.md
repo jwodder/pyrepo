@@ -5,10 +5,13 @@ In Development
   to command subsections
 - Change the config file format to TOML
     - Config keys are no longer case-insensitive
-- `pyrepo init`: The `--project-name`, `--repo-name`, and `--rtfd-name` options
-  may now be set to Jinja2 templates using the variables `project_name` (except
-  `--project-name` itself) and `import_name`, and `--author-email` templates
-  may now use the variable `import_name`.
+- `pyrepo init`:
+    - The `--project-name`, `--repo-name`, and `--rtfd-name` options may now be
+      set to Jinja2 templates using the variables `project_name` (except
+      `--project-name` itself) and `import_name`, and `--author-email`
+      templates may now use the variable `import_name`.
+    - The default version comparison operator used in `python_requires` fields
+      in `setup.cfg` has been changed from `~=` to `>=`.
 - Stop including "Development Status" classifiers in `setup.cfg`, and no longer
   make `pyrepo release` manage them
 - Templates:
