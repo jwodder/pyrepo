@@ -21,12 +21,10 @@ from mimetypes import add_type, guess_type
 import os
 import os.path
 from pathlib import Path
-import re
 import sys
 from tempfile import NamedTemporaryFile
 from typing import Any, Optional
 import click
-from configupdater import ConfigUpdater
 from in_place import InPlace
 from linesep import read_paragraphs
 from packaging.version import Version
@@ -276,9 +274,6 @@ class Releaser:
                     print(ACTIVE_BADGE, file=fp)
                 else:
                     print(para, file=fp, end="")
-        # Set "Development Status" classifier to "Beta" or higher:
-        log.info("Advancing Development Status classifier ...")
-        advance_devstatus(self.project.directory / "setup.cfg")
         if not self.project.private:
             log.info("Updating GitHub topics ...")
             ### TODO: Check that the repository has topics first?
@@ -393,23 +388,3 @@ def get_mime_type(filename: str, strict: bool = False) -> str:
         # return mtype + '+gzip'
     else:
         return f"application/x-{encoding}"
-
-
-def advance_devstatus(cfgpath: Path) -> None:
-    setup_cfg = ConfigUpdater(delimiters=("=",))
-    setup_cfg.read(str(cfgpath), encoding="utf-8")
-    if setup_cfg.has_option("metadata", "classifiers"):
-        output = []
-        matched = False
-        for line in setup_cfg["metadata"]["classifiers"].as_list():
-            if re.match(r"^\s*#?\s*Development Status :: [123] ", line):
-                continue
-            elif (
-                re.match(r"^\s*#?\s*Development Status :: [4567] ", line)
-                and not matched
-            ):
-                matched = True
-                line = line.replace("#", "", 1)
-            output.append(line)
-        setup_cfg["metadata"]["classifiers"].set_values(output)
-        setup_cfg.update_file()

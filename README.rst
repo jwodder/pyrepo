@@ -393,7 +393,6 @@ following operations in order:
 - If there is no CHANGELOG file, assume this is the first release and:
 
   - Update the repostatus badge in the README from "WIP" to "Active"
-  - Set the "Development Status" classifier in ``setup.cfg`` to "4 - Beta"
   - If the project does not have a "Private" classifier, remove the
     "work-in-progress" topic from the repository on GitHub and add the topic
     "available-on-pypi"

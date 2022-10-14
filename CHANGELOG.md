@@ -9,6 +9,8 @@ In Development
   may now be set to Jinja2 templates using the variables `project_name` (except
   `--project-name` itself) and `import_name`, and `--author-email` templates
   may now use the variable `import_name`.
+- Stop including "Development Status" classifiers in `setup.cfg`, and no longer
+  make `pyrepo release` manage them
 - Templates:
     - The presence of `pypy3` in the envlist in `tox.ini` is now affected by
       `supports_pypy`, and the exact PyPy version(s) used is now based on the
