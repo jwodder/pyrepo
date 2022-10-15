@@ -305,6 +305,8 @@ exists).  This is the same behavior as the last step of ``pyrepo release``.
 
 If the project uses versioningit_, the ``__version__`` variable is left alone.
 
+If the project is already in "dev mode", nothing is done.
+
 Options
 ^^^^^^^
 

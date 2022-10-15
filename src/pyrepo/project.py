@@ -324,6 +324,14 @@ class Project:
             )
 
     def begin_dev(self, use_next_version: bool = True) -> None:
+        chlog = self.get_changelog()
+        if (
+            chlog is not None
+            and chlog.sections
+            and chlog.sections[0].release_date is None
+        ):
+            log.info("Project is already in dev state; not adjusting")
+            return
         log.info("Preparing for work on next version ...")
         # Set __version__ to the next version number plus ".dev1"
         old_version = self.details.version

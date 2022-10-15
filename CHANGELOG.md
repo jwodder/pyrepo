@@ -16,6 +16,7 @@ In Development
   make `pyrepo release` manage them
 - Add a `pyrepo drop-pyversion` command and `Project.drop_pyversion()` method
   for removing support for the lowest minor Python version
+- `pyrepo begin-dev` now does nothing if the project is already in "dev mode"
 - Templates:
     - The presence of `pypy3` in the envlist in `tox.ini` is now affected by
       `supports_pypy`, and the exact PyPy version(s) used is now based on the
