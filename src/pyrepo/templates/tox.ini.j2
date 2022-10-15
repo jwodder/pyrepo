@@ -14,11 +14,11 @@ minversion = 3.3.0
 [testenv]
 deps =
     {% if has_doctests %}
-    coverage~=6.0
+    coverage
     {% endif %}
-    pytest~=7.0
+    pytest
     {% if not has_doctests %}
-    pytest-cov~=3.0
+    pytest-cov
     {% endif %}
 commands =
 {% if has_doctests %}
@@ -36,9 +36,9 @@ commands =
 [testenv:lint]
 skip_install = True
 deps =
-    flake8~=4.0
+    flake8
     flake8-bugbear
-    flake8-builtins~=1.4
+    flake8-builtins
     flake8-unused-arguments
 commands =
     flake8 src{% if has_tests %} test{% endif +%}
@@ -48,7 +48,7 @@ commands =
 {% block testenv_typing %}
 [testenv:typing]
 deps =
-    mypy~=0.900
+    mypy
     {% if has_tests %}
     {[testenv]deps}
     {% endif %}

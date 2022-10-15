@@ -23,6 +23,7 @@ In Development
       it"
     - `pyproject.toml`: Remove `wheel` from `build-system.requires`
     - `test.yml`: Update action versions
+    - `tox.ini`: Remove version specifiers from deps
 - Internal API:
     - Make `configure()` store option defaults in `ctx.default_map`
     - Rename `supports_pypy3` to `supports_pypy`
