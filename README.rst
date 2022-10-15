@@ -315,6 +315,20 @@ Options
                                 CHANGELOG section
 
 
+``pyrepo drop-pyversion``
+-------------------------
+
+::
+
+    pyrepo [<global-options>] drop-pyversion
+
+Configure the project to no longer declare support for or test against the
+current lowest supported minor Python version.
+
+It is an error to run this command when the project declares support for only
+zero or one minor Python version.
+
+
 ``pyrepo inspect``
 ------------------
 

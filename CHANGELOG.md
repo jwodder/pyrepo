@@ -14,6 +14,8 @@ In Development
       in `setup.cfg` has been changed from `~=` to `>=`.
 - Stop including "Development Status" classifiers in `setup.cfg`, and no longer
   make `pyrepo release` manage them
+- Add a `pyrepo drop-pyversion` command and `Project.drop_pyversion()` method
+  for removing support for the lowest minor Python version
 - Templates:
     - The presence of `pypy3` in the envlist in `tox.ini` is now affected by
       `supports_pypy`, and the exact PyPy version(s) used is now based on the

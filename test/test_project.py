@@ -15,3 +15,15 @@ def test_add_pyversion(mocker: MockerFixture, tmp_path: Path) -> None:
     mgitcls.assert_called_once_with(dirpath=tmp_path)
     mgit.get_default_branch.assert_called_once_with()
     assert_dirtrees_eq(tmp_path, CASE_DIR / "after")
+
+
+def test_drop_pyversion(mocker: MockerFixture, tmp_path: Path) -> None:
+    mgitcls, mgit = mock_git(mocker, get_default_branch="master")
+    CASE_DIR = DATA_DIR / "drop_pyversion"
+    tmp_path /= "tmp"  # copytree() can't copy to a dir that already exists
+    copytree(CASE_DIR / "before", tmp_path)
+    proj = Project.from_directory(tmp_path)
+    proj.drop_pyversion()
+    mgitcls.assert_called_once_with(dirpath=tmp_path)
+    mgit.get_default_branch.assert_called_once_with()
+    assert_dirtrees_eq(tmp_path, CASE_DIR / "after")

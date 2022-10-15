@@ -216,12 +216,16 @@ def sort_specifier(specset: SpecifierSet) -> str:
 
 def replace_group(
     rgx: str | re.Pattern[str],
-    replacer: Callable[[str], str],
+    replacer: str | Callable[[str], str],
     s: str,
     group: int | str = 1,
 ) -> str:
     if m := re.search(rgx, s):
-        s = s[: m.start(group)] + replacer(m[group]) + s[m.end(group) :]
+        if isinstance(replacer, str):
+            repl = replacer
+        else:
+            repl = replacer(m[group])
+        s = s[: m.start(group)] + repl + s[m.end(group) :]
     return s
 
 
@@ -229,6 +233,13 @@ def map_lines(filepath: str | Path, func: Callable[[str], str]) -> None:
     with InPlace(filepath, mode="t", encoding="utf-8") as fp:
         for line in fp:
             print(func(line), file=fp, end="")
+
+
+def maybe_map_lines(filepath: str | Path, func: Callable[[str], Optional[str]]) -> None:
+    with InPlace(filepath, mode="t", encoding="utf-8") as fp:
+        for line in fp:
+            if (newline := func(line)) is not None:
+                print(newline, file=fp, end="")
 
 
 def cpe_no_tb(func: Callable) -> Callable:

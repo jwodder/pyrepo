@@ -20,7 +20,14 @@ from .changelog import Changelog, ChangelogSection
 from .details import ProjectDetails
 from .inspecting import InvalidProjectError, find_project_root
 from .tmpltr import TemplateWriter
-from .util import PyVersion, map_lines, next_version, replace_group, runcmd
+from .util import (
+    PyVersion,
+    map_lines,
+    maybe_map_lines,
+    next_version,
+    replace_group,
+    runcmd,
+)
 
 log = logging.getLogger(__name__)
 
@@ -221,7 +228,7 @@ class Project:
                 self.directory / "tox.ini",
                 partial(
                     replace_group,
-                    re.compile(r"^envlist\s*=[ \t]*(.+)$", flags=re.M),
+                    re.compile(r"^envlist\s*=[ \t]*(.+)$"),
                     partial(add_py_env, pyv),
                 ),
             )
@@ -234,6 +241,87 @@ class Project:
                 encoding="utf-8",
             )
         insort(self.details.python_versions, pyv)
+
+    def drop_pyversion(self) -> None:
+        # TODO: Replace these errors with a custom class which the CLI logs at
+        # ERROR level before exiting nonzero (or which get converted to Click
+        # errors?)
+        if not self.details.python_versions:
+            raise ValueError("No supported Python versions to drop")
+        elif len(self.details.python_versions) == 1:
+            raise ValueError("Only one supported Python version; not dropping")
+        dropver = self.details.python_versions.pop(0)
+        log.info("Dropping %s from supported Python versions", dropver)
+        newmin = self.details.python_versions[0]
+        self.details.python_requires = re.sub(
+            r"\d+(?:\.\d+)*", str(newmin), self.details.python_requires
+        )
+        log.info("Updating README.rst ...")
+        map_lines(
+            self.directory / "README.rst",
+            partial(
+                replace_group,
+                re.compile(r"requires Python (\d+(?:\.\d+)*)"),
+                str(newmin),
+            ),
+        )
+        if (self.directory / "docs").exists():
+            log.info("Updating docs/index.rst ...")
+            map_lines(
+                self.directory / "docs" / "index.rst",
+                partial(
+                    replace_group,
+                    re.compile(r"requires Python (\d+(?:\.\d+)*)"),
+                    str(newmin),
+                ),
+            )
+
+        def edit_setup_cfg_line(line: str) -> Optional[str]:
+            if line == f"    Programming Language :: Python :: {dropver}\n":
+                return None
+            else:
+                return replace_group(
+                    re.compile(r"^python_requires\s*=[ \t]*(.+)$"),
+                    self.details.python_requires,
+                    line,
+                )
+
+        log.info("Updating setup.cfg ...")
+        maybe_map_lines(self.directory / "setup.cfg", edit_setup_cfg_line)
+        if self.details.has_tests:
+            log.info("Updating tox.ini ...")
+            map_lines(
+                self.directory / "tox.ini",
+                partial(
+                    replace_group,
+                    re.compile(r"^envlist\s*=[ \t]*(.+)$"),
+                    partial(rm_py_env, dropver),
+                ),
+            )
+        if self.details.has_ci:
+
+            def edit_test_yml_line(line: str) -> Optional[str]:
+                if re.fullmatch(
+                    rf"{' ' * 10}- ['\x22]?(?:pypy-)?{re.escape(str(dropver))}"
+                    rf"['\x22]?\s*",
+                    line,
+                ):
+                    return None
+                else:
+                    return replace_group(
+                        re.compile(
+                            rf"^{' ' * 10}- python-version: (['\x22]?"
+                            rf"{re.escape(str(dropver))}['\x22]?)\s*$"
+                        ),
+                        f"'{newmin}'",
+                        line,
+                    )
+
+            log.info("Updating .github/workflows/test.yml ...")
+            maybe_map_lines(
+                self.directory / ".github" / "workflows" / "test.yml",
+                edit_test_yml_line,
+            )
 
     def begin_dev(self, use_next_version: bool = True) -> None:
         log.info("Preparing for work on next version ...")
@@ -288,6 +376,15 @@ def add_py_env(pyv: PyVersion, envlist: str) -> str:
         envs.insert(-1, pyv.pyenv)
     else:
         envs.append(pyv.pyenv)
+    return ",".join(envs)
+
+
+def rm_py_env(pyv: PyVersion, envlist: str) -> str:
+    envs = envlist.strip().split(",")
+    try:
+        envs.remove(pyv.pyenv)
+    except ValueError:
+        pass
     return ",".join(envs)
 
 
