@@ -27,6 +27,7 @@ In Development
     - `pyproject.toml`: Remove `wheel` from `build-system.requires`
     - `test.yml`: Update action versions
     - `tox.ini`: Remove version specifiers from deps
+    - `.readthedocs.yaml`: Update `.build.os` to `ubuntu-22.04`
 - Internal API:
     - Make `configure()` store option defaults in `ctx.default_map`
     - Rename `supports_pypy3` to `supports_pypy`
