@@ -1,5 +1,5 @@
-In Development
---------------
+v2022.10.16
+-----------
 - Drop support for the `[pyversions]` config section
 - Option defaults given in the `[options]` config section are no longer copied
   to command subsections
