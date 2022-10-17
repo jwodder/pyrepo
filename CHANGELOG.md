@@ -1,3 +1,8 @@
+In Development
+--------------
+- `pyrepo release` will now error if the project uses versioningit and no
+  explicit version or bump option is given on the command line
+
 v2022.10.16
 -----------
 - Drop support for the `[pyversions]` config section

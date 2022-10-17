@@ -70,18 +70,13 @@ class Releaser:
         cls,
         project: Project,
         gh: GitHub,
-        version: Optional[str] = None,
+        version: str,
         tox: bool = False,
         sign_assets: bool = False,
     ) -> Releaser:
-        if version is None:
-            # Remove prerelease & dev release from __version__
-            v = Version(project.details.version).base_version
-        else:
-            v = version.lstrip("v")
         return cls(
             project=project,
-            version=v,
+            version=version.lstrip("v"),
             ghrepo=gh.repos[project.details.github_user][project.details.repo_name],
             tox=tox,
             sign_assets=sign_assets,
@@ -361,6 +356,14 @@ def cli(
                 "Cannot use version bump options when there are no tags"
             )
         version = bump_version(last_tag, bump)
+    elif version is None:
+        if project.details.uses_versioningit:
+            raise click.UsageError(
+                "Project uses versioningit; explicit version or version bump"
+                " option required"
+            )
+        # Remove prerelease & dev release from __version__
+        version = Version(project.details.version).base_version
     add_type("application/zip", ".whl", False)
     Releaser.from_project(
         project=project,
