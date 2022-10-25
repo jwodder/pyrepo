@@ -2,12 +2,17 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 import platform
+import sys
 import click
 import requests
-import tomli
 from pyrepo import __url__, __version__
 from .clack import ConfigurableGroup
 from .gh import GitHub
+
+if sys.version_info[:2] >= (3, 11):
+    from tomllib import load as toml_load
+else:
+    from tomli import load as toml_load
 
 DEFAULT_CFG = Path.home() / ".config" / "pyrepo.toml"
 
@@ -32,7 +37,7 @@ def configure(
 ) -> None:
     try:
         with open(filename, "rb") as fp:
-            cfg = tomli.load(fp)
+            cfg = toml_load(fp)
     except FileNotFoundError:
         cfg = {}
 
