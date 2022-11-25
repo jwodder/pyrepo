@@ -26,10 +26,10 @@ class Templater:
         self,
         template_name: str,
         block_name: str,
-        vars: Optional[dict[str, Any]] = None,
+        variables: Optional[dict[str, Any]] = None,
     ) -> str:
         tmpl = self.jinja_env.get_template(template_name)
-        context = tmpl.new_context(vars=vars)
+        context = tmpl.new_context(vars=variables)
         return "".join(tmpl.blocks[block_name](context))
 
 

@@ -188,7 +188,7 @@ class Project:
                 templater.get_template_block(
                     "tox.ini.j2",
                     "testenv_typing",
-                    vars={"has_tests": self.details.has_tests},
+                    variables={"has_tests": self.details.has_tests},
                 )
             )
             toxfile["pytest"].add_before.section(
