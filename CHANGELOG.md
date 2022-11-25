@@ -3,6 +3,8 @@ In Development
 - `pyrepo release` will now error if the project uses versioningit and no
   explicit version or bump option is given on the command line
 - Use `tomllib` on Python 3.11
+- Templates:
+    - Add 'A' to enabled flake8 checks in `tox.ini`
 
 v2022.10.16
 -----------
