@@ -5,6 +5,7 @@ In Development
 - Use `tomllib` on Python 3.11
 - Templates:
     - Add 'A' to enabled flake8 checks in `tox.ini`
+    - Update coverage paths config in `tox.ini` for Coverage v7
 
 v2022.10.16
 -----------
