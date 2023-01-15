@@ -77,7 +77,7 @@ def test_pyversion(vstr: str, major: int, minor: int, pyenv: str) -> None:
     assert v.minor == minor
     assert v.pyenv == pyenv
     assert PyVersion.construct(major, minor) == v
-    assert json.dumps(v) == f'"{vstr}"'
+    assert json.dumps(v) == f'"{vstr}"'  # noqa: B028
 
 
 def test_pyversion_cmp() -> None:

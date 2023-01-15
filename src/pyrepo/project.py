@@ -236,7 +236,7 @@ class Project:
             log.info("Updating .github/workflows/test.yml ...")
             add_line_to_file(
                 self.directory / ".github" / "workflows" / "test.yml",
-                f"{' ' * 10}- '{pyv}'\n",
+                f"{' ' * 10}- '{pyv}'\n",  # noqa: B028
                 inserter=AfterLast(rf"^{' ' * 10}- ['\x22]?\d+\.\d+['\x22]?$"),
                 encoding="utf-8",
             )
@@ -313,7 +313,7 @@ class Project:
                             rf"^{' ' * 10}- python-version: (['\x22]?"
                             rf"{re.escape(str(dropver))}['\x22]?)\s*$"
                         ),
-                        f"'{newmin}'",
+                        f"'{newmin}'",  # noqa: B028
                         line,
                     )
 
