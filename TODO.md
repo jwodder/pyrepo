@@ -27,7 +27,7 @@
     - Add a `--pypi/--no-pypi` option for controlling the `has_pypi` variable?
     - Better handle projects whose `python_requires` includes EOL versions
         - Currently, pyrepo ignores the EOL versions when generating the list
-          of versions to use in the classifiers, `tox.ini`, and `test.yml,
+          of versions to use in the classifiers, `tox.ini`, and `test.yml`,
           but the `python_requires` string that includes the old versions is
           still used unmodified
     - Add an option for setting the starting version
