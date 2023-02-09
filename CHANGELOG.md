@@ -7,6 +7,7 @@ In Development
     - Add 'A' to enabled flake8 checks in `tox.ini`
     - Update coverage paths config in `tox.ini` for Coverage v7
     - Update `.pre-commit-config.yaml`
+    - Annotate `copyright` line in `docs/conf.py` with `noqa: A001`
 
 v2022.10.16
 -----------

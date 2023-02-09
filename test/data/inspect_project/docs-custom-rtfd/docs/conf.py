@@ -2,7 +2,7 @@ from foobar import __version__
 
 project = "foobar"
 author = "John Thorvald Wodder II"
-copyright = "2016, 2018-2019 John Thorvald Wodder II"
+copyright = "2016, 2018-2019 John Thorvald Wodder II"  # noqa: A001
 
 extensions = [
     "sphinx.ext.autodoc",
