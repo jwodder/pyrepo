@@ -6,6 +6,7 @@ In Development
 - Templates:
     - Add 'A' to enabled flake8 checks in `tox.ini`
     - Update coverage paths config in `tox.ini` for Coverage v7
+    - Update `.pre-commit-config.yaml`
 
 v2022.10.16
 -----------
