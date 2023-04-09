@@ -24,14 +24,15 @@
 ``jwodder-pyrepo`` is my personal command-line program for managing my Python
 package repositories, including generating packaging boilerplate and performing
 releases.  It is heavily dependent upon the conventions I use in building &
-structuring Python projects, and so it is not suitable for general use.
+structuring Python projects (documented in `the repository wiki
+<https://github.com/jwodder/pyrepo/wiki>`__), and so it is not suitable for
+general use.
 
 
 Installation
 ============
-``jwodder-pyrepo`` requires Python 3.8 or higher to run and `pip
-<https://pip.pypa.io>`_ 19.0 or higher to install.  You can install
-``jwodder-pyrepo`` and its dependencies by running::
+``jwodder-pyrepo`` requires Python 3.8 or higher.  Just use `pip
+<https://pip.pypa.io>`_ for Python 3 (You have pip, right?) to install it::
 
     python3 -m pip install git+https://github.com/jwodder/pyrepo.git
 
