@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Any, Optional
 import requests
 
-ACCEPT = ("application/vnd.github.v3+json",)
+ACCEPT = ("application/vnd.github+json",)
 
 API_ENDPOINT = "https://api.github.com"
 
