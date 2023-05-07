@@ -16,8 +16,6 @@ else:
 
 DEFAULT_CFG = Path.home() / ".config" / "pyrepo.toml"
 
-EXTRA_ACCEPT = ["application/vnd.github.mercy-preview"]  # topics
-
 USER_AGENT = "jwodder-pyrepo/{} ({}) requests/{} {}/{}".format(
     __version__,
     __url__,
@@ -46,13 +44,7 @@ def configure(
     except (KeyError, AttributeError):
         token = None
 
-    ctx.obj = Config(
-        gh=GitHub(
-            token=token,
-            headers={"User-Agent": USER_AGENT},
-            extra_accept=EXTRA_ACCEPT,
-        ),
-    )
+    ctx.obj = Config(gh=GitHub(token=token, headers={"User-Agent": USER_AGENT}))
 
     opts = cfg.get("options")
     if isinstance(opts, dict):  ### TODO: else: warn? error?
