@@ -53,6 +53,8 @@
 - `pyrepo mkgithub`:
     - Update the project's `url` et alii if necessary
     - Support creating the repository in an organization?
+    - If the repostatus badge in the README is WIP, add the `work-in-progress`
+      topic
 
 - `pyrepo template`:
     - Add command line options for overriding the various Jinja env vars?

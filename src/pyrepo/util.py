@@ -182,7 +182,6 @@ def get_jinja_env() -> Environment:
     )
     jenv.filters["major_pypy_supported"] = major_pypy_supported
     jenv.filters["pypy_supported"] = pypy_supported
-    jenv.filters["repr"] = repr
     jenv.filters["rewrap"] = rewrap
     jenv.filters["years2str"] = years2str
     return jenv
