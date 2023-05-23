@@ -3,6 +3,7 @@ In Development
 - `pyrepo release` will now error if the project uses versioningit and no
   explicit version or bump option is given on the command line
 - Use `tomllib` on Python 3.11
+- Remove support for PGP-signing PyPI uploads
 - Templates:
     - Add 'A' to enabled flake8 checks in `tox.ini`
     - Update coverage paths config in `tox.ini` for Coverage v7

@@ -12,7 +12,7 @@
 # - There is no CHANGELOG file until after the initial release has been made.
 
 from __future__ import annotations
-from collections.abc import Callable, Sequence
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from datetime import date
 from functools import partial
@@ -23,7 +23,7 @@ import os.path
 from pathlib import Path
 import sys
 from tempfile import NamedTemporaryFile
-from typing import Any, Optional
+from typing import Optional
 import click
 from in_place import InPlace
 from linesep import read_paragraphs
@@ -60,9 +60,7 @@ class Releaser:
     version: str
     ghrepo: GitHub
     tox: bool
-    sign_assets: bool
     assets: list[Path] = field(default_factory=list)
-    assets_asc: list[Path] = field(default_factory=list)
     release_upload_url: Optional[str] = None
 
     @classmethod
@@ -72,14 +70,12 @@ class Releaser:
         gh: GitHub,
         version: str,
         tox: bool = False,
-        sign_assets: bool = False,
     ) -> Releaser:
         return cls(
             project=project,
             version=version.lstrip("v"),
             ghrepo=gh.repos[project.details.github_user][project.details.repo_name],
             tox=tox,
-            sign_assets=sign_assets,
         )
 
     def run(self, use_next_version: bool = True) -> None:
@@ -87,11 +83,11 @@ class Releaser:
         if self.tox:
             self.tox_check()
         if not self.project.details.uses_versioningit:
-            self.build(sign_assets=self.sign_assets)
+            self.build()
             self.twine_check()
         self.commit_version()
         if self.project.details.uses_versioningit:
-            self.build(sign_assets=self.sign_assets)
+            self.build()
             self.twine_check()
         self.project.repo.run("push", "--follow-tags")
         self.mkghrelease()
@@ -163,29 +159,10 @@ class Releaser:
         )
         self.release_upload_url = reldata["upload_url"]
 
-    def build(self, sign_assets: bool = False) -> None:  ### Not idempotent
+    def build(self) -> None:  ### Not idempotent
         log.info("Building artifacts ...")
         self.project.build(clean=True)
-        self.assets = []
-        self.assets_asc = []
-        signer: Optional[Callable[[str], Any]]
-        if sign_assets:
-            gpg_program = self.project.repo.get_config("gpg.program", default="gpg")
-            assert gpg_program is not None
-            signer = partial(
-                runcmd,
-                gpg_program,
-                "--detach-sign",
-                "-a",
-                env={**os.environ, "GPG_TTY": os.ttyname(0)},
-            )
-        else:
-            signer = None
-        for distfile in (self.project.directory / "dist").iterdir():
-            self.assets.append(distfile)
-            if signer is not None:
-                signer(distfile)  # type: ignore[unreachable]
-                self.assets_asc.append(distfile.with_name(f"{distfile.name}.asc"))
+        self.assets = list((self.project.directory / "dist").iterdir())
 
     def upload(self) -> None:
         log.info("Uploading artifacts ...")
@@ -204,7 +181,7 @@ class Releaser:
                 "twine",
                 "upload",
                 "--skip-existing",
-                *(self.assets + self.assets_asc),
+                *self.assets,
             )
 
     def upload_github(self) -> None:  ### Not idempotent
@@ -286,8 +263,7 @@ class Releaser:
             self.ghrepo.topics.put(json={"names": list(new_topics)})
 
 
-@click.command(cls=ConfigurableCommand, allow_config=["sign_assets", "tox"])
-@click.option("--sign-assets/--no-sign-assets", help="Sign built assets with PGP")
+@click.command(cls=ConfigurableCommand, allow_config=["tox"])
 @click.option("--tox/--no-tox", help="Run tox before building")
 @click.option(
     "--major",
@@ -340,7 +316,6 @@ def cli(
     project: Project,
     version: Optional[str],
     tox: bool,
-    sign_assets: bool,
     bump: Optional[Bump],
 ) -> None:
     """Make a new release of the project"""
@@ -365,13 +340,9 @@ def cli(
         # Remove prerelease & dev release from __version__
         version = Version(project.details.version).base_version
     add_type("application/zip", ".whl", False)
-    Releaser.from_project(
-        project=project,
-        version=version,
-        gh=obj.gh,
-        tox=tox,
-        sign_assets=sign_assets,
-    ).run(use_next_version=bump is not Bump.DATE)
+    Releaser.from_project(project=project, version=version, gh=obj.gh, tox=tox).run(
+        use_next_version=bump is not Bump.DATE
+    )
 
 
 def get_mime_type(filename: str, strict: bool = False) -> str:

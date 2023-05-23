@@ -415,8 +415,7 @@ following operations in order:
     "available-on-pypi"
 
 - If the ``--tox`` option is given, run tox, failing if it fails
-- Build the sdist & wheel and (if ``--sign-assets`` is given) create detached
-  signatures with GPG
+- Build the sdist & wheel
 - Run ``twine check`` on the sdist & wheel
 - Commit all changes made to the repository; the most recent CHANGELOG section
   is included in the commit message template.  The commit is then tagged &
@@ -432,9 +431,8 @@ following operations in order:
 - Convert the tag to a release on GitHub, using the commit message for the name
   and body
 - If the project does not have a "Private" classifier, upload the build assets
-  to PyPI (including detached signatures, if any)
-- Upload the build assets to GitHub as release assets (*not* including detached
-  signatures)
+  to PyPI
+- Upload the build assets to GitHub as release assets
 - Prepare for development on the next version by setting ``__version__`` to the
   next minor version number plus ".dev1" and adding a new section to the top of
   the CHANGELOG (creating a CHANGELOG if necessary) and to the top of
@@ -449,12 +447,6 @@ Options
 
 --tox, --no-tox         Whether to run ``tox`` on the project before building;
                         default: ``--no-tox``.
-
-                        This option can be set via the configuration file.
-
---sign-assets, --no-sign-assets
-                        Whether to created detached PGP signatures for the
-                        release assets; default: ``--no-sign-assets``.
 
                         This option can be set via the configuration file.
 
