@@ -4,6 +4,7 @@ In Development
   explicit version or bump option is given on the command line
 - Use `tomllib` on Python 3.11
 - Remove support for PGP-signing PyPI uploads
+- Disable coloring of log messages when stderr is redirected
 - Templates:
     - Add 'A' to enabled flake8 checks in `tox.ini`
     - Update coverage paths config in `tox.ini` for Coverage v7

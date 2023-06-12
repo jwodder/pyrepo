@@ -2,6 +2,7 @@ from importlib import import_module
 import logging
 import os
 from pathlib import Path
+import sys
 from typing import Optional
 import click
 from click_loglevel import LogLevel
@@ -61,6 +62,7 @@ def main(chdir: Optional[Path], log_level: int) -> None:
             "CRITICAL": "bold_red",
         },
         level=log_level,
+        stream=sys.stderr,
     )
 
 
