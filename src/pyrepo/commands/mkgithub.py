@@ -20,6 +20,7 @@ def cli(obj: Config, project: Project, repo_name: Optional[str], private: bool) 
             "name": repo_name,
             "description": project.details.short_description,
             "private": private,
+            "delete_branch_on_merge": True,
         }
     )
     keywords = [kw.lower().replace(" ", "-") for kw in project.details.keywords]
