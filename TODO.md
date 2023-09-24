@@ -60,6 +60,12 @@
     - Add command line options for overriding the various Jinja env vars?
     - Preserve classifiers etc. when retemplating `setup.cfg`?
 
+- `pyrepo add-pyversion`:
+    - Add entry to changelogs(s)
+
+- `pyrepo drop-pyversion`:
+    - Add entry to changelogs(s)
+
 - Add subcommands for incrementally adding features (tests, docs, CI, etc.) to
   an already-templated repository
     - `add-tests`: Create `tox.ini`
