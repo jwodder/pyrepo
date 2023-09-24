@@ -7,6 +7,7 @@ In Development
 - Disable coloring of log messages when stderr is redirected
 - `pyrepo mkgithub` now sets `delete_branch_on_merge` to `true` in
   newly-created repositories
+- Update build dependency to 1.0
 - Templates:
     - Add 'A' to enabled flake8 checks in `tox.ini`
     - Update coverage paths config in `tox.ini` for Coverage v7
