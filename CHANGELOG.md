@@ -12,6 +12,7 @@ In Development
     - Update coverage paths config in `tox.ini` for Coverage v7
     - Update `.pre-commit-config.yaml`
     - Annotate `copyright` line in `docs/conf.py` with `noqa: A001`
+    - `test.yml`: Update `actions/checkout` to `v4`
 
 v2022.10.16
 -----------
