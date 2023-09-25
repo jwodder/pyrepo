@@ -202,7 +202,12 @@ class Project:
     def add_ci_testenv(self, testenv: str, pyver: str) -> None:
         log.info("Adding testenv %r with Python version %r", testenv, pyver)
         self.details.extra_testenvs[testenv] = pyver
-        self.get_template_writer().write(".github/workflows/test.yml")
+        twriter = self.get_template_writer()
+        twriter.write(".github/workflows/test.yml")
+        if not (self.directory / ".github" / "dependabot.yml").exists():
+            log.info("Creating Dependabot configuration")
+            twriter.write(".github/dependabot.yml")
+            log.warning("Please set up custom Dependabot labels separately")
 
     def add_pyversion(self, v: str) -> None:
         pyv = PyVersion.parse(v)

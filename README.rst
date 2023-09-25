@@ -373,9 +373,10 @@ Options
 
 Create a new GitHub repository for the project, set the repository's
 description to the project's short description, set the repository's topics to
-the project's keywords plus "python", set the local repository's ``origin``
-remote to point to the GitHub repository, and push all branches & tags to the
-remote.
+the project's keywords plus "python", create "dependencies" and
+"d:github-actions" labels in the repository (if ``.github/dependabot.yml``
+exists), set the local repository's ``origin`` remote to point to the GitHub
+repository, and push all branches & tags to the remote.
 
 
 Options

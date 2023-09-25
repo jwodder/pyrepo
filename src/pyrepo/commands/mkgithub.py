@@ -1,8 +1,11 @@
+import logging
 from typing import Optional
 import click
 from ..config import Config
 from ..project import Project, with_project
 from ..util import cpe_no_tb
+
+log = logging.getLogger(__name__)
 
 
 @click.command()
@@ -15,6 +18,7 @@ def cli(obj: Config, project: Project, repo_name: Optional[str], private: bool) 
     """Create a repository on GitHub for the local project and upload it"""
     if repo_name is None:
         repo_name = project.details.repo_name
+    log.info("Creating GitHub repository %r", repo_name)
     r = obj.gh.user.repos.post(
         json={
             "name": repo_name,
@@ -23,11 +27,32 @@ def cli(obj: Config, project: Project, repo_name: Optional[str], private: bool) 
             "delete_branch_on_merge": True,
         }
     )
+    ghrepo = obj.gh[r["url"]]
     keywords = [kw.lower().replace(" ", "-") for kw in project.details.keywords]
     if "python" not in keywords:
         keywords.append("python")
-    obj.gh[r["url"]].topics.put(json={"names": keywords})
+    log.info("Setting repository topics to: %s", " ".join(keywords))
+    ghrepo.topics.put(json={"names": keywords})
+    if (project.directory / ".github" / "dependabot.yml").exists():
+        log.info("Creating 'dependencies' label")
+        ghrepo.labels.post(
+            json={
+                "name": "dependencies",
+                "color": "8732bc",
+                "description": "Update one or more dependencies' versions",
+            }
+        )
+        log.info("Creating 'd:github-actions' label")
+        ghrepo.labels.post(
+            json={
+                "name": "d:github-actions",
+                "color": "74fa75",
+                "description": "Update a GitHub Actions action dependency",
+            }
+        )
+    log.info("Setting 'origin' remote")
     if "origin" in project.repo.get_remotes():
         project.repo.rm_remote("origin")
     project.repo.add_remote("origin", r["ssh_url"])
+    log.info("Pushing to origin")
     project.repo.run("push", "-u", "origin", "refs/heads/*", "refs/tags/*")

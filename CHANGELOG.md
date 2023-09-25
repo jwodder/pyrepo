@@ -8,6 +8,9 @@ In Development
 - `pyrepo mkgithub` now sets `delete_branch_on_merge` to `true` in
   newly-created repositories
 - Update build dependency to 1.0
+- `pyrepo init`: Generate a `.github/dependabot.yml` file when `--ci` is set
+- `pyrepo mkgithub`: Create custom labels used by `.github/dependabot.yml`
+  template
 - Templates:
     - Add 'A' to enabled flake8 checks in `tox.ini`
     - Update coverage paths config in `tox.ini` for Coverage v7

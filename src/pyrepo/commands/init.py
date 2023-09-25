@@ -272,6 +272,7 @@ def cli(
         log.info("Creating src/%s/py.typed ...", env["import_name"])
         (project.directory / "src" / env["import_name"] / "py.typed").touch()
     if env["has_ci"]:
+        twriter.write(".github/dependabot.yml", force=False)
         twriter.write(".github/workflows/test.yml", force=False)
     if env["has_docs"]:
         twriter.write(".readthedocs.yaml", force=False)
