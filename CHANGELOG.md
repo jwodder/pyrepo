@@ -17,6 +17,7 @@ In Development
     - Update `.pre-commit-config.yaml`
     - Annotate `copyright` line in `docs/conf.py` with `noqa: A001`
     - `test.yml`: Update `actions/checkout` to `v4`
+    - `test.yml`: Don't run on pushes to dependabot PR branches
 
 v2022.10.16
 -----------
