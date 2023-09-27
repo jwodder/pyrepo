@@ -6,7 +6,7 @@
 # - git (including push access to repository)
 # - gpg (including a key usable for signing)
 # - PyPI credentials for twine
-# - GitHub OAuth token in config
+# - GitHub access token in config
 
 # Notable assumptions made by this code:
 # - There is no CHANGELOG file until after the initial release has been made.

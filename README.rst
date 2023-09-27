@@ -82,8 +82,8 @@ TOML_ file with the following tables:
 
 ``[auth.github]``
    Contains credentials for interacting with GitHub over v3 of its API.  This
-   table should contain a ``token`` option, giving an OAuth2 token to use; if
-   not present, API calls to GitHub will fail.
+   table should contain a ``token`` option, giving a GitHub access token to
+   use; if not present, API calls to GitHub will fail.
 
 ``[options]``
     Sets default values for global options
