@@ -114,7 +114,7 @@ def inspect_project(dirpath: str | Path | None = None) -> dict:
 
     env["has_doctests"] = False
     for pyfile in (directory / "src").rglob("*.py"):
-        if re.search(r"^\s*>>>\s+", pyfile.read_text(), flags=re.M):
+        if re.search(r"^\s*>>>\s+", pyfile.read_text(encoding="utf-8"), flags=re.M):
             env["has_doctests"] = True
             break
 
