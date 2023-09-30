@@ -10,7 +10,6 @@
   (The function will still need folders full of test cases, though)
 - `Project.add_ci_testenv()`: "Manually" add in the new lines instead of
   retemplating?
-- Replace PyYaml with ruamel.yaml
 
 - Support projects supporting multiple major versions of Python
     - Make `Project.add_pyversion()` add a "Programming Language :: Python ::

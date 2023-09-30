@@ -7,9 +7,9 @@ import re
 from typing import Any, List, Optional
 from intspan import intspan
 from read_version import read_version
+from ruamel.yaml import YAML
 from setuptools.config.setupcfg import read_configuration
 import versioningit
-import yaml
 from . import git  # Import module to keep mocking easy
 from .readme import Readme
 from .util import JSONable, PyVersion, sort_specifier, yield_lines
@@ -256,7 +256,7 @@ def parse_requirements(filepath: Path) -> Requirements:
 def parse_extra_testenvs(filepath: Path) -> dict[str, str]:
     try:
         with filepath.open(encoding="utf-8") as fp:
-            workflow = yaml.safe_load(fp)
+            workflow = YAML(typ="safe").load(fp)
     except FileNotFoundError:
         return {}
     includes = workflow["jobs"]["test"]["strategy"]["matrix"].get("include", [])
