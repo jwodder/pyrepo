@@ -3,7 +3,7 @@ from collections.abc import Iterable, Iterator
 import json
 import platform
 from typing import Any, Optional
-from ghtoken import get_ghtoken
+import ghtoken  # Module import for mocking purposes
 import requests
 from . import __url__, __version__
 
@@ -31,7 +31,7 @@ class GitHub:
     ):
         self._url = url
         if session is None:
-            token = get_ghtoken()
+            token = ghtoken.get_ghtoken()
             session = requests.Session()
             session.headers["Accept"] = ",".join(tuple(extra_accept) + ACCEPT)
             session.headers["Authorization"] = f"token {token}"

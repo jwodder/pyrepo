@@ -35,6 +35,7 @@ def test_pyrepo_init(dirpath: Path, mocker: MockerFixture, tmp_path: Path) -> No
                 "https://api.github.com/user",
                 json={"login": (dirpath / "github_user.txt").read_text().strip()},
             )
+            mocker.patch("ghtoken.get_ghtoken", return_value="some_token")
         r = CliRunner().invoke(
             main,
             ["-c", str(cfg), "init"] + options + [str(tmp_path)],
