@@ -6,7 +6,7 @@
 # - git (including push access to repository)
 # - gpg (including a key usable for signing)
 # - PyPI credentials for twine
-# - GitHub access token in config
+# - GitHub access token
 
 # Notable assumptions made by this code:
 # - There is no CHANGELOG file until after the initial release has been made.
@@ -30,7 +30,6 @@ from linesep import read_paragraphs
 from packaging.version import Version
 from uritemplate import expand
 from ..clack import ConfigurableCommand
-from ..config import Config
 from ..gh import GitHub
 from ..project import Project, with_project
 from ..util import (
@@ -308,15 +307,10 @@ class Releaser:
     help="Release a date-versioned version",
 )
 @click.argument("version", required=False)
-@click.pass_obj
 @with_project
 @cpe_no_tb
 def cli(
-    obj: Config,
-    project: Project,
-    version: Optional[str],
-    tox: bool,
-    bump: Optional[Bump],
+    project: Project, version: Optional[str], tox: bool, bump: Optional[Bump]
 ) -> None:
     """Make a new release of the project"""
     if bump is not None:
@@ -340,7 +334,7 @@ def cli(
         # Remove prerelease & dev release from __version__
         version = Version(project.details.version).base_version
     add_type("application/zip", ".whl", False)
-    Releaser.from_project(project=project, version=version, gh=obj.gh, tox=tox).run(
+    Releaser.from_project(project=project, version=version, gh=GitHub(), tox=tox).run(
         use_next_version=bump is not Bump.DATE
     )
 

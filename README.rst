@@ -80,11 +80,6 @@ TOML_ file with the following tables:
 
 .. _TOML: https://toml.io
 
-``[auth.github]``
-   Contains credentials for interacting with GitHub over v3 of its API.  This
-   table should contain a ``token`` option, giving a GitHub access token to
-   use; if not present, API calls to GitHub will fail.
-
 ``[options]``
     Sets default values for global options
 
@@ -97,6 +92,26 @@ documentation for the respective options to find out which can.
 
 Hyphens & underscores are interchangeable in option names in the configuration
 file.
+
+
+GitHub Authentication
+---------------------
+
+The ``init`` (if ``--github-user`` is not specified), ``mkgithub``, and
+``release`` subcommands make authenticated requests to the GitHub API and thus
+require a GitHub access token.  ``pyrepo`` will automatically search for a
+locally-stored token when needed by consulting the following sources:
+
+- a ``.env`` file setting ``GH_TOKEN`` or ``GITHUB_TOKEN``
+- the ``GH_TOKEN`` or ``GITHUB_TOKEN`` environment variables
+- the gh_ command, if installed
+- the hub_ command's configuration file
+- the ``hub.oauthtoken`` Git config option
+
+If no token is found in the above sources, ``pyrepo`` will error out.
+
+.. _gh: https://github.com/cli/cli
+.. _hub: https://github.com/mislav/hub
 
 
 ``pyrepo init``

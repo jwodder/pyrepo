@@ -2,7 +2,7 @@ import logging
 import re
 from typing import Optional
 import click
-from ..config import Config
+from ..gh import GitHub
 from ..project import Project, with_project
 from ..util import cpe_no_tb
 
@@ -12,15 +12,15 @@ log = logging.getLogger(__name__)
 @click.command()
 @click.option("-P", "--private", is_flag=True, help="Make the new repo private")
 @click.option("--repo-name", metavar="NAME", help="Set the name of the repository")
-@click.pass_obj
 @with_project
 @cpe_no_tb
-def cli(obj: Config, project: Project, repo_name: Optional[str], private: bool) -> None:
+def cli(project: Project, repo_name: Optional[str], private: bool) -> None:
     """Create a repository on GitHub for the local project and upload it"""
     if repo_name is None:
         repo_name = project.details.repo_name
     log.info("Creating GitHub repository %r", repo_name)
-    r = obj.gh.user.repos.post(
+    gh = GitHub()
+    r = gh.user.repos.post(
         json={
             "name": repo_name,
             "description": project.details.short_description,
@@ -28,7 +28,7 @@ def cli(obj: Config, project: Project, repo_name: Optional[str], private: bool) 
             "delete_branch_on_merge": True,
         }
     )
-    ghrepo = obj.gh[r["url"]]
+    ghrepo = gh[r["url"]]
     keywords = [
         re.sub(r"[^a-z0-9]+", "-", kw.lower()) for kw in project.details.keywords
     ]

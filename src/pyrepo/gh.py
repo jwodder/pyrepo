@@ -1,23 +1,29 @@
 from __future__ import annotations
 from collections.abc import Iterable, Iterator
 import json
-from pathlib import Path
+import platform
 from typing import Any, Optional
+from ghtoken import get_ghtoken
 import requests
+from . import __url__, __version__
 
 ACCEPT = ("application/vnd.github+json",)
 
 API_ENDPOINT = "https://api.github.com"
 
-DEFAULT_TOKEN_FILE = Path.home() / ".github"
+USER_AGENT = "jwodder-pyrepo/{} ({}) requests/{} {}/{}".format(
+    __version__,
+    __url__,
+    requests.__version__,
+    platform.python_implementation(),
+    platform.python_version(),
+)
 
 
 class GitHub:
     def __init__(
         self,
         url: str = API_ENDPOINT,
-        token: Optional[str] = None,
-        token_file: str | Path = DEFAULT_TOKEN_FILE,
         session: Optional[requests.Session] = None,
         extra_accept: Iterable[str] = (),
         headers: Optional[dict[str, str]] = None,
@@ -25,16 +31,11 @@ class GitHub:
     ):
         self._url = url
         if session is None:
+            token = get_ghtoken()
             session = requests.Session()
             session.headers["Accept"] = ",".join(tuple(extra_accept) + ACCEPT)
-            if token is None:
-                try:
-                    with open(token_file) as fp:
-                        token = fp.read().strip()
-                except FileNotFoundError:
-                    pass
-            if token is not None:
-                session.headers["Authorization"] = f"token {token}"
+            session.headers["Authorization"] = f"token {token}"
+            session.headers["User-Agent"] = USER_AGENT
             if headers is not None:
                 session.headers.update(headers)
         self._session = session

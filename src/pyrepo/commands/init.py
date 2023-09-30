@@ -12,6 +12,7 @@ from packaging.utils import canonicalize_name as normalize
 from .. import git, util
 from ..clack import ConfigurableCommand
 from ..details import ProjectDetails
+from ..gh import GitHub
 from ..inspecting import extract_requires, find_module, parse_requirements
 from ..project import Project
 from ..util import cpe_no_tb, ensure_license_years, runcmd
@@ -114,7 +115,7 @@ def cli(
             raise click.UsageError(f"{fname} already exists")
 
     if github_user is None:
-        github_user = ctx.obj.gh.user.get()["login"]
+        github_user = GitHub().user.get()["login"]
 
     repo = git.Git(dirpath=dirpath)
 
