@@ -11,6 +11,7 @@
 - `Project.add_ci_testenv()`: "Manually" add in the new lines instead of
   retemplating?
 - Fetch GitHub token from `hub.oauthtoken` instead of the pyrepo config file
+- Replace PyYaml with ruamel.yaml
 
 - Support projects supporting multiple major versions of Python
     - Make `Project.add_pyversion()` add a "Programming Language :: Python ::

@@ -1,4 +1,5 @@
 import logging
+import re
 from typing import Optional
 import click
 from ..config import Config
@@ -28,7 +29,9 @@ def cli(obj: Config, project: Project, repo_name: Optional[str], private: bool) 
         }
     )
     ghrepo = obj.gh[r["url"]]
-    keywords = [kw.lower().replace(" ", "-") for kw in project.details.keywords]
+    keywords = [
+        re.sub(r"[^a-z0-9]+", "-", kw.lower()) for kw in project.details.keywords
+    ]
     if "python" not in keywords:
         keywords.append("python")
     log.info("Setting repository topics to: %s", " ".join(keywords))

@@ -11,6 +11,7 @@ In Development
 - `pyrepo init`: Generate a `.github/dependabot.yml` file when `--ci` is set
 - `pyrepo mkgithub`: Create custom labels used by `.github/dependabot.yml`
   template
+- `pyrepo mkgithub`: Properly sanitize keywords used as topics
 - Templates:
     - Add 'A' to enabled flake8 checks in `tox.ini`
     - Update coverage paths config in `tox.ini` for Coverage v7
