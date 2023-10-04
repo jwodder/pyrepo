@@ -23,6 +23,7 @@ In Development
     - `test.yml`: Update `actions/checkout` to `v4`
     - `test.yml`: Don't run on pushes to dependabot PR branches
     - `test.yml`: Cancel concurrent jobs
+    - Update `Sphinx` version to `~=7.0`
 
 v2022.10.16
 -----------
