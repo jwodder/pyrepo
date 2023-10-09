@@ -189,7 +189,7 @@ class Releaser:
             self.release_upload_url is not None
         ), "Cannot upload to GitHub before creating release"
         for asset in self.assets:
-            url = expand(self.release_upload_url, name=asset.name, label=None)
+            url = expand(self.release_upload_url, name=asset.name)
             self.ghrepo[url].post(
                 headers={"Content-Type": get_mime_type(asset.name)},
                 data=asset.read_bytes(),

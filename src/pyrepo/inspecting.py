@@ -8,7 +8,7 @@ from typing import Any, List, Optional
 from intspan import intspan
 from read_version import read_version
 from ruamel.yaml import YAML
-from setuptools.config.setupcfg import read_configuration
+from setuptools.config.setupcfg import read_configuration  # type: ignore[import]
 import versioningit
 from . import git  # Import module to keep mocking easy
 from .readme import Readme
