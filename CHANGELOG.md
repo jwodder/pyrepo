@@ -24,6 +24,7 @@ In Development
     - `test.yml`: Don't run on pushes to dependabot PR branches
     - `test.yml`: Cancel concurrent jobs
     - Update `Sphinx` version to `~=7.0`
+    - `setup.cfg`: Set `ignore_missing_imports` to `False` in `[mypy]`
 
 v2022.10.16
 -----------
