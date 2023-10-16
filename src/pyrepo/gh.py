@@ -1,13 +1,11 @@
 from __future__ import annotations
-from collections.abc import Iterable, Iterator
+from collections.abc import Iterator
 import json
 import platform
 from typing import Any, Optional
 import ghtoken  # Module import for mocking purposes
 import requests
 from . import __url__, __version__
-
-ACCEPT = ("application/vnd.github+json",)
 
 API_ENDPOINT = "https://api.github.com"
 
@@ -25,7 +23,6 @@ class GitHub:
         self,
         url: str = API_ENDPOINT,
         session: Optional[requests.Session] = None,
-        extra_accept: Iterable[str] = (),
         headers: Optional[dict[str, str]] = None,
         _method: Optional[str] = None,
     ):
@@ -33,9 +30,10 @@ class GitHub:
         if session is None:
             token = ghtoken.get_ghtoken()
             session = requests.Session()
-            session.headers["Accept"] = ",".join(tuple(extra_accept) + ACCEPT)
+            session.headers["Accept"] = "application/vnd.github+json"
             session.headers["Authorization"] = f"token {token}"
             session.headers["User-Agent"] = USER_AGENT
+            session.headers["X-GitHub-Api-Version"] = "2022-11-28"
             if headers is not None:
                 session.headers.update(headers)
         self._session = session
