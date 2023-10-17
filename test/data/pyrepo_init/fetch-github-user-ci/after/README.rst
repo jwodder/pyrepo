@@ -3,8 +3,8 @@
     :alt: Project Status: WIP — Initial development is in progress, but there
           has not yet been a stable, usable release suitable for the public.
 
-.. image:: https://github.com/ghuser/foobar/workflows/Test/badge.svg?branch=master
-    :target: https://github.com/ghuser/foobar/actions?workflow=Test
+.. image:: https://github.com/ghuser/foobar/actions/workflows/test.yml/badge.svg
+    :target: https://github.com/ghuser/foobar/actions/workflows/test.yml
     :alt: CI Status
 
 .. image:: https://codecov.io/gh/ghuser/foobar/branch/master/graph/badge.svg

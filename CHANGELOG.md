@@ -25,6 +25,7 @@ In Development
     - `test.yml`: Cancel concurrent jobs
     - Update `Sphinx` version to `~=7.0`
     - `setup.cfg`: Set `ignore_missing_imports` to `False` in `[mypy]`
+    - `README.rst`: Update GitHub CI badge URL templates
 
 v2022.10.16
 -----------
