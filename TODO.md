@@ -20,11 +20,8 @@
 - `pyrepo init`:
     - If the repository already has a GitHub remote, use that to set the
       default `repo_name` (and `github_user`?)
-    - `--command`: Support setting the entry point function name to something
-      other than "main" on the command line
     - Autodetect `if __name__ == '__main__':` lines in `import_name.py` /
       `import_name/__main__.py` and set `commands` accordingly
-    - Add a `--pypi/--no-pypi` option for controlling the `has_pypi` variable?
     - Better handle projects whose `python_requires` includes EOL versions
         - Currently, pyrepo ignores the EOL versions when generating the list
           of versions to use in the classifiers, `tox.ini`, and `test.yml`,
@@ -74,7 +71,7 @@
         - Also add `rm-doctests`
     - `add-ci`: Do `add-tests`, create `test.yml`, add the appropriate badges
       to the README
-    - `add-docs`: Create `docs/*` and `.readthedocs.yml`, add block to
+    - `add-docs`: Create `docs/*` and `.readthedocs.yaml`, add block to
       `tox.ini`, add documentation links to the README, `project_urls`, and
       main source file docstring
         - The initial content of `docs/index.rst` should be taken from the
@@ -86,7 +83,7 @@
       the installation instructions, with this command replacing that with the
       project name?
     - Automatically run this command on first release
-- Add a subcommand for updating GitHub description & tags based on the
+- Add a subcommand for updating GitHub description & topics based on the
   project's short description and keywords?
 
 - Templates:
@@ -94,15 +91,14 @@
       "see also" paragraph in the module docstring?
     - Add `has_release` (equivalent to `has_pypi`?) and `is_stable` variables
       (the latter defined by the version number being at least 1.0) that are
-      used to select the repostatus badge in the README and the development
-      status trove classifier
+      used to select the repostatus badge in the README
     - When `has_pypi` is false, the installation instructions in the README
       should refer to the GitHub URL, not the project name
     - Add template for `CONTRIBUTORS.md`?
     - Support having the same extra testenv run against multiple Python
       versions
     - `.github/workflows/test.yml`: Add an option for testing against different
-      OSes?
+      OSes
 
 - Write a command for adding new repositories to Read the Docs?
     - See <https://docs.readthedocs.io/en/stable/api/v3.html#project-create>
