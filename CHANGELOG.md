@@ -15,6 +15,8 @@ In Development
 - Use [`ghtoken`](https://github.com/jwodder/ghtoken) for looking up GitHub
   tokens instead of storing them in the pyrepo config file
 - Replace PyYAML with ruamel.yaml
+- `pyrepo release` & `pyrepo begin-dev`: Include `.. currentmodule::` directive
+  when creating `docs/changelog.rst`
 - Templates:
     - Add 'A' to enabled flake8 checks in `tox.ini`
     - Update coverage paths config in `tox.ini` for Coverage v7

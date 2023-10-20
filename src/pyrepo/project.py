@@ -364,7 +364,15 @@ class Project:
                 chlog.sections.insert(0, new_sect)
             else:
                 chlog = Changelog(
-                    intro="Changelog\n=========\n\n" if docs else "",
+                    intro=(
+                        f".. currentmodule:: {self.details.import_name}\n"
+                        "\n"
+                        "Changelog\n"
+                        "=========\n"
+                        "\n"
+                    )
+                    if docs
+                    else "",
                     sections=[
                         new_sect,
                         ChangelogSection(
