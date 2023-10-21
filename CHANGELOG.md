@@ -28,6 +28,7 @@ In Development
     - Update `Sphinx` version to `~=7.0`
     - `setup.cfg`: Set `ignore_missing_imports` to `False` in `[mypy]`
     - `README.rst`: Update GitHub CI badge URL templates
+    - `README.rst`: Use HTTPS for repostatus.org URLs
 
 v2022.10.16
 -----------

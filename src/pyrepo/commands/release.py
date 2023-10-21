@@ -21,6 +21,7 @@ from mimetypes import add_type, guess_type
 import os
 import os.path
 from pathlib import Path
+import re
 import sys
 from tempfile import NamedTemporaryFile
 from typing import Optional
@@ -46,8 +47,8 @@ from ..util import (
 log = logging.getLogger(__name__)
 
 ACTIVE_BADGE = """\
-.. image:: http://www.repostatus.org/badges/latest/active.svg
-    :target: http://www.repostatus.org/#active
+.. image:: https://www.repostatus.org/badges/latest/active.svg
+    :target: https://www.repostatus.org/#active
     :alt: Project Status: Active — The project has reached a stable, usable
           state and is being actively developed.
 """
@@ -239,8 +240,10 @@ class Releaser:
             encoding="utf-8",
         ) as fp:
             for para in read_paragraphs(fp):
-                if para.splitlines()[0] == (
-                    ".. image:: http://www.repostatus.org/badges/latest/wip.svg"
+                if re.fullmatch(
+                    r"\.\. image:: https?://www\.repostatus\.org/badges/latest"
+                    r"/wip\.svg",
+                    para.splitlines()[0],
                 ):
                     print(ACTIVE_BADGE, file=fp)
                 else:
