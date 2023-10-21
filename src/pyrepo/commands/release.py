@@ -26,6 +26,7 @@ import sys
 from tempfile import NamedTemporaryFile
 from typing import Optional
 import click
+from ghreq import Endpoint
 from in_place import InPlace
 from linesep import read_paragraphs
 from packaging.version import Version
@@ -58,7 +59,7 @@ ACTIVE_BADGE = """\
 class Releaser:
     project: Project
     version: str
-    ghrepo: GitHub
+    ghrepo: Endpoint
     tox: bool
     assets: list[Path] = field(default_factory=list)
     release_upload_url: Optional[str] = None
@@ -74,7 +75,10 @@ class Releaser:
         return cls(
             project=project,
             version=version.lstrip("v"),
-            ghrepo=gh.repos[project.details.github_user][project.details.repo_name],
+            ghrepo=gh
+            / "repos"
+            / project.details.github_user
+            / project.details.repo_name,
             tox=tox,
         )
 
@@ -149,11 +153,11 @@ class Releaser:
             "--format=%s%x00%b",
             f"v{self.version}^{{commit}}",
         ).split("\0", 1)
-        reldata = self.ghrepo.releases.post(
-            json={
+        reldata = (self.ghrepo / "releases").post(
+            {
                 "tag_name": f"v{self.version}",
                 "name": subject,
-                "body": body.strip(),  ### TODO: Remove line wrapping?
+                "body": body.strip(),  ### TODO: Remove line wrapping
                 "draft": False,
             }
         )
@@ -191,10 +195,11 @@ class Releaser:
         ), "Cannot upload to GitHub before creating release"
         for asset in self.assets:
             url = expand(self.release_upload_url, name=asset.name)
-            self.ghrepo[url].post(
-                headers={"Content-Type": get_mime_type(asset.name)},
-                data=asset.read_bytes(),
-            )
+            with asset.open("rb") as fp:
+                (self.ghrepo / url).post(
+                    headers={"Content-Type": get_mime_type(asset.name)},
+                    data=fp,
+                )
 
     def end_dev(self) -> None:  # Idempotent
         log.info("Finalizing version ...")
@@ -262,7 +267,7 @@ class Releaser:
         topics = set(self.ghrepo.get()["topics"])
         new_topics = topics.union(add).difference(remove)
         if new_topics != topics:
-            self.ghrepo.topics.put(json={"names": list(new_topics)})
+            (self.ghrepo / "topics").put({"names": list(new_topics)})
 
 
 @click.command(cls=ConfigurableCommand, allow_config=["tox"])
@@ -337,9 +342,10 @@ def cli(
         # Remove prerelease & dev release from __version__
         version = Version(project.details.version).base_version
     add_type("application/zip", ".whl", False)
-    Releaser.from_project(project=project, version=version, gh=GitHub(), tox=tox).run(
-        use_next_version=bump is not Bump.DATE
-    )
+    with GitHub() as gh:
+        Releaser.from_project(project=project, version=version, gh=gh, tox=tox).run(
+            use_next_version=bump is not Bump.DATE
+        )
 
 
 def get_mime_type(filename: str, strict: bool = False) -> str:

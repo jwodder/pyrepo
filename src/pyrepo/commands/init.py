@@ -115,7 +115,8 @@ def cli(
             raise click.UsageError(f"{fname} already exists")
 
     if github_user is None:
-        github_user = GitHub().user.get()["login"]
+        with GitHub() as gh:
+            github_user = gh.get("/user")["login"]
 
     repo = git.Git(dirpath=dirpath)
 
