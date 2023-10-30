@@ -1,5 +1,5 @@
-In Development
---------------
+v2023.10.30
+-----------
 - `pyrepo release` will now error if the project uses versioningit and no
   explicit version or bump option is given on the command line
 - Use `tomllib` on Python 3.11
