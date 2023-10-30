@@ -18,9 +18,6 @@
 | `Issues <https://github.com/jwodder/pyrepo/issues>`_
 | `Changelog <https://github.com/jwodder/pyrepo/blob/master/CHANGELOG.md>`_
 
-.. contents::
-    :backlinks: top
-
 ``jwodder-pyrepo`` is my personal command-line program for managing my Python
 package repositories, including generating packaging boilerplate and performing
 releases.  It is heavily dependent upon the conventions I use in building &
