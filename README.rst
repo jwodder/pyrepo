@@ -3,8 +3,8 @@
     :alt: Project Status: Active — The project has reached a stable, usable
           state and is being actively developed.
 
-.. image:: https://github.com/jwodder/pyrepo/workflows/Test/badge.svg?branch=master
-    :target: https://github.com/jwodder/pyrepo/actions?workflow=Test
+.. image:: https://github.com/jwodder/pyrepo/actions/workflows/test.yml/badge.svg
+    :target: https://github.com/jwodder/pyrepo/actions/workflows/test.yml
     :alt: CI Status
 
 .. image:: https://codecov.io/gh/jwodder/pyrepo/branch/master/graph/badge.svg
