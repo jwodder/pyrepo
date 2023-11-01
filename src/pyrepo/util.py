@@ -13,7 +13,7 @@ import subprocess
 import sys
 from textwrap import fill
 import time
-from typing import Any, Optional, TextIO, TypeVar
+from typing import TYPE_CHECKING, Any, Optional, TextIO
 import cattrs
 from in_place import InPlace
 from intspan import intspan
@@ -21,6 +21,9 @@ from jinja2 import Environment, PackageLoader
 from packaging.specifiers import SpecifierSet
 from packaging.version import Version
 from pyversion_info import VersionDatabase
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 log = logging.getLogger(__name__)
 
@@ -87,16 +90,13 @@ conv.register_unstructure_hook(datetime, str)
 conv.register_structure_hook(PyVersion, lambda v, _: PyVersion.parse(v))
 
 
-J = TypeVar("J", bound="JSONable")
-
-
 class JSONable:
     @classmethod
-    def parse_obj(cls: type[J], data: Any) -> J:
+    def parse_obj(cls, data: Any) -> Self:
         return conv.structure(data, cls)
 
     @classmethod
-    def parse_file(cls: type[J], path: str | Path) -> J:
+    def parse_file(cls, path: str | Path) -> Self:
         with open(path, "r", encoding="utf-8") as fp:
             return cls.parse_obj(json.load(fp))
 
