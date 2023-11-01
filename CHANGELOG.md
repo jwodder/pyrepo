@@ -1,3 +1,8 @@
+In Development
+--------------
+- Templates:
+    - Adjust flake8 config in `tox.ini`
+
 v2023.10.30
 -----------
 - `pyrepo release` will now error if the project uses versioningit and no
