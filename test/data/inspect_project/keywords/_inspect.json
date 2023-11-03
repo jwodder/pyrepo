@@ -28,9 +28,9 @@
     ],
     "version": "0.1.0.dev1",
     "keywords": [
-        "foo",
         "bar",
-        "baz glarch"
+        "baz glarch",
+        "foo"
     ],
     "classifiers": [
         "Development Status :: 3 - Alpha",

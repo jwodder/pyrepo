@@ -34,13 +34,18 @@ def inspect_project(dirpath: str | Path | None = None) -> dict:
     def exists(*fname: str) -> bool:
         return Path(directory, *fname).exists()
 
-    if not exists("pyproject.toml"):
+    try:
+        with (directory / "pyproject.toml").open("rb") as bf:
+            pyproj = toml_load(bf)
+    except FileNotFoundError:
         raise InvalidProjectError("Project is missing pyproject.toml file")
 
     metadata = json.loads(readcmd("hatch", "project", "metadata", cwd=dirpath))
 
     env = {
-        "name": metadata["name"],
+        # `hatch project metadata` normalizes the name, so get it directly from
+        # the source
+        "name": pyproj["project"]["name"],
         "short_description": metadata["description"],
         "author": metadata["authors"][0]["name"],
         "author_email": metadata["authors"][0]["email"],
@@ -48,8 +53,12 @@ def inspect_project(dirpath: str | Path | None = None) -> dict:
         "install_requires": metadata.get("dependencies", []),
         "version": metadata["version"],
         "keywords": metadata.get("keywords", []),
+        # `hatch project metadata` sorts classifiers, so get them directly from
+        # the source instead to preserve order:
+        "classifiers": pyproj["project"].get("classifiers", []),
         "supports_pypy": False,
         "default_branch": git.Git(dirpath=directory).get_default_branch(),
+        "uses_versioningit": "versioningit" in pyproj.get("tool", {}),
     }
 
     if (directory / "src").exists():
@@ -60,14 +69,6 @@ def inspect_project(dirpath: str | Path | None = None) -> dict:
         env["is_flat_module"] = True
         (module,) = directory.glob("*.py")
         env["import_name"] = module.stem
-
-    with (directory / "pyproject.toml").open("rb") as bf:
-        pyproj = toml_load(bf)
-    env["uses_versioningit"] = "versioningit" in pyproj.get("tool", {})
-
-    # `hatch project metadata` sorts classifiers, so get them directly from
-    # pyproject.toml instead in order to preserve order
-    env["classifiers"] = pyproj["project"].get("classifiers", [])
 
     env["python_versions"] = []
     for clsfr in env["classifiers"]:
