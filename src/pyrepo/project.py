@@ -13,6 +13,7 @@ import sys
 from typing import Any, Optional
 import click
 from configupdater import ConfigUpdater
+from in_place import InPlace
 from lineinfile import AfterLast, add_line_to_file
 from packaging.specifiers import SpecifierSet
 from . import git
@@ -46,7 +47,7 @@ class Project:
     @property
     def initfile(self) -> Path:
         if self.details.is_flat_module:
-            return self.directory / "src" / f"{self.details.import_name}.py"
+            return self.directory / f"{self.details.import_name}.py"
         else:
             return self.directory / "src" / self.details.import_name / "__init__.py"
 
@@ -139,19 +140,29 @@ class Project:
             new_initfile.relative_to(self.directory),
         )
         old_initfile.rename(new_initfile)
-        log.info("Updating setup.cfg ...")
-        setup_cfg = ConfigUpdater()
-        setup_cfg.read(str(self.directory / "setup.cfg"), encoding="utf-8")
-        setup_cfg["options"]["py_modules"].value = "find_namespace:"
-        setup_cfg["options"]["py_modules"].key = "packages"
-        setup_cfg["options"].add_after.section("options.packages.find")
-        opf = setup_cfg["options.packages.find"]
-        opf["where"] = "src"
-        if opf.next_block is not None:
-            opf.add_after.space()
-        else:
-            opf.add_before.space()
-        setup_cfg.update_file()
+        import_name = self.details.import_name
+        log.info("Updating pyproject.toml ...")
+        with InPlace(self.directory / "pyproject.toml", encoding="utf-8") as fp:
+            for line in fp:
+                if re.match(r"path\s*=", line):
+                    line = f'path = "src/{import_name}/__init__.py"\n'
+                elif line.rstrip() == f'    "/{import_name}.py",':
+                    line = '    "/src",\n'
+                fp.write(line)
+        if (self.directory / "tox.ini").exists():
+            log.info("Updating tox.ini ...")
+            with InPlace(self.directory / "tox.ini", encoding="utf-8") as fp:
+                for line in fp:
+                    line = re.sub(
+                        rf"^(\s+(?:flake8|mypy)\s+){import_name}.py\b", r"\1src", line
+                    )
+                    if line.rstrip() == f"    {import_name}.py":
+                        line = "    src\n"
+                    elif line.rstrip() == f"    .tox/**/site-packages/{import_name}.py":
+                        line = line.replace(f"/{import_name}.py", "")
+                    print(line, end="", file=fp)
+                    if re.match(r"sort_relative_in_force_sorted_sections\s*=", line):
+                        print("src_paths = src", file=fp)
         self.details.is_flat_module = False
 
     def add_typing(self) -> None:
