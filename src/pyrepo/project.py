@@ -220,11 +220,11 @@ class Project:
                 f" {self.details.python_requires!r}"
             )
         log.info("Adding %s to supported Python versions", pyv)
-        log.info("Updating setup.cfg ...")
+        log.info("Updating pyproject.toml ...")
         add_line_to_file(
-            self.directory / "setup.cfg",
-            f"    Programming Language :: Python :: {pyv}\n",
-            inserter=AfterLast(r"^    Programming Language :: Python :: \d+\.\d+$"),
+            self.directory / "pyproject.toml",
+            f'    "Programming Language :: Python :: {pyv}",\n',
+            inserter=AfterLast(r'^    "Programming Language :: Python :: \d+\.\d+",$'),
             encoding="utf-8",
         )
         if self.details.has_tests:
