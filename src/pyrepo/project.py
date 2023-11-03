@@ -281,18 +281,18 @@ class Project:
                 ),
             )
 
-        def edit_setup_cfg_line(line: str) -> Optional[str]:
-            if line == f"    Programming Language :: Python :: {dropver}\n":
+        def edit_pyproject_line(line: str) -> Optional[str]:
+            if line == f'    "Programming Language :: Python :: {dropver}",\n':
                 return None
             else:
                 return replace_group(
-                    re.compile(r"^python_requires\s*=[ \t]*(.+)$"),
+                    re.compile(r'^requires-python\s*=\s*"(.+)"$'),
                     self.details.python_requires,
                     line,
                 )
 
-        log.info("Updating setup.cfg ...")
-        maybe_map_lines(self.directory / "setup.cfg", edit_setup_cfg_line)
+        log.info("Updating pyproject.toml ...")
+        maybe_map_lines(self.directory / "pyproject.toml", edit_pyproject_line)
         if self.details.has_tests:
             log.info("Updating tox.ini ...")
             map_lines(
