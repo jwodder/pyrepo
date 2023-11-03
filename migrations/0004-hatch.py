@@ -318,6 +318,8 @@ def use_dependabot(dirpath: Path) -> None:
                 print("    directory: /", file=fp)
                 print("    schedule:", file=fp)
                 print("      interval: weekly", file=fp)
+                print("    commit-message:", file=fp)
+                print('      prefix: "[python]"', file=fp)
                 print("    labels:", file=fp)
                 print("      - dependencies", file=fp)
                 print("      - d:python", file=fp)
