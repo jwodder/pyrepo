@@ -40,7 +40,9 @@ def inspect_project(dirpath: str | Path | None = None) -> dict:
     except FileNotFoundError:
         raise InvalidProjectError("Project is missing pyproject.toml file")
 
-    metadata = json.loads(readcmd("hatch", "project", "metadata", cwd=dirpath))
+    metadata = json.loads(
+        readcmd(sys.executable, "-m", "hatch", "project", "metadata", cwd=dirpath)
+    )
 
     env = {
         # `hatch project metadata` normalizes the name, so get it directly from
