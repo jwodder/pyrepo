@@ -87,8 +87,8 @@ def migrate_setup(dirpath: Path, init: bool) -> None:
     description = cfg["metadata"]["description"]
     author = cfg["metadata"]["author"]
     author_email = cfg["metadata"]["author_email"]
-    keywords = cfg["metadata"]["keywords"].strip().splitlines()
-    classifiers = cfg["metadata"]["classifiers"].strip().splitlines()
+    keywords = cfg["metadata"].get("keywords", "").strip().splitlines()
+    classifiers = cfg["metadata"].get("classifiers", "").strip().splitlines()
     urls: dict[str, str] = {}
     for ln in cfg["metadata"]["project_urls"].strip().splitlines():
         name, _, u = ln.partition(" = ")

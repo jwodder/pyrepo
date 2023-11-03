@@ -8,6 +8,7 @@ import re
 import sys
 from typing import Any, List, Optional
 from intspan import intspan
+from packaging.specifiers import SpecifierSet
 from ruamel.yaml import YAML
 from . import git  # Import module to keep mocking easy
 from .readme import Readme
@@ -43,26 +44,30 @@ def inspect_project(dirpath: str | Path | None = None) -> dict:
         "short_description": metadata["description"],
         "author": metadata["authors"][0]["name"],
         "author_email": metadata["authors"][0]["email"],
-        "python_requires": sort_specifier(metadata["requires-python"]),
+        "python_requires": sort_specifier(SpecifierSet(metadata["requires-python"])),
         "install_requires": metadata.get("dependencies", []),
         "version": metadata["version"],
         "keywords": metadata.get("keywords", []),
-        "classifiers": metadata.get("classifiers", []),
         "supports_pypy": False,
         "default_branch": git.Git(dirpath=directory).get_default_branch(),
     }
 
-    import_name = metadata["name"].replace("-", "_").replace(".", "_")
     if (directory / "src").exists():
         env["is_flat_module"] = False
-        env["import_name"] = import_name
+        (pkg,) = (directory / "src").iterdir()
+        env["import_name"] = pkg.name
     else:
         env["is_flat_module"] = True
-        env["import_name"] = f"{import_name}.py"
+        (module,) = directory.glob("*.py")
+        env["import_name"] = module.stem
 
     with (directory / "pyproject.toml").open("rb") as bf:
         pyproj = toml_load(bf)
     env["uses_versioningit"] = "versioningit" in pyproj.get("tool", {})
+
+    # `hatch project metadata` sorts classifiers, so get them directly from
+    # pyproject.toml instead in order to preserve order
+    env["classifiers"] = pyproj["project"].get("classifiers", [])
 
     env["python_versions"] = []
     for clsfr in env["classifiers"]:
@@ -96,8 +101,12 @@ def inspect_project(dirpath: str | Path | None = None) -> dict:
     env["has_tests"] = toxcfg.has_section("testenv")
 
     env["has_doctests"] = False
-    for pyfile in (directory / "src").rglob("*.py"):
-        if re.search(r"^\s*>>>\s+", pyfile.read_text(encoding="utf-8"), flags=re.M):
+    if env["is_flat_module"]:
+        pyfiles = [directory / f"{env['import_name']}.py"]
+    else:
+        pyfiles = list((directory / "src").rglob("*.py"))
+    for p in pyfiles:
+        if re.search(r"^\s*>>>\s+", p.read_text(encoding="utf-8"), flags=re.M):
             env["has_doctests"] = True
             break
 
