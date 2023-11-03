@@ -1,14 +1,112 @@
 [build-system]
 {% if uses_versioningit %}
-requires = [
-    "setuptools >= 46.4.0",
-    "versioningit",
+requires = ["hatchling", "versioningit"]
+{% else %}
+requires = ["hatchling"]
+{% endif %}
+build-backend = "hatchling.build"
+
+[project]
+name = "{{name}}"
+dynamic = ["version"]
+description = "{{short_description}}"
+readme = "README.rst"
+requires-python = "{{python_requires}}"
+license = "MIT"
+license-files = { paths = ["LICENSE"] }
+authors = [
+    { name = "{{author}}", email = "{{author_email}}" }
+]
+
+keywords = [
+{% if keywords %}
+{% for k in keywords %}
+    "{{k}}",
+{% endfor %}
+{% else %}
+    ###
+{% endif %}
+]
+
+classifiers = [
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3",
+{% for v in python_versions %}
+    "Programming Language :: Python :: {{v}}",
+{% endfor %}
+    "Programming Language :: Python :: Implementation :: CPython",
+{% if supports_pypy %}
+    "Programming Language :: Python :: Implementation :: PyPy",
+{% endif %}
+    "License :: OSI Approved :: MIT License",
+    ###
+{% if has_typing %}
+    "Typing :: Typed",
+{% endif %}
+]
+
+{% if install_requires %}
+dependencies = [
+    {% for req in install_requires %}
+    "{{req}}",
+    {% endfor %}
 ]
 {% else %}
-requires = ["setuptools >= 46.4.0"]
+dependencies = []
 {% endif %}
-build-backend = "setuptools.build_meta"
-{% if uses_versioningit %}
+{% if commands %}
 
+[project.scripts]
+{% for name, ep in commands.items() %}
+{{name}} = "{{ep}}"
+{% endfor %}
+{% endif %}
+
+[project.urls]
+"Source Code" = "https://github.com/{{github_user}}/{{repo_name}}"
+"Bug Tracker" = "https://github.com/{{github_user}}/{{repo_name}}/issues"
+{% if has_docs %}
+"Documentation" = "https://{{rtfd_name}}.readthedocs.io"
+{% endif %}
+
+{% if uses_versioningit %}
 [tool.versioningit]
+{% elif is_flat_module %}
+[tool.hatch.version]
+path = "{{import_name}}.py"
+{% else %}
+[tool.hatch.version]
+path = "src/{{import_name}}/__init__.py"
+{% endif %}
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src",
+    "/test",
+    "CHANGELOG.*",
+    "CONTRIBUTORS.*",
+    "tox.ini",
+]
+
+[tool.hatch.envs.default]
+python = "3"
+{% if has_typing %}
+
+{% block mypy %}
+[tool.mypy]
+allow_incomplete_defs = false
+allow_untyped_defs = false
+ignore_missing_imports = false
+# <https://github.com/python/mypy/issues/7773>:
+no_implicit_optional = true
+implicit_reexport = false
+local_partial_types = true
+pretty = true
+show_error_codes = true
+show_traceback = true
+strict_equality = true
+warn_redundant_casts = true
+warn_return_any = true
+warn_unreachable = true
+{% endblock %}
 {% endif %}

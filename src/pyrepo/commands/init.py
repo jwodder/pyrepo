@@ -1,4 +1,3 @@
-from contextlib import suppress
 import logging
 from pathlib import Path
 import re
@@ -150,21 +149,17 @@ def cli(
     else:
         log.info("Found package %s", env["import_name"])
 
-    if not mod.src_layout:
+    if not mod.src_layout and not mod.is_flat_module:
         log.info("Moving code to src/ directory ...")
         (dirpath / "src").mkdir(exist_ok=True)
         code_path = env["import_name"]
-        if env["is_flat_module"]:
-            code_path += ".py"
         (dirpath / code_path).rename(dirpath / "src" / code_path)
 
     if env["is_flat_module"] and env["has_typing"]:
         log.info("Unflattening for py.typed file ...")
         pkgdir = dirpath / "src" / env["import_name"]
         pkgdir.mkdir(parents=True, exist_ok=True)
-        (dirpath / "src" / f"{env['import_name']}.py").rename(
-            dirpath / pkgdir / "__init__.py"
-        )
+        (dirpath / f"{env['import_name']}.py").rename(dirpath / pkgdir / "__init__.py")
         env["is_flat_module"] = False
 
     jenv = Environment()
@@ -186,7 +181,7 @@ def cli(
     req_vars = parse_requirements(dirpath / "requirements.txt")
 
     if env["is_flat_module"]:
-        initfile = dirpath / "src" / f"{env['import_name']}.py"
+        initfile = dirpath / f"{env['import_name']}.py"
     else:
         initfile = dirpath / "src" / env["import_name"] / "__init__.py"
     log.info("Checking for __requires__ ...")
@@ -264,10 +259,8 @@ def cli(
     twriter = project.get_template_writer()
     twriter.write(".gitignore", force=False)
     twriter.write(".pre-commit-config.yaml", force=False)
-    twriter.write("MANIFEST.in", force=False)
     twriter.write("README.rst", force=False)
     twriter.write("pyproject.toml", force=False)
-    twriter.write("setup.cfg", force=False)
     twriter.write("tox.ini", force=False)
 
     if env["has_typing"]:
@@ -304,8 +297,7 @@ def cli(
         if not started:  # if initfile is empty
             print(twriter.render("init"), file=fp, end="")
 
-    with suppress(FileNotFoundError):
-        (dirpath / "requirements.txt").unlink()
+    (dirpath / "requirements.txt").unlink(missing_ok=True)
 
     runcmd("pre-commit", "install", cwd=dirpath)
     log.info("TODO: Run `pre-commit run -a` after adding new files")
