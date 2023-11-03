@@ -13,6 +13,7 @@
 #  - Preserve mypy config
 #  - Preserve `[tool.versioningit]` in `pyproject.toml`
 # - If the project is a flat module, undo the `src/` layout
+# - Configure Dependabot to check for Python dependency updates
 # - Delete MANIFEST.in
 # - Remove obsolete entries from `.gitignore`
 # - Update CHANGELOG.md and docs/changelog.rst, if they exist
@@ -58,6 +59,7 @@ BOILERPLATE_MYPY_OPTIONS = {
 def main(dirpath: Path, git: bool, init: bool) -> None:
     migrate_setup(dirpath, init)
     unsrc(dirpath)
+    use_dependabot(dirpath)
     log("Deleting MANIFEST.in ...")
     (dirpath / "MANIFEST.in").unlink()
     update_gitignore(dirpath)
@@ -286,6 +288,23 @@ def unsrc(dirpath: Path) -> None:
         (p,) = pys
         p.rename(dirpath / p.name)
         (dirpath / "src").rmdir()
+
+
+def use_dependabot(dirpath: Path) -> None:
+    if not (dirpath / ".github" / "dependabot.yml").exists():
+        return
+    log("Updating .github/dependabot.yml ...")
+    with InPlace(dirpath / ".github" / "dependabot.yml", encoding="utf-8") as fp:
+        for line in fp:
+            fp.write(line)
+            if line.strip() == "updates:":
+                print("  - package-ecosystem: pip", file=fp)
+                print("    directory: /", file=fp)
+                print("    schedule:", file=fp)
+                print("      interval: weekly", file=fp)
+                print("    labels:", file=fp)
+                print("      - dependencies", file=fp)
+                print("      - d:python", file=fp)
 
 
 def update_gitignore(dirpath: Path) -> None:

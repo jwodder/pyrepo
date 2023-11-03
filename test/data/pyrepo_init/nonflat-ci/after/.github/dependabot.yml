@@ -1,5 +1,13 @@
 version: 2
 updates:
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: weekly
+    labels:
+      - dependencies
+      - d:python
+
   - package-ecosystem: github-actions
     directory: /
     schedule:
