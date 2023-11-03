@@ -12,7 +12,8 @@
 # - Rewrite `pyproject.toml` to use hatch and include settings from `setup.cfg`
 #  - Preserve mypy config
 #  - Preserve `[tool.versioningit]` in `pyproject.toml`
-# - If the project is a flat module, undo the `src/` layout
+# - If the project is a flat module, undo the `src/` layout (including
+#   adjusting the references to the `src` directory in `tox.ini`)
 # - Configure Dependabot to check for Python dependency updates
 # - Delete MANIFEST.in
 # - Remove obsolete entries from `.gitignore`
@@ -286,8 +287,23 @@ def unsrc(dirpath: Path) -> None:
         assert len(pys) == 1
         log("Un-src'ing flat module ...")
         (p,) = pys
-        p.rename(dirpath / p.name)
+        module_name = p.name
+        p.rename(dirpath / module_name)
         (dirpath / "src").rmdir()
+        if (dirpath / "tox.ini").exists():
+            log("Updating 'src' references in tox.ini ...")
+            with InPlace(dirpath / "tox.ini", encoding="utf-8") as fp:
+                for line in fp:
+                    if line.strip() == "src_paths = src":
+                        continue
+                    line = re.sub(
+                        r"^(\s+(?:flake8|mypy)\s+)src\b", rf"\1{module_name}", line
+                    )
+                    if line.rstrip() == "    src":
+                        line = f"    {module_name}\n"
+                    elif line.rstrip() == "    .tox/**/site-packages":
+                        line = line.rstrip() + f"/{module_name}\n"
+                    print(line, end="", file=fp)
 
 
 def use_dependabot(dirpath: Path) -> None:
@@ -305,6 +321,7 @@ def use_dependabot(dirpath: Path) -> None:
                 print("    labels:", file=fp)
                 print("      - dependencies", file=fp)
                 print("      - d:python", file=fp)
+                print(file=fp)
 
 
 def update_gitignore(dirpath: Path) -> None:
