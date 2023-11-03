@@ -4,7 +4,7 @@ import sys
 import click
 from .clack import ConfigurableGroup
 
-if sys.version_info[:2] >= (3, 11):
+if sys.version_info >= (3, 11):
     from tomllib import load as toml_load
 else:
     from tomli import load as toml_load
