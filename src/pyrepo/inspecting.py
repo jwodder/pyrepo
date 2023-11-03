@@ -163,7 +163,7 @@ def find_module(dirpath: Path) -> ModuleInfo:
         src_layout = False
     for flat in dirpath.glob("*.py"):
         name = flat.stem
-        if name.isidentifier() and name != "setup":
+        if name.isidentifier():
             results.append(
                 ModuleInfo(
                     import_name=name,
