@@ -182,6 +182,10 @@ def cli(
 
     if env["is_flat_module"]:
         initfile = dirpath / f"{env['import_name']}.py"
+        src_init = dirpath / "src" / f"{env['import_name']}.py"
+        if src_init.exists():
+            src_init.rename(initfile)
+            (dirpath / "src").rmdir()
     else:
         initfile = dirpath / "src" / env["import_name"] / "__init__.py"
     log.info("Checking for __requires__ ...")

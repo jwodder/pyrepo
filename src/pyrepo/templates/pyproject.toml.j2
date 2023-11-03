@@ -81,7 +81,11 @@ path = "src/{{import_name}}/__init__.py"
 
 [tool.hatch.build.targets.sdist]
 include = [
+{% if is_flat_module %}
+    "/{{import_name}}.py",
+{% else %}
     "/src",
+{% endif %}
     "/test",
     "CHANGELOG.*",
     "CONTRIBUTORS.*",
