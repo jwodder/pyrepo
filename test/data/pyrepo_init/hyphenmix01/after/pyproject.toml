@@ -42,6 +42,7 @@ path = "foo_bar.py"
 
 [tool.hatch.build.targets.sdist]
 include = [
+    "/docs",
     "/foo_bar.py",
     "/test",
     "CHANGELOG.*",

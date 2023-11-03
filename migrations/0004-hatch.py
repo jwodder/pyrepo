@@ -223,6 +223,7 @@ def migrate_setup(dirpath: Path, init: bool) -> None:
         print(file=fp)
         print("[tool.hatch.build.targets.sdist]", file=fp)
         print("include = [", file=fp)
+        print('    "/docs",', file=fp)
         if is_flat:
             print(f'    "/{import_name}.py",', file=fp)
         else:
