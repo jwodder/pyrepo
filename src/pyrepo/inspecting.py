@@ -60,8 +60,14 @@ def inspect_project(dirpath: str | Path | None = None) -> dict:
         "classifiers": pyproj["project"].get("classifiers", []),
         "supports_pypy": False,
         "default_branch": git.Git(dirpath=directory).get_default_branch(),
-        "uses_versioningit": "versioningit" in pyproj.get("tool", {}),
     }
+
+    try:
+        version_source = pyproj["tool"]["hatch"]["version"]["source"]
+    except (AttributeError, LookupError, TypeError):
+        env["uses_versioningit"] = False
+    else:
+        env["uses_versioningit"] = version_source == "versioningit"
 
     if (directory / "src").exists():
         env["is_flat_module"] = False

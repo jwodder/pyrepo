@@ -217,13 +217,12 @@ def migrate_setup(dirpath: Path, init: bool) -> None:
             print(f'"{label}" = "{u}"', file=fp)
         print(file=fp)
 
+        print("[tool.hatch.version]", file=fp)
         if uses_versioningit:
-            print("[tool.versioningit]", file=fp)
+            print('source = "versioningit"', file=fp)
         elif is_flat:
-            print("[tool.hatch.version]", file=fp)
             print(f'path = "{import_name}.py"', file=fp)
         else:
-            print("[tool.hatch.version]", file=fp)
             print(f'path = "src/{import_name}/__init__.py"', file=fp)
 
         print(file=fp)

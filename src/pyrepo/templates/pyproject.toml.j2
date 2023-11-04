@@ -69,13 +69,12 @@ dependencies = []
 "Documentation" = "https://{{rtfd_name}}.readthedocs.io"
 {% endif %}
 
-{% if uses_versioningit %}
-[tool.versioningit]
-{% elif is_flat_module %}
 [tool.hatch.version]
+{% if uses_versioningit %}
+source = "versioningit"
+{% elif is_flat_module %}
 path = "{{import_name}}.py"
 {% else %}
-[tool.hatch.version]
 path = "src/{{import_name}}/__init__.py"
 {% endif %}
 
