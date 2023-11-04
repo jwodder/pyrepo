@@ -97,7 +97,10 @@ def migrate_setup(dirpath: Path, init: bool) -> None:
         name, _, u = ln.partition(" = ")
         urls[name] = u
     python_requires = cfg["options"]["python_requires"]
-    install_requires = cfg["options"].get("install_requires", "").strip().splitlines()
+    install_requires = [
+        req.replace('"', "'")
+        for req in cfg["options"].get("install_requires", "").strip().splitlines()
+    ]
 
     extras: dict[str, list[str]] = {}
     if cfg.has_section("options.extras_require"):
