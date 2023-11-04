@@ -216,7 +216,7 @@ def migrate_setup(dirpath: Path, init: bool) -> None:
 
         if uses_versioningit:
             print("[tool.versioningit]", file=fp)
-        if is_flat:
+        elif is_flat:
             print("[tool.hatch.version]", file=fp)
             print(f'path = "{import_name}.py"', file=fp)
         else:
