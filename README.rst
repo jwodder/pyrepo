@@ -127,15 +127,14 @@ be contained in a ``src/`` directory).  It is recommended to run this command
 in a clean Git repository (i.e., one without any pending changes) so that the
 command's effects can easily be reverted should anything go wrong.
 
-``pyrepo init`` moves the code into a ``src/`` directory (if it not in one
-already) and creates the following files if they do not already exist:
+``pyrepo init`` ensures the code uses a ``src/`` layout — unless it's a flat
+module, in which case the ``src/`` layout is not used — and creates the
+following files if they do not already exist:
 
 - ``.gitignore``
 - ``.pre-commit-config.yaml``
-- ``MANIFEST.in``
 - ``README.rst``
 - ``pyproject.toml``
-- ``setup.cfg``
 - ``tox.ini``
 
 If a ``LICENSE`` file does not exist, one is created; otherwise, the copyright
@@ -150,9 +149,9 @@ is a flat module, or the ``{{import_name}}/__init__.py`` file otherwise).
 
 If there is a ``requirements.txt`` file and/or a ``__requires__ =
 list_of_requirements`` assignment in the main source file, it is used to set
-the project's ``install_requires`` in the ``setup.cfg`` and then deleted.  If
-both sources of requirements are present, the two lists are combined, erroring
-if the same package is given two different requirement specifications.
+the project's dependencies in ``pyproject.toml`` and then deleted.  If both
+sources of requirements are present, the two lists are combined, erroring if
+the same package is given two different requirement specifications.
 
 Finally, ``pre-commit install`` is run, and a message is printed instructing
 the user to run ``pre-commit run -a`` after adding new files to the index.
@@ -210,7 +209,7 @@ All of the following can be set via the configuration file, in the
                         of the variable ``import_name``.
 
 -P SPEC, --python-requires SPEC
-                        Set the project's ``python_requires`` value.  ``SPEC``
+                        Set the project's ``requires-python`` value.  ``SPEC``
                         may be either a PEP 440 version specifier (e.g., ``>=
                         3.3, != 3.4.0``) or a bare ``X.Y`` version (to which
                         ``>=`` will be prepended).  When not specified on the
@@ -220,17 +219,17 @@ All of the following can be set via the configuration file, in the
                         'SPEC'`` assignment in the main source file; it is an
                         error if these sources have different values.  If none
                         of these sources are present, ``pyrepo init`` falls
-                        back to the value of ``python_requires`` in the
+                        back to the value of ``requires-python`` in the
                         ``[options.init]`` table of the configuration file,
                         which in turn defaults to ``>=`` plus the current
                         minimum supported Python series.
 
-                        Besides setting ``python_requires``, the value of this
+                        Besides setting ``requires-python``, the value of this
                         option will also be applied as a filter to all
                         currently-supported Python series in order to determine
                         what Python series to include classifiers for in
-                        ``setup.cfg`` and what series to test against with tox
-                        and CI.
+                        ``pyproject.toml`` and what series to test against with
+                        tox and CI.
 
 --repo-name NAME        The name of the project's repository on GitHub;
                         defaults to the project name.
@@ -275,9 +274,9 @@ environment ``<testenv>`` against ``<python-version>``.
 Configure the project to declare support for and test against the given Python
 version(s) (which must be given in the form "``X.Y``").
 
-Note that this command will not modify the project's ``python_requires``
-setting.  If a given version is out of bounds for ``python_requires``, an error
-will result; update ``python_requires`` and try again.
+Note that this command will not modify the project's ``requires-python``
+setting.  If a given version is out of bounds for ``requires-python``, an error
+will result; update ``requires-python`` and try again.
 
 
 ``pyrepo add-typing``
@@ -295,7 +294,7 @@ Add configuration for type annotations and the checking thereof:
 
 - Add a "``Typing :: Typed``" classifier to the project classifiers
 
-- Add a ``mypy`` configuration section to ``setup.cfg``
+- Add a ``mypy`` configuration section to ``pyproject.toml``
 
 - Add a ``typing`` testenv to ``tox.ini`` if tests are enabled
 
@@ -383,12 +382,13 @@ Options
 
     pyrepo [<global-options>] mkgithub [<options>]
 
-Create a new GitHub repository for the project, set the repository's
-description to the project's short description, set the repository's topics to
-the project's keywords plus "python", create "dependencies" and
-"d:github-actions" labels in the repository (if ``.github/dependabot.yml``
-exists), set the local repository's ``origin`` remote to point to the GitHub
-repository, and push all branches & tags to the remote.
+Create a new GitHub repository for the project; set the repository's
+description to the project's short description; set the repository's topics to
+the project's keywords plus "python"; create "dependencies",
+"d:github-actions", and "d:python" labels in the repository (if
+``.github/dependabot.yml`` exists); set the local repository's ``origin``
+remote to point to the GitHub repository; and push all branches & tags to the
+remote.
 
 
 Options
@@ -503,11 +503,11 @@ Options
 
     pyrepo [<global-options>] unflatten
 
-Convert a "flat module" project (one where all the code is in a
-``src/foobar.py`` file) to a "package" project (one where all the code is in a
-``src/foobar/`` directory containing an ``__init__.py`` file).  The old flat
-module becomes the ``__init__.py`` file of the new package directory, and the
-project's ``setup.cfg`` is updated for the change in configuration.
+Convert a "flat module" project (one where all the code is in a ``foobar.py``
+file) to a "package" project (one where all the code is in a ``src/foobar/``
+directory containing an ``__init__.py`` file).  The old flat module becomes the
+``__init__.py`` file of the new package directory, and the project's
+``pyproject.toml`` and ``tox.ini`` are updated for the change in configuration.
 
 
 Restrictions
@@ -518,9 +518,9 @@ does not support the following types of projects:
 
 __ https://github.com/jwodder/pyrepo/wiki/Project-Layout-Specification
 
-- projects that do not use setuptools
-- projects that do not use a ``src/`` layout
-- projects that do not declare all of their project metadata in ``setup.cfg``
+- projects that do not use hatch
+- projects with packages that do not use a ``src/`` layout
+- projects with flat modules that use a ``src/`` layout
 - projects that neither store their version in a ``__version__`` variable in
   the initfile nor use versioningit_
 - projects that are not pure Python
