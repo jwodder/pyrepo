@@ -54,6 +54,14 @@ def cli(project: Project, repo_name: Optional[str], private: bool) -> None:
                     "description": "Update a GitHub Actions action dependency",
                 }
             )
+            log.info('Creating "d:python" label')
+            (ghrepo / "labels").post(
+                {
+                    "name": "d:python",
+                    "color": "3572a5",
+                    "description": "Update a Python dependency",
+                }
+            )
     log.info('Setting "origin" remote')
     if "origin" in project.repo.get_remotes():
         project.repo.rm_remote("origin")
