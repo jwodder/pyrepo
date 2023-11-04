@@ -174,15 +174,18 @@ class Project:
         log.info("Creating src/%s/py.typed ...", self.details.import_name)
         (self.directory / "src" / self.details.import_name / "py.typed").touch()
         templater = self.details.get_templater()
-        log.info("Updating setup.cfg ...")
-        setup_cfg = ConfigUpdater()
-        setup_cfg.read(str(self.directory / "setup.cfg"), encoding="utf-8")
-        setup_cfg["metadata"]["classifiers"].append("Typing :: Typed")
-        mypy_cfg = ConfigUpdater()
-        mypy_cfg.read_string(templater.get_template_block("setup.cfg.j2", "mypy"))
-        setup_cfg.add_section(mypy_cfg["mypy"].detach())
-        setup_cfg["mypy"].add_before.space()
-        setup_cfg.update_file()
+        log.info("Updating pyproject.toml ...")
+        with InPlace(self.directory / "pyproject.toml", encoding="utf-8") as fp:
+            in_classifiers = False
+            for line in fp:
+                if line == "classifiers = [\n":
+                    in_classifiers = True
+                elif in_classifiers and line == "]\n":
+                    print('    "Typing :: Typed",', file=fp)
+                    in_classifiers = False
+                fp.write(line)
+            mypy_cfg = templater.get_template_block("pyproject.toml.j2", "mypy")
+            print(mypy_cfg, end="", file=fp)
         if self.details.has_tests:
             log.info("Updating tox.ini ...")
             toxfile = ConfigUpdater()
