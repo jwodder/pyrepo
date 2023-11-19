@@ -1,5 +1,5 @@
-In Development
---------------
+v2023.11.19
+-----------
 - Managed projects now use hatch instead of setuptools
     - Due to limitations in Hatch, `src/` layouts are no longer used for flat
       module projects
