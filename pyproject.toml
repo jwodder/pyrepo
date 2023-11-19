@@ -16,9 +16,10 @@ authors = [
 
 keywords = [
     "github",
+    "hatch",
     "packaging",
     "pypi",
-    "setuptools",
+    "template-project",
 ]
 
 classifiers = [
