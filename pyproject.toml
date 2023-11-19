@@ -85,6 +85,9 @@ include = [
     "tox.ini",
 ]
 
+[tool.hatch.build.targets.wheel]
+packages = ["src/pyrepo"]
+
 [tool.hatch.envs.default]
 python = "3"
 
