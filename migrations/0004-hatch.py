@@ -22,6 +22,7 @@
 
 from __future__ import annotations
 from configparser import ConfigParser
+import json
 import os
 from pathlib import Path
 import re
@@ -51,7 +52,7 @@ BOILERPLATE_MYPY_OPTIONS = {
 
 @click.command()
 @click.option("--git/--no-git", default=True)
-@click.option("--init", is_flag=True)
+@click.option("--init", is_flag=True, help="Migrate a `pyrepo init` test case")
 @click.argument(
     "dirpath",
     type=click.Path(exists=True, file_okay=False, path_type=Path),
@@ -127,7 +128,11 @@ def migrate_setup(dirpath: Path, init: bool) -> None:
         has_mypy = True
         for k, v in cfg["mypy"].items():
             if k not in BOILERPLATE_MYPY_OPTIONS:
-                custom_mypy[k] = cfg2toml(v)
+                if k == "plugins":
+                    plugins = re.split(r"\s*,\s*", v)
+                    custom_mypy[k] = "[" + ", ".join(map(qqrepr, plugins)) + "]"
+                else:
+                    custom_mypy[k] = cfg2toml(v)
         for sectname in cfg.sections():
             if sectname.startswith("mypy-"):
                 module = sectname.removeprefix("mypy-")
@@ -377,6 +382,11 @@ def runcmd(*args: str | Path, **kwargs: Any) -> None:
 
 def log(msg: str) -> None:
     click.secho(msg, err=True, bold=True)
+
+
+def qqrepr(s: str) -> str:
+    """Produce a repr(string) enclosed in double quotes"""
+    return json.dumps(s, ensure_ascii=False)
 
 
 if __name__ == "__main__":
