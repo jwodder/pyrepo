@@ -362,27 +362,6 @@ Examine a project repository and output its template variables as a JSON
 object.  This command is primarily intended for debugging purposes.
 
 
-``pyrepo make``
----------------
-
-::
-
-    pyrepo [<global-options>] make [<options>]
-
-Build an sdist and/or wheel for the project.
-
-
-Options
-^^^^^^^
-
--c, --clean             Delete the ``build/`` and ``dist/`` directories from
-                        the project root before building
-
---sdist, --no-sdist     Whether to build an sdist; default: ``--sdist``
-
---wheel, --no-wheel     Whether to build an sdist; default: ``--wheel``
-
-
 ``pyrepo mkgithub``
 -------------------
 

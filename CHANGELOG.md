@@ -4,6 +4,7 @@ In Development
     - Due to limitations in Hatch, `src/` layouts are no longer used for flat
       module projects
 - Migrated `pyrepo` itself from setuptools to hatch
+- Remove the `make` command
 - Templates:
     - Adjust flake8 config in `tox.ini`
     - Removed obsolete entries from `.gitignore`
