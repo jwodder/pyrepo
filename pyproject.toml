@@ -3,7 +3,7 @@ requires = ["hatchling", "versioningit"]
 build-backend = "hatchling.build"
 
 [project]
-name = "jwodder-pyrepo"
+name = "pyrepo"
 dynamic = ["version"]
 description = "Python repository templater & releaser"
 readme = "README.rst"

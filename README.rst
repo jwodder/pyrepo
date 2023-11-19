@@ -18,17 +18,25 @@
 | `Issues <https://github.com/jwodder/pyrepo/issues>`_
 | `Changelog <https://github.com/jwodder/pyrepo/blob/master/CHANGELOG.md>`_
 
-``jwodder-pyrepo`` is my personal command-line program for managing my Python
-package repositories, including generating packaging boilerplate and performing
+``pyrepo`` is my personal command-line program for managing my Python package
+repositories, including generating packaging boilerplate and performing
 releases.  It is heavily dependent upon the conventions I use in building &
 structuring Python projects (documented in `the repository wiki
 <https://github.com/jwodder/pyrepo/wiki>`__), and so it is not suitable for
 general use.
 
+This ``pyrepo`` is not to be confused with the unrelated `pyrepo on PyPI`__.
+This ``pyrepo`` is not on PyPI and never will be on PyPI, so confusion can only
+arise in the highly unlikely scenario where both packages are installed in the
+same environment, which I would advise against ever trying to do in the first
+place.
+
+__ https://pypi.org/project/pyrepo/
+
 
 Installation
 ============
-``jwodder-pyrepo`` requires Python 3.8 or higher.  Just use `pip
+``pyrepo`` requires Python 3.8 or higher.  Just use `pip
 <https://pip.pypa.io>`_ for Python 3 (You have pip, right?) to install it::
 
     python3 -m pip install git+https://github.com/jwodder/pyrepo.git
@@ -512,9 +520,9 @@ directory containing an ``__init__.py`` file).  The old flat module becomes the
 
 Restrictions
 ============
-``jwodder-pyrepo`` relies on various assumptions about project layout and
-formatting; see `the project wiki on GitHub`__ for details.  Most notably, it
-does not support the following types of projects:
+``pyrepo`` relies on various assumptions about project layout and formatting;
+see `the project wiki on GitHub`__ for details.  Most notably, it does not
+support the following types of projects:
 
 __ https://github.com/jwodder/pyrepo/wiki/Project-Layout-Specification
 
