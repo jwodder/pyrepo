@@ -46,7 +46,7 @@ from .config import DEFAULT_CFG, configure
     __version__,
     "-V",
     "--version",
-    message="pyrepo %(version)s",
+    message="jwodder-pyrepo %(version)s",
 )
 def main(chdir: Optional[Path], log_level: int) -> None:
     """Manage Python packaging boilerplate"""
