@@ -63,6 +63,11 @@ dependencies = [
     "tomli          >= 1.2, < 3.0; python_version < '3.11'",
     "twine          ~= 4.0",
     "uritemplate    ~= 4.1",
+    # Running `python -m hatch ...` for inspection purposes seems to cause
+    # Hatch to use the current environment rather than one of its managed
+    # environments, which means that pyrepo needs to depend on all build
+    # requirements that my packages will be using (i.e., versioningit).
+    "versioningit   >= 2.3.0",
 ]
 
 [project.scripts]
