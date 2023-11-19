@@ -41,7 +41,7 @@ deps =
     flake8-builtins
     flake8-unused-arguments
 commands =
-    flake8 src{% if has_tests %} test{% endif +%}
+    flake8 {% if is_flat_module %}{{import_name}}.py{% else %}src{% endif %}{% if has_tests %} test{% endif +%}
 {% endif %}
 {% if has_typing %}
 
@@ -53,7 +53,7 @@ deps =
     {[testenv]deps}
     {% endif %}
 commands =
-    mypy src{% if has_tests %} test{% endif +%}
+    mypy {% if is_flat_module %}{{import_name}}.py{% else %}src{% endif %}{% if has_tests %} test{% endif +%}
 {% endblock %}
 {% endif %}
 {% if has_tests %}
@@ -74,8 +74,13 @@ source = {{import_name}}
 
 [coverage:paths]
 source =
+{% if is_flat_module %}
+    {{import_name}}.py
+    .tox/**/site-packages/{{import_name}}.py
+{% else %}
     src
     .tox/**/site-packages
+{% endif %}
 
 [coverage:report]
 precision = 2
@@ -105,7 +110,9 @@ lines_between_sections = 0
 profile = black
 reverse_relative = True
 sort_relative_in_force_sorted_sections = True
+{% if not is_flat_module %}
 src_paths = src
+{% endif %}
 {% if has_docs %}
 
 [testenv:docs]

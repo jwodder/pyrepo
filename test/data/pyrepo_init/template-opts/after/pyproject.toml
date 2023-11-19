@@ -1,3 +1,55 @@
 [build-system]
-requires = ["setuptools >= 46.4.0"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "project-name"
+dynamic = ["version"]
+description = "A project"
+readme = "README.rst"
+requires-python = ">=3.5"
+license = "MIT"
+license-files = { paths = ["LICENSE"] }
+authors = [
+    { name = "John Thorvald Wodder II", email = "foobar-project-name@example.com" }
+]
+
+keywords = [
+    ###
+]
+
+classifiers = [
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.5",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "License :: OSI Approved :: MIT License",
+    ###
+]
+
+dependencies = []
+
+[project.urls]
+"Source Code" = "https://github.com/jwodder/foobar-project-name"
+"Bug Tracker" = "https://github.com/jwodder/foobar-project-name/issues"
+"Documentation" = "https://foobar-project-name-docs.readthedocs.io"
+
+[tool.hatch.version]
+path = "foobar.py"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/docs",
+    "/foobar.py",
+    "/test",
+    "CHANGELOG.*",
+    "CONTRIBUTORS.*",
+    "tox.ini",
+]
+
+[tool.hatch.envs.default]
+python = "3"

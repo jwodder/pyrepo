@@ -15,8 +15,8 @@
     ],
     "python_requires": "~=3.4",
     "install_requires": [
-        "attrs ~= 19.1",
-        "click ~= 7.0"
+        "attrs~=19.1",
+        "click~=7.0"
     ],
     "is_flat_module": true,
     "commands": {},

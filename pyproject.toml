@@ -1,5 +1,109 @@
 [build-system]
-requires = ["setuptools >= 46.4.0", "versioningit"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling", "versioningit"]
+build-backend = "hatchling.build"
 
-[tool.versioningit]
+[project]
+name = "pyrepo"
+dynamic = ["version"]
+description = "Python repository templater & releaser"
+readme = "README.rst"
+requires-python = ">=3.8"
+license = "MIT"
+license-files = { paths = ["LICENSE"] }
+authors = [
+    { name = "John Thorvald Wodder II", email = "pyrepo@varonathe.org" }
+]
+
+keywords = [
+    "github",
+    "packaging",
+    "pypi",
+    "setuptools",
+]
+
+classifiers = [
+    "Private :: Keep Off PyPI",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "License :: OSI Approved :: MIT License",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Code Generators",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: Version Control :: Git",
+    "Topic :: System :: Software Distribution",
+    "Typing :: Typed",
+]
+
+dependencies = [
+    "build          ~= 1.0",
+    "cattrs         >= 22.2.0",
+    "click          ~= 8.0",
+    "click-loglevel ~= 0.5",
+    "configupdater  ~= 3.1",
+    "colorlog       ~= 6.0",
+    "ghreq          ~= 0.1",
+    "ghtoken        ~= 0.1",
+    "hatch          >= 1.7",
+    "in_place       ~= 1.0",
+    "intspan        ~= 1.6",
+    "Jinja2         ~= 3.0",
+    "lineinfile     ~= 0.1",
+    "linesep        ~= 0.3",
+    "packaging      >= 17.1",
+    "pyversion-info ~= 1.0",
+    "ruamel.yaml    >= 0.15, < 1.0",
+    "tomli          >= 1.2, < 3.0; python_version < '3.11'",
+    "twine          ~= 4.0",
+    "uritemplate    ~= 4.1",
+]
+
+[project.scripts]
+pyrepo = "pyrepo.__main__:main"
+
+[project.urls]
+"Source Code" = "https://github.com/jwodder/pyrepo"
+"Bug Tracker" = "https://github.com/jwodder/pyrepo/issues"
+
+[tool.hatch.version]
+source = "versioningit"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/docs",
+    "/src",
+    "/test",
+    "CHANGELOG.*",
+    "CONTRIBUTORS.*",
+    "tox.ini",
+]
+
+[tool.hatch.envs.default]
+python = "3"
+
+[tool.mypy]
+allow_incomplete_defs = false
+allow_untyped_defs = false
+ignore_missing_imports = false
+# <https://github.com/python/mypy/issues/7773>:
+no_implicit_optional = true
+implicit_reexport = false
+local_partial_types = true
+pretty = true
+show_error_codes = true
+show_traceback = true
+strict_equality = true
+warn_redundant_casts = true
+warn_return_any = true
+warn_unreachable = true
+exclude = "test/data/"
+
+[[tool.mypy.overrides]]
+module = ["intspan.*", "read_version.*"]
+ignore_missing_imports = true

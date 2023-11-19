@@ -13,6 +13,7 @@ import sys
 from typing import Any, Optional
 import click
 from configupdater import ConfigUpdater
+from in_place import InPlace
 from lineinfile import AfterLast, add_line_to_file
 from packaging.specifiers import SpecifierSet
 from . import git
@@ -46,7 +47,7 @@ class Project:
     @property
     def initfile(self) -> Path:
         if self.details.is_flat_module:
-            return self.directory / "src" / f"{self.details.import_name}.py"
+            return self.directory / f"{self.details.import_name}.py"
         else:
             return self.directory / "src" / self.details.import_name / "__init__.py"
 
@@ -139,19 +140,29 @@ class Project:
             new_initfile.relative_to(self.directory),
         )
         old_initfile.rename(new_initfile)
-        log.info("Updating setup.cfg ...")
-        setup_cfg = ConfigUpdater()
-        setup_cfg.read(str(self.directory / "setup.cfg"), encoding="utf-8")
-        setup_cfg["options"]["py_modules"].value = "find_namespace:"
-        setup_cfg["options"]["py_modules"].key = "packages"
-        setup_cfg["options"].add_after.section("options.packages.find")
-        opf = setup_cfg["options.packages.find"]
-        opf["where"] = "src"
-        if opf.next_block is not None:
-            opf.add_after.space()
-        else:
-            opf.add_before.space()
-        setup_cfg.update_file()
+        import_name = self.details.import_name
+        log.info("Updating pyproject.toml ...")
+        with InPlace(self.directory / "pyproject.toml", encoding="utf-8") as fp:
+            for line in fp:
+                if re.match(r"path\s*=", line):
+                    line = f'path = "src/{import_name}/__init__.py"\n'
+                elif line.rstrip() == f'    "/{import_name}.py",':
+                    line = '    "/src",\n'
+                fp.write(line)
+        if (self.directory / "tox.ini").exists():
+            log.info("Updating tox.ini ...")
+            with InPlace(self.directory / "tox.ini", encoding="utf-8") as fp:
+                for line in fp:
+                    line = re.sub(
+                        rf"^(\s+(?:flake8|mypy)\s+){import_name}.py\b", r"\1src", line
+                    )
+                    if line.rstrip() == f"    {import_name}.py":
+                        line = "    src\n"
+                    elif line.rstrip() == f"    .tox/**/site-packages/{import_name}.py":
+                        line = line.replace(f"/{import_name}.py", "")
+                    print(line, end="", file=fp)
+                    if re.match(r"sort_relative_in_force_sorted_sections\s*=", line):
+                        print("src_paths = src", file=fp)
         self.details.is_flat_module = False
 
     def add_typing(self) -> None:
@@ -163,15 +174,18 @@ class Project:
         log.info("Creating src/%s/py.typed ...", self.details.import_name)
         (self.directory / "src" / self.details.import_name / "py.typed").touch()
         templater = self.details.get_templater()
-        log.info("Updating setup.cfg ...")
-        setup_cfg = ConfigUpdater()
-        setup_cfg.read(str(self.directory / "setup.cfg"), encoding="utf-8")
-        setup_cfg["metadata"]["classifiers"].append("Typing :: Typed")
-        mypy_cfg = ConfigUpdater()
-        mypy_cfg.read_string(templater.get_template_block("setup.cfg.j2", "mypy"))
-        setup_cfg.add_section(mypy_cfg["mypy"].detach())
-        setup_cfg["mypy"].add_before.space()
-        setup_cfg.update_file()
+        log.info("Updating pyproject.toml ...")
+        with InPlace(self.directory / "pyproject.toml", encoding="utf-8") as fp:
+            in_classifiers = False
+            for line in fp:
+                if line == "classifiers = [\n":
+                    in_classifiers = True
+                elif in_classifiers and line == "]\n":
+                    print('    "Typing :: Typed",', file=fp)
+                    in_classifiers = False
+                fp.write(line)
+            mypy_cfg = templater.get_template_block("pyproject.toml.j2", "mypy")
+            print(mypy_cfg, end="", file=fp)
         if self.details.has_tests:
             log.info("Updating tox.ini ...")
             toxfile = ConfigUpdater()
@@ -220,11 +234,11 @@ class Project:
                 f" {self.details.python_requires!r}"
             )
         log.info("Adding %s to supported Python versions", pyv)
-        log.info("Updating setup.cfg ...")
+        log.info("Updating pyproject.toml ...")
         add_line_to_file(
-            self.directory / "setup.cfg",
-            f"    Programming Language :: Python :: {pyv}\n",
-            inserter=AfterLast(r"^    Programming Language :: Python :: \d+\.\d+$"),
+            self.directory / "pyproject.toml",
+            f'    "Programming Language :: Python :: {pyv}",\n',
+            inserter=AfterLast(r'^    "Programming Language :: Python :: \d+\.\d+",$'),
             encoding="utf-8",
         )
         if self.details.has_tests:
@@ -281,18 +295,18 @@ class Project:
                 ),
             )
 
-        def edit_setup_cfg_line(line: str) -> Optional[str]:
-            if line == f"    Programming Language :: Python :: {dropver}\n":
+        def edit_pyproject_line(line: str) -> Optional[str]:
+            if line == f'    "Programming Language :: Python :: {dropver}",\n':
                 return None
             else:
                 return replace_group(
-                    re.compile(r"^python_requires\s*=[ \t]*(.+)$"),
+                    re.compile(r'^requires-python\s*=\s*"(.+)"$'),
                     self.details.python_requires,
                     line,
                 )
 
-        log.info("Updating setup.cfg ...")
-        maybe_map_lines(self.directory / "setup.cfg", edit_setup_cfg_line)
+        log.info("Updating pyproject.toml ...")
+        maybe_map_lines(self.directory / "pyproject.toml", edit_pyproject_line)
         if self.details.has_tests:
             log.info("Updating tox.ini ...")
             map_lines(

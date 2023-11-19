@@ -2,17 +2,22 @@ from __future__ import annotations
 import ast
 from configparser import ConfigParser
 from dataclasses import dataclass
+import json
 from pathlib import Path
 import re
+import sys
 from typing import Any, List, Optional
 from intspan import intspan
-from read_version import read_version
+from packaging.specifiers import SpecifierSet
 from ruamel.yaml import YAML
-from setuptools.config.setupcfg import read_configuration  # type: ignore[import]
-import versioningit
 from . import git  # Import module to keep mocking easy
 from .readme import Readme
-from .util import JSONable, PyVersion, sort_specifier, yield_lines
+from .util import JSONable, PyVersion, readcmd, sort_specifier, yield_lines
+
+if sys.version_info[:2] >= (3, 11):
+    from tomllib import load as toml_load
+else:
+    from tomli import load as toml_load
 
 
 class InvalidProjectError(Exception):
@@ -29,49 +34,49 @@ def inspect_project(dirpath: str | Path | None = None) -> dict:
     def exists(*fname: str) -> bool:
         return Path(directory, *fname).exists()
 
-    if not exists("pyproject.toml"):
+    try:
+        with (directory / "pyproject.toml").open("rb") as bf:
+            pyproj = toml_load(bf)
+    except FileNotFoundError:
         raise InvalidProjectError("Project is missing pyproject.toml file")
-    if not exists("setup.cfg"):
-        raise InvalidProjectError("Project is missing setup.cfg file")
-    if not exists("src"):
-        raise InvalidProjectError("Project does not have src/ layout")
 
-    cfg = read_configuration(directory / "setup.cfg")
+    metadata = json.loads(
+        readcmd(sys.executable, "-m", "hatch", "project", "metadata", cwd=dirpath)
+    )
+
     env = {
-        "name": cfg["metadata"]["name"],
-        "short_description": cfg["metadata"]["description"],
-        "author": cfg["metadata"]["author"],
-        "author_email": cfg["metadata"]["author_email"],
-        "python_requires": sort_specifier(cfg["options"]["python_requires"]),
-        "install_requires": cfg["options"].get("install_requires", []),
-        # Until <https://github.com/pypa/setuptools/issues/2575> is fixed, we
-        # have to determine versions via read_version() instead of
-        # read_configuration().
-        # "version": cfg["metadata"].get("version"),
-        "keywords": cfg["metadata"].get("keywords", []),
-        "classifiers": cfg["metadata"].get("classifiers", []),
+        # `hatch project metadata` normalizes the name, so get it directly from
+        # the source
+        "name": pyproj["project"]["name"],
+        "short_description": metadata["description"],
+        "author": metadata["authors"][0]["name"],
+        "author_email": metadata["authors"][0]["email"],
+        "python_requires": sort_specifier(SpecifierSet(metadata["requires-python"])),
+        "install_requires": metadata.get("dependencies", []),
+        "version": metadata["version"],
+        "keywords": metadata.get("keywords", []),
+        # `hatch project metadata` sorts classifiers, so get them directly from
+        # the source instead to preserve order:
+        "classifiers": pyproj["project"].get("classifiers", []),
         "supports_pypy": False,
         "default_branch": git.Git(dirpath=directory).get_default_branch(),
     }
 
-    # if env["version"] is None:
-    #    raise InvalidProjectError("Cannot determine project version")
+    try:
+        version_source = pyproj["tool"]["hatch"]["version"]["source"]
+    except (AttributeError, LookupError, TypeError):
+        env["uses_versioningit"] = False
+    else:
+        env["uses_versioningit"] = version_source == "versioningit"
 
-    if cfg["options"].get("packages"):
+    if (directory / "src").exists():
         env["is_flat_module"] = False
-        env["import_name"] = cfg["options"]["packages"][0]
-        initfile = directory / "src" / env["import_name"] / "__init__.py"
+        (pkg,) = (directory / "src").iterdir()
+        env["import_name"] = pkg.name
     else:
         env["is_flat_module"] = True
-        env["import_name"] = cfg["options"]["py_modules"][0]
-        initfile = directory / "src" / f"{env['import_name']}.py"
-
-    try:
-        env["version"] = versioningit.get_version(directory)
-        env["uses_versioningit"] = True
-    except versioningit.NotVersioningitError:
-        env["version"] = read_version(initfile.resolve())
-        env["uses_versioningit"] = False
+        (module,) = directory.glob("*.py")
+        env["import_name"] = module.stem
 
     env["python_versions"] = []
     for clsfr in env["classifiers"]:
@@ -80,28 +85,20 @@ def inspect_project(dirpath: str | Path | None = None) -> dict:
         if clsfr == "Programming Language :: Python :: Implementation :: PyPy":
             env["supports_pypy"] = True
 
-    env["commands"] = {}
-    try:
-        commands = cfg["options"]["entry_points"]["console_scripts"]
-    except KeyError:
-        pass
-    else:
-        for cmd in commands:
-            k, v = re.split(r"\s*=\s*", cmd, maxsplit=1)
-            env["commands"][k] = v
+    env["commands"] = metadata.get("scripts", {})
 
     m = re.fullmatch(
         r"https://github.com/([^/]+)/([^/]+)",
-        cfg["metadata"]["url"],
+        metadata["urls"]["Source Code"],
     )
     assert m, "Project URL is not a GitHub URL"
     env["github_user"] = m[1]
     env["repo_name"] = m[2]
 
-    if "Documentation" in cfg["metadata"]["project_urls"]:
+    if "Documentation" in metadata["urls"]:
         m = re.fullmatch(
             r"https?://([-a-zA-Z0-9]+)\.(?:readthedocs|rtfd)\.io",
-            cfg["metadata"]["project_urls"]["Documentation"],
+            metadata["urls"]["Documentation"],
         )
         assert m, "Documentation URL is not a Read the Docs URL"
         env["rtfd_name"] = m[1]
@@ -113,8 +110,12 @@ def inspect_project(dirpath: str | Path | None = None) -> dict:
     env["has_tests"] = toxcfg.has_section("testenv")
 
     env["has_doctests"] = False
-    for pyfile in (directory / "src").rglob("*.py"):
-        if re.search(r"^\s*>>>\s+", pyfile.read_text(encoding="utf-8"), flags=re.M):
+    if env["is_flat_module"]:
+        pyfiles = [directory / f"{env['import_name']}.py"]
+    else:
+        pyfiles = list((directory / "src").rglob("*.py"))
+    for p in pyfiles:
+        if re.search(r"^\s*>>>\s+", p.read_text(encoding="utf-8"), flags=re.M):
             env["has_doctests"] = True
             break
 
@@ -168,7 +169,7 @@ def find_module(dirpath: Path) -> ModuleInfo:
         src_layout = False
     for flat in dirpath.glob("*.py"):
         name = flat.stem
-        if name.isidentifier() and name != "setup":
+        if name.isidentifier():
             results.append(
                 ModuleInfo(
                     import_name=name,

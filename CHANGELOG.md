@@ -1,7 +1,13 @@
 In Development
 --------------
+- Managed projects now use hatch instead of setuptools
+    - Due to limitations in Hatch, `src/` layouts are no longer used for flat
+      module projects
+- Migrated `pyrepo` itself from setuptools to hatch
 - Templates:
     - Adjust flake8 config in `tox.ini`
+    - Removed obsolete entries from `.gitignore`
+    - `.github/dependabot.yml`: Enable Python dependency version updates
 
 v2023.10.30
 -----------
