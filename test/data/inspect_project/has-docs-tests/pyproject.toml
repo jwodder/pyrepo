@@ -36,7 +36,6 @@ dependencies = []
 "Source Code" = "https://github.com/jwodder/foobar"
 "Bug Tracker" = "https://github.com/jwodder/foobar/issues"
 "Documentation" = "https://foobar.readthedocs.io"
-"Say Thanks!" = "https://saythanks.io/to/jwodder"
 
 [tool.hatch.version]
 path = "foobar.py"

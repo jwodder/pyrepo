@@ -35,7 +35,6 @@ dependencies = []
 [project.urls]
 "Source Code" = "https://github.com/jcoder/foobar.py"
 "Bug Tracker" = "https://github.com/jcoder/foobar.py/issues"
-"Say Thanks!" = "https://saythanks.io/to/jqcoder"
 
 [tool.hatch.version]
 path = "foobar.py"

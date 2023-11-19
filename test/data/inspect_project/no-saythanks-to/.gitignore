@@ -1,6 +1,0 @@
-.coverage
-.nox/
-.tox/
-__pycache__/
-dist/
-docs/_build/

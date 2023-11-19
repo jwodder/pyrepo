@@ -9,11 +9,6 @@
             "href": "https://img.shields.io/github/license/jwodder/foobar.svg",
             "target": "https://opensource.org/licenses/MIT",
             "alt": "MIT License"
-        },
-        {
-            "href": "https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg",
-            "target": "https://saythanks.io/to/jwodder",
-            "alt": null
         }
     ],
     "header_links": [
