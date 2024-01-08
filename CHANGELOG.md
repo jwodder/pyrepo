@@ -1,3 +1,8 @@
+In Development
+--------------
+- Templates:
+    - `test.yml`: Update `actions/setup-python` to `v5`
+
 v2023.11.19
 -----------
 - Managed projects now use hatch instead of setuptools
