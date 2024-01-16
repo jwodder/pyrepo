@@ -148,7 +148,7 @@ class Project:
                     line = f'path = "src/{import_name}/__init__.py"\n'
                 elif line.rstrip() == f'    "/{import_name}.py",':
                     line = '    "/src",\n'
-                fp.write(line)
+                fp.write(line)  # noqa: B038
         if (self.directory / "tox.ini").exists():
             log.info("Updating tox.ini ...")
             with InPlace(self.directory / "tox.ini", encoding="utf-8") as fp:
@@ -183,7 +183,7 @@ class Project:
                 elif in_classifiers and line == "]\n":
                     print('    "Typing :: Typed",', file=fp)
                     in_classifiers = False
-                fp.write(line)
+                fp.write(line)  # noqa: B038
             mypy_cfg = templater.get_template_block("pyproject.toml.j2", "mypy")
             print(mypy_cfg, end="", file=fp)
         if self.details.has_tests:
