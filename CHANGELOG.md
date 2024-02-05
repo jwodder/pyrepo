@@ -1,7 +1,10 @@
 In Development
 --------------
 - Templates:
-    - `test.yml`: Update `actions/setup-python` to `v5`
+    - `test.yml`:
+        - Update `actions/setup-python` to `v5`
+        - Use v4 of Codecov action and pass token & Python version (as `name`)
+          to action
 
 v2023.11.19
 -----------
