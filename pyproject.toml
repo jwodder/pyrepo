@@ -61,7 +61,7 @@ dependencies = [
     "pyversion-info ~= 1.0",
     "ruamel.yaml    >= 0.15, < 1.0",
     "tomli          >= 1.2, < 3.0; python_version < '3.11'",
-    "twine          ~= 4.0",
+    "twine          ~= 5.0",
     "uritemplate    ~= 4.1",
     # Running `python -m hatch ...` for inspection purposes seems to cause
     # Hatch to use the current environment rather than one of its managed
