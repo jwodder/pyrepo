@@ -1,5 +1,6 @@
 In Development
 --------------
+- Update twine dependency to 5.0
 - Templates:
     - `test.yml`:
         - Update `actions/setup-python` to `v5`
