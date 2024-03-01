@@ -1,10 +1,12 @@
+# /// script
+# dependencies = [
+#     "click ~= 8.0",
+#     "jwodder-pyrepo @ git+https://github.com/jwodder/pyrepo@447b4c8",
+# ]
+# ///
+
 # Replace 'pypy3' Python versions specs in .github/workflows/test.yml with a
 # list of appropriate 'pypy-3.X' specs
-
-__requires__ = [
-    "click ~= 8.0",
-    "jwodder-pyrepo @ git+https://github.com/jwodder/pyrepo@447b4c8",
-]
 
 from pathlib import Path
 import re

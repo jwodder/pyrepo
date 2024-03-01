@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-# /// pyproject
-# [run]
+# /// script
 # requires-python = ">=3.9"
 # dependencies = [
 #     "click ~= 8.0",

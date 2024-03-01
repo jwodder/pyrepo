@@ -1,3 +1,7 @@
+# /// script
+# dependencies = ["click ~= 8.0", "in_place ~= 0.5", "linesep ~= 0.3"]
+# ///
+
 # isort:
 # - Add section to .pre-commit-config.yaml
 # - Remove flake8-import-order-jwodder from .pre-commit-config.yaml
@@ -11,8 +15,6 @@
 # - If --no-git is not given:
 #  - Run "pre-commit run -a"
 #  - Commit
-
-__requires__ = ["click ~= 8.0", "in_place ~= 0.5", "linesep ~= 0.3"]
 
 from pathlib import Path
 import re
