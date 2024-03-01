@@ -105,7 +105,7 @@ class Readme(JSONable):
         for i, sect in enumerate(self.sections):
             if i or self.introduction:
                 s += "\n"
-            s += f'\n\n{sect.name}\n{"="*len(sect.name)}\n{sect.body}'
+            s += f'\n\n{sect.name}\n{"=" * len(sect.name)}\n{sect.body}'
         return s + "\n"
 
 

@@ -379,14 +379,16 @@ class Project:
             else:
                 chlog = Changelog(
                     intro=(
-                        f".. currentmodule:: {self.details.import_name}\n"
-                        "\n"
-                        "Changelog\n"
-                        "=========\n"
-                        "\n"
-                    )
-                    if docs
-                    else "",
+                        (
+                            f".. currentmodule:: {self.details.import_name}\n"
+                            "\n"
+                            "Changelog\n"
+                            "=========\n"
+                            "\n"
+                        )
+                        if docs
+                        else ""
+                    ),
                     sections=[
                         new_sect,
                         ChangelogSection(
