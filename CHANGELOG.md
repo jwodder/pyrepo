@@ -7,6 +7,7 @@ In Development
         - Use v4 of Codecov action and pass token & Python version (as `name`)
           to action
     - Update `.pre-commit-config.yaml`
+    - `docs/requirements.txt`: Update `sphinx_rtd_theme` requirement to `~=2.0`
 
 v2023.11.19
 -----------
