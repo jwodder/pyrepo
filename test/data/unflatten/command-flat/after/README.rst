@@ -1,5 +1,5 @@
-.. image:: http://www.repostatus.org/badges/latest/wip.svg
-    :target: http://www.repostatus.org/#wip
+.. image:: https://www.repostatus.org/badges/latest/wip.svg
+    :target: https://www.repostatus.org/#wip
     :alt: Project Status: WIP — Initial development is in progress, but there
           has not yet been a stable, usable release suitable for the public.
 
