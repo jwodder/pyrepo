@@ -29,7 +29,7 @@ class Readme(JSONable):
     description of the format parsed & emitted by this class
     """
 
-    badge_tags: list[str]
+    badge_tags: List[str]
     badges: List[Image]
     header_links: List[dict]
     contents: bool
