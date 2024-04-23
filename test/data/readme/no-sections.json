@@ -1,11 +1,14 @@
 {
+    "badge_tags": ["repostatus", "license"],
     "badges": [
         {
-            "href": "http://www.repostatus.org/badges/latest/wip.svg",
-            "target": "http://www.repostatus.org/#wip",
+            "tag": "repostatus",
+            "href": "https://www.repostatus.org/badges/latest/wip.svg",
+            "target": "https://www.repostatus.org/#wip",
             "alt": "Project Status: WIP — Initial development is in progress, but there\n          has not yet been a stable, usable release suitable for the public."
         },
         {
+            "tag": "license",
             "href": "https://img.shields.io/github/license/jwodder/foobar.svg",
             "target": "https://opensource.org/licenses/MIT",
             "alt": "MIT License"
