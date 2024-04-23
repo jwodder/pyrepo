@@ -1,23 +1,25 @@
-.. image:: https://www.repostatus.org/badges/latest/wip.svg
+|repostatus| {% if has_ci %}|ci-status| |coverage| {% endif %}{% if has_pypi %}|pyversions| {% endif %}|license|
+
+.. |repostatus| image:: https://www.repostatus.org/badges/latest/wip.svg
     :target: https://www.repostatus.org/#wip
     :alt: Project Status: WIP — Initial development is in progress, but there
           has not yet been a stable, usable release suitable for the public.
 
 {% if has_ci %}
-.. image:: https://github.com/{{github_user}}/{{repo_name}}/actions/workflows/test.yml/badge.svg
+.. |ci-status| image:: https://github.com/{{github_user}}/{{repo_name}}/actions/workflows/test.yml/badge.svg
     :target: https://github.com/{{github_user}}/{{repo_name}}/actions/workflows/test.yml
     :alt: CI Status
 
-.. image:: https://codecov.io/gh/{{codecov_user}}/{{repo_name}}/branch/{{default_branch}}/graph/badge.svg
+.. |coverage| image:: https://codecov.io/gh/{{codecov_user}}/{{repo_name}}/branch/{{default_branch}}/graph/badge.svg
     :target: https://codecov.io/gh/{{codecov_user}}/{{repo_name}}
 
 {% endif %}
 {% if has_pypi %}
-.. image:: https://img.shields.io/pypi/pyversions/{{name}}.svg
+.. |pyversions| image:: https://img.shields.io/pypi/pyversions/{{name}}.svg
     :target: https://pypi.org/project/{{name}}/
 
 {% endif %}
-.. image:: https://img.shields.io/github/license/{{github_user}}/{{repo_name}}.svg
+.. |license| image:: https://img.shields.io/github/license/{{github_user}}/{{repo_name}}.svg
     :target: https://opensource.org/licenses/MIT
     :alt: MIT License
 

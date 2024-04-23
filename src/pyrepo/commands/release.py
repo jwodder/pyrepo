@@ -48,7 +48,7 @@ from ..util import (
 log = logging.getLogger(__name__)
 
 ACTIVE_BADGE = """\
-.. image:: https://www.repostatus.org/badges/latest/active.svg
+.. |repostatus| image:: https://www.repostatus.org/badges/latest/active.svg
     :target: https://www.repostatus.org/#active
     :alt: Project Status: Active — The project has reached a stable, usable
           state and is being actively developed.
@@ -246,8 +246,8 @@ class Releaser:
         ) as fp:
             for para in read_paragraphs(fp):
                 if re.fullmatch(
-                    r"\.\. image:: https?://www\.repostatus\.org/badges/latest"
-                    r"/wip\.svg",
+                    r"\.\. \|repostatus\| image::"
+                    r" https?://www\.repostatus\.org/badges/latest/wip\.svg",
                     para.splitlines()[0],
                 ):
                     print(ACTIVE_BADGE, file=fp)

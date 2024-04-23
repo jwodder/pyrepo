@@ -1,12 +1,14 @@
-.. image:: http://www.repostatus.org/badges/latest/wip.svg
-    :target: http://www.repostatus.org/#wip
+|repostatus| |pyversions| |license|
+
+.. |repostatus| image:: https://www.repostatus.org/badges/latest/wip.svg
+    :target: https://www.repostatus.org/#wip
     :alt: Project Status: WIP — Initial development is in progress, but there
           has not yet been a stable, usable release suitable for the public.
 
-.. image:: https://img.shields.io/pypi/pyversions/foobar.svg
+.. |pyversions| image:: https://img.shields.io/pypi/pyversions/foobar.svg
     :target: https://pypi.org/project/foobar/
 
-.. image:: https://img.shields.io/github/license/jwodder/foobar.svg
+.. |license| image:: https://img.shields.io/github/license/jwodder/foobar.svg
     :target: https://opensource.org/licenses/MIT
     :alt: MIT License
 

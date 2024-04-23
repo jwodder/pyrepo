@@ -6,11 +6,20 @@ from typing import List, Optional, TextIO
 from linesep import read_paragraphs
 from .util import JSONable
 
-ParserState = Enum("ParserState", "BADGES POST_LINKS POST_CONTENTS INTRO SECTIONS")
+ParserState = Enum(
+    "ParserState", "START BADGES POST_LINKS POST_CONTENTS INTRO SECTIONS"
+)
 
 HEADER_LINK_RGX = r"`(?P<label>[^`<>]+) <(?P<url>[^>]+)>`_"
 
-IMAGE_START = ".. image:: "
+# Technically, this is the regex for a simple reference name; actual
+# substitution text can apparently be any text that doesn't begin or end with
+# whitespace, but I don't want to try to support parsing that.
+SUBST_TEXT_RGX = r"[A-Za-z0-9](?:[-_.:+]?[A-Za-z0-9])*"
+
+IMAGE_START_CRGX = re.compile(
+    rf"\.\. \|(?P<tag>{SUBST_TEXT_RGX})\| image:: (?P<href>\S+)$", flags=re.M
+)
 
 
 @dataclass
@@ -20,6 +29,7 @@ class Readme(JSONable):
     description of the format parsed & emitted by this class
     """
 
+    badge_tags: List[str]
     badges: List[Image]
     header_links: List[dict]
     contents: bool
@@ -28,8 +38,11 @@ class Readme(JSONable):
 
     @classmethod
     def load(cls, fp: TextIO) -> Readme:
-        state = ParserState.BADGES
+        state = ParserState.START
         badges: list[Image] = []
+        badge_tags: list[str] = []
+        badge_tags_set: set[str] = set()
+        seen_badge_tags: set[str] = set()
         header_links: list[dict] = []
         contents = False
         introduction = ""
@@ -37,10 +50,26 @@ class Readme(JSONable):
         section_name: Optional[str] = None
         section_body: Optional[str] = None
         for para in read_paragraphs(fp):
-            if state == ParserState.BADGES:
-                if para.startswith(IMAGE_START):
-                    badges.append(Image.parse(para))
+            if state == ParserState.START and re.fullmatch(
+                rf"\|{SUBST_TEXT_RGX}\|(?:\s+\|{SUBST_TEXT_RGX}\|)*\s*", para
+            ):
+                badge_tags = [subst.strip("|") for subst in para.strip().split()]
+                badge_tags_set = set(badge_tags)
+                state = ParserState.BADGES
+            elif state in (ParserState.START, ParserState.BADGES):
+                if IMAGE_START_CRGX.match(para):
+                    img = Image.parse(para)
+                    if img.tag not in badge_tags_set:
+                        raise ValueError(f"Unexpected image subsitution: |{img.tag}|")
+                    seen_badge_tags.add(img.tag)
+                    badges.append(img)
+                    state = ParserState.BADGES
                 elif re.match(HEADER_LINK_RGX, para):
+                    if unseen := badge_tags_set - seen_badge_tags:
+                        raise ValueError(
+                            "Undefined image substitutions: "
+                            + " ".join(f"|{t}|" for t in sorted(unseen))
+                        )
                     for hlink in re.split(r"^\|", para.strip(), flags=re.M):
                         if m := re.fullmatch(HEADER_LINK_RGX, hlink.strip()):
                             header_links.append(m.groupdict())
@@ -85,6 +114,7 @@ class Readme(JSONable):
             assert section_name is not None
             sections.append(Section(name=section_name, body=section_body.rstrip()))
         return cls(
+            badge_tags=badge_tags,
             badges=badges,
             header_links=header_links,
             contents=contents,
@@ -94,6 +124,8 @@ class Readme(JSONable):
 
     def __str__(self) -> str:
         s = ""
+        if self.badge_tags:
+            s += " ".join(f"|{t}|" for t in self.badge_tags) + "\n\n"
         for b in self.badges:
             s += f"{b}\n\n"
         if self.header_links:
@@ -111,16 +143,18 @@ class Readme(JSONable):
 
 @dataclass
 class Image(JSONable):
+    tag: str
     href: str
     target: Optional[str]
     alt: Optional[str]
 
     @classmethod
     def parse(cls, s: str) -> Image:
-        if not s.startswith(IMAGE_START):
+        if not (m := IMAGE_START_CRGX.match(s)):
             raise ValueError(f"Not an RST image: {s!r}")
+        tag = m["tag"]
+        href = m["href"]
         lines = s.splitlines(keepends=True)
-        href = lines[0][len(IMAGE_START) :].strip()
         options: dict[str, Optional[str]] = {
             "target": None,
             "alt": None,
@@ -147,10 +181,10 @@ class Image(JSONable):
         if opt_name is not None:
             assert opt_value is not None
             options[opt_name] = opt_value.rstrip()
-        return cls.parse_obj({"href": href, **options})
+        return cls.parse_obj({"tag": tag, "href": href, **options})
 
     def __str__(self) -> str:
-        s = IMAGE_START + self.href
+        s = f".. |{self.tag}| image:: {self.href}"
         if self.target is not None:
             s += f"\n    :target: {self.target}"
         if self.alt is not None:

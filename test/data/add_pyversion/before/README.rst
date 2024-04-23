@@ -1,16 +1,18 @@
-.. image:: http://www.repostatus.org/badges/latest/wip.svg
-    :target: http://www.repostatus.org/#wip
+|repostatus| |ci-status| |coverage| |license|
+
+.. |repostatus| image:: https://www.repostatus.org/badges/latest/wip.svg
+    :target: https://www.repostatus.org/#wip
     :alt: Project Status: WIP — Initial development is in progress, but there
           has not yet been a stable, usable release suitable for the public.
 
-.. image:: https://github.com/jwodder/foobar/workflows/Test/badge.svg?branch=master
-    :target: https://github.com/jwodder/foobar/actions?workflow=Test
+.. |ci-status| image:: https://github.com/jwodder/foobar/actions/workflows/test.yml/badge.svg
+    :target: https://github.com/jwodder/foobar/actions/workflows/test.yml
     :alt: CI Status
 
-.. image:: https://codecov.io/gh/jwodder/foobar/branch/master/graph/badge.svg
+.. |coverage| image:: https://codecov.io/gh/jwodder/foobar/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/jwodder/foobar
 
-.. image:: https://img.shields.io/github/license/jwodder/foobar.svg
+.. |license| image:: https://img.shields.io/github/license/jwodder/foobar.svg
     :target: https://opensource.org/licenses/MIT
     :alt: MIT License
 
