@@ -132,7 +132,7 @@ def inspect_project(dirpath: str | Path | None = None) -> dict:
     else:
         for badge in rdme.badges:
             if m := re.fullmatch(
-                r"https://codecov\.io/gh/([^/]+)/[^/]+/branch/.+" r"/graph/badge\.svg",
+                r"https://codecov\.io/gh/([^/]+)/[^/]+/branch/.+/graph/badge\.svg",
                 badge.href,
             ):
                 env["codecov_user"] = m[1]
