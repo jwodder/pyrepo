@@ -1,9 +1,11 @@
-.. image:: https://www.repostatus.org/badges/latest/wip.svg
+|repostatus| |license|
+
+.. |repostatus| image:: https://www.repostatus.org/badges/latest/wip.svg
     :target: https://www.repostatus.org/#wip
     :alt: Project Status: WIP — Initial development is in progress, but there
           has not yet been a stable, usable release suitable for the public.
 
-.. image:: https://img.shields.io/github/license/jwodder/foobar-project-name.svg
+.. |license| image:: https://img.shields.io/github/license/jwodder/foobar-project-name.svg
     :target: https://opensource.org/licenses/MIT
     :alt: MIT License
 

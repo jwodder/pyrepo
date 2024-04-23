@@ -8,6 +8,7 @@ In Development
           to action
     - Update `.pre-commit-config.yaml`
     - `docs/requirements.txt`: Update `sphinx_rtd_theme` requirement to `~=2.0`
+    - `README.rst`: Use inline image syntax for badges
 
 v2023.11.19
 -----------
