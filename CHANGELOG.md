@@ -9,6 +9,7 @@ In Development
     - Update `.pre-commit-config.yaml`
     - `docs/requirements.txt`: Update `sphinx_rtd_theme` requirement to `~=2.0`
     - `README.rst`: Use inline image syntax for badges
+    - `tox.ini`: Configure flake8 to ignore A005 and E704
 
 v2023.11.19
 -----------
