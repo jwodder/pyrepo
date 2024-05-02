@@ -1,6 +1,5 @@
 import logging
 import re
-from typing import Optional
 import click
 from ..gh import GitHub
 from ..project import Project, with_project
@@ -14,7 +13,7 @@ log = logging.getLogger(__name__)
 @click.option("--repo-name", metavar="NAME", help="Set the name of the repository")
 @with_project
 @cpe_no_tb
-def cli(project: Project, repo_name: Optional[str], private: bool) -> None:
+def cli(project: Project, repo_name: str | None, private: bool) -> None:
     """Create a repository on GitHub for the local project and upload it"""
     if repo_name is None:
         repo_name = project.details.repo_name

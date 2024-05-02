@@ -2,7 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import date, datetime
 import re
-from typing import IO, List, Optional
+from typing import IO
 from .util import JSONable, join_markup_list, split_markup_list
 
 DATE_VERSION = re.compile(r"v\d{4}\.\d?\d\.\d?\d")
@@ -16,12 +16,12 @@ class Changelog(JSONable):
     """
 
     intro: str
-    sections: List[ChangelogSection]
+    sections: list[ChangelogSection]
 
     @classmethod
     def load(cls, fp: IO[str]) -> Changelog:
         intro = ""
-        prev: Optional[str] = None
+        prev: str | None = None
         sections: list[ChangelogSection] = []
         for line in fp:
             if re.fullmatch(r"---+\s*", line):
@@ -37,8 +37,8 @@ class Changelog(JSONable):
                     prev,
                     flags=re.I,
                 ):
-                    rdate: Optional[str] = m["date"]
-                    release_date: Optional[date]
+                    rdate: str | None = m["date"]
+                    release_date: date | None
                     if rdate is None or rdate.lower() == "in development":
                         release_date = None
                     else:
@@ -105,8 +105,8 @@ class Changelog(JSONable):
 class ChangelogSection:
     # If `version` is unset, then `release_date` should be unset as well; this
     # denotes a section header of just "In Development"
-    version: Optional[str]
-    release_date: Optional[date]  # None = "in development"
+    version: str | None
+    release_date: date | None  # None = "in development"
     content: str  # has trailing newlines stripped
 
     def __str__(self) -> str:

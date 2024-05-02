@@ -24,7 +24,6 @@ from pathlib import Path
 import re
 import sys
 from tempfile import NamedTemporaryFile
-from typing import Optional
 import click
 from ghreq import Endpoint
 from in_place import InPlace
@@ -62,7 +61,7 @@ class Releaser:
     ghrepo: Endpoint
     tox: bool
     assets: list[Path] = field(default_factory=list)
-    release_upload_url: Optional[str] = None
+    release_upload_url: str | None = None
 
     @classmethod
     def from_project(
@@ -317,9 +316,7 @@ class Releaser:
 @click.argument("version", required=False)
 @with_project
 @cpe_no_tb
-def cli(
-    project: Project, version: Optional[str], tox: bool, bump: Optional[Bump]
-) -> None:
+def cli(project: Project, version: str | None, tox: bool, bump: Bump | None) -> None:
     """Make a new release of the project"""
     if bump is not None:
         if version is not None:

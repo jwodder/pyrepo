@@ -2,7 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 import logging
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 from jinja2 import Environment
 from .util import get_jinja_env
 
@@ -26,7 +26,7 @@ class Templater:
         self,
         template_name: str,
         block_name: str,
-        variables: Optional[dict[str, Any]] = None,
+        variables: dict[str, Any] | None = None,
     ) -> str:
         tmpl = self.jinja_env.get_template(template_name)
         context = tmpl.new_context(vars=variables)

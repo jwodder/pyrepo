@@ -2,6 +2,7 @@ In Development
 --------------
 - Update twine dependency to 5.0
 - `pyrepo add-pyversion` and `pyrepo drop-pyversion` now also update changelogs
+- Drop support for Python 3.8 and 3.9
 - Templates:
     - `test.yml`:
         - Update `actions/setup-python` to `v5`

@@ -13,7 +13,7 @@ import subprocess
 import sys
 from textwrap import fill
 import time
-from typing import TYPE_CHECKING, Any, Optional, TextIO
+from typing import TYPE_CHECKING, Any, TextIO
 import cattrs
 from in_place import InPlace
 from intspan import intspan
@@ -98,7 +98,7 @@ class JSONable:
 
     @classmethod
     def parse_file(cls, path: str | Path) -> Self:
-        with open(path, "r", encoding="utf-8") as fp:
+        with open(path, encoding="utf-8") as fp:
             return cls.parse_obj(json.load(fp))
 
     def for_json(self) -> dict:
@@ -136,7 +136,7 @@ def years2str(years: list[int]) -> str:
     return str(intspan(years)).replace(",", ", ")
 
 
-def update_years2str(year_str: str, years: Optional[list[int]] = None) -> str:
+def update_years2str(year_str: str, years: list[int] | None = None) -> str:
     """
     Given a string of years of the form ``"2014, 2016-2017"``, update the
     string if necessary to include the given years (default: the current year).
@@ -235,7 +235,7 @@ def map_lines(filepath: str | Path, func: Callable[[str], str]) -> None:
             print(func(line), file=fp, end="")
 
 
-def maybe_map_lines(filepath: str | Path, func: Callable[[str], Optional[str]]) -> None:
+def maybe_map_lines(filepath: str | Path, func: Callable[[str], str | None]) -> None:
     with InPlace(filepath, mode="t", encoding="utf-8") as fp:
         for line in fp:
             if (newline := func(line)) is not None:
@@ -288,9 +288,7 @@ def bump_version(v: str | Version, level: Bump) -> str:
         return mkversion(epoch=vobj.epoch, release=vs)
 
 
-def mkversion(
-    release: Iterable[int], epoch: int = 0, post: Optional[int] = None
-) -> str:
+def mkversion(release: Iterable[int], epoch: int = 0, post: int | None = None) -> str:
     s = ".".join(map(str, release))
     if epoch:
         s = f"{epoch}!{s}"

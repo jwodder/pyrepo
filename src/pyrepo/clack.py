@@ -1,13 +1,13 @@
 from __future__ import annotations
-from typing import Any, Optional
+from typing import Any
 import click
 
 
 class ConfigurableCommand(click.Command):
     def __init__(
         self,
-        allow_config: Optional[list[str]] = None,
-        disallow_config: Optional[list[str]] = None,
+        allow_config: list[str] | None = None,
+        disallow_config: list[str] | None = None,
         **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)

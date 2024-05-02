@@ -2,7 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum
 import re
-from typing import List, Optional, TextIO
+from typing import TextIO
 from linesep import read_paragraphs
 from .util import JSONable
 
@@ -29,12 +29,12 @@ class Readme(JSONable):
     description of the format parsed & emitted by this class
     """
 
-    badge_tags: List[str]
-    badges: List[Image]
-    header_links: List[dict]
+    badge_tags: list[str]
+    badges: list[Image]
+    header_links: list[dict]
     contents: bool
-    introduction: Optional[str]
-    sections: List[Section]
+    introduction: str | None
+    sections: list[Section]
 
     @classmethod
     def load(cls, fp: TextIO) -> Readme:
@@ -47,8 +47,8 @@ class Readme(JSONable):
         contents = False
         introduction = ""
         sections: list[Section] = []
-        section_name: Optional[str] = None
-        section_body: Optional[str] = None
+        section_name: str | None = None
+        section_body: str | None = None
         for para in read_paragraphs(fp):
             if state == ParserState.START and re.fullmatch(
                 rf"\|{SUBST_TEXT_RGX}\|(?:\s+\|{SUBST_TEXT_RGX}\|)*\s*", para
@@ -145,8 +145,8 @@ class Readme(JSONable):
 class Image(JSONable):
     tag: str
     href: str
-    target: Optional[str]
-    alt: Optional[str]
+    target: str | None
+    alt: str | None
 
     @classmethod
     def parse(cls, s: str) -> Image:
@@ -155,12 +155,12 @@ class Image(JSONable):
         tag = m["tag"]
         href = m["href"]
         lines = s.splitlines(keepends=True)
-        options: dict[str, Optional[str]] = {
+        options: dict[str, str | None] = {
             "target": None,
             "alt": None,
         }
-        opt_name: Optional[str] = None
-        opt_value: Optional[str] = None
+        opt_name: str | None = None
+        opt_value: str | None = None
         for ln in lines[1:]:
             if m := re.match(r"^\s*:(\w+):\s*", ln):
                 label = m[1]
