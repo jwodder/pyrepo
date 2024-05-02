@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from datetime import date, datetime
 import re
 from typing import IO, List, Optional
-from .util import JSONable
+from .util import JSONable, join_markup_list, split_markup_list
 
 DATE_VERSION = re.compile(r"v\d{4}\.\d?\d\.\d?\d")
 
@@ -129,3 +129,10 @@ class ChangelogSection:
 
     def _end(self) -> None:
         self.content = self.content.rstrip("\r\n")
+
+    # Items are returned without trailing newlines
+    def get_items(self) -> list[str]:
+        return split_markup_list(self.content)
+
+    def set_items(self, items: list[str]) -> None:
+        self.content = join_markup_list(items)

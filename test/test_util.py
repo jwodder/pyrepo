@@ -11,9 +11,11 @@ from pyrepo.util import (
     Bump,
     PyVersion,
     bump_version,
+    join_markup_list,
     mkversion,
     next_version,
     sort_specifier,
+    split_markup_list,
     update_years2str,
 )
 
@@ -196,3 +198,61 @@ def test_bump_version_prerelease(v: str, bump: Bump) -> None:
 )
 def test_get_mime_type(filename: str, mtype: str) -> None:
     assert get_mime_type(filename) == mtype
+
+
+@pytest.mark.parametrize(
+    "s,items",
+    [
+        ("", []),
+        ("- Foo all the bars\n", ["- Foo all the bars"]),
+        (
+            "\n- Foo all the bars\n- Gnusto a cleesh\n\n",
+            ["- Foo all the bars", "- Gnusto a cleesh"],
+        ),
+        (
+            (
+                "- Foo all the bars:\n"
+                "\n"
+                "  - Walk into bar 1\n"
+                "  - Pass bar 2\n"
+                "\n"
+                "- Gnusto a cleesh\n"
+            ),
+            [
+                "- Foo all the bars:\n\n  - Walk into bar 1\n  - Pass bar 2",
+                "- Gnusto a cleesh",
+            ],
+        ),
+    ],
+)
+def test_split_markup_list(s: str, items: list[str]) -> None:
+    assert split_markup_list(s) == items
+
+
+@pytest.mark.parametrize(
+    "items,s",
+    [
+        ([], ""),
+        (["- Foo all the bars"], "- Foo all the bars"),
+        (
+            ["- Foo all the bars\n", "- Gnusto a cleesh\n"],
+            "- Foo all the bars\n- Gnusto a cleesh",
+        ),
+        (
+            [
+                "- Foo all the bars:\n\n  - Walk into bar 1\n  - Pass bar 2",
+                "- Gnusto a cleesh",
+            ],
+            (
+                "- Foo all the bars:\n"
+                "\n"
+                "  - Walk into bar 1\n"
+                "  - Pass bar 2\n"
+                "\n"
+                "- Gnusto a cleesh"
+            ),
+        ),
+    ],
+)
+def test_join_markup_list(items: list[str], s: str) -> None:
+    assert join_markup_list(items) == s
