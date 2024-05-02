@@ -234,6 +234,7 @@ class Project:
                 f" {self.details.python_requires!r}"
             )
         log.info("Adding %s to supported Python versions", pyv)
+        self.begin_dev(quiet=True)
         log.info("Updating pyproject.toml ...")
         add_line_to_file(
             self.directory / "pyproject.toml",
@@ -259,6 +260,9 @@ class Project:
                 inserter=AfterLast(rf"^{' ' * 10}- ['\x22]?\d+\.\d+['\x22]?$"),
                 encoding="utf-8",
             )
+        self.update_latest_changelog_section(
+            lambda items: add_pyversion_chlog(pyv, items)
+        )
         insort(self.details.python_versions, pyv)
 
     def drop_pyversion(self) -> None:
@@ -269,9 +273,9 @@ class Project:
             raise ValueError("No supported Python versions to drop")
         elif len(self.details.python_versions) == 1:
             raise ValueError("Only one supported Python version; not dropping")
-        self.begin_dev(quiet=True)
         dropver = self.details.python_versions.pop(0)
         log.info("Dropping %s from supported Python versions", dropver)
+        self.begin_dev(quiet=True)
         newmin = self.details.python_versions[0]
         self.details.python_requires = re.sub(
             r"\d+(?:\.\d+)*", str(newmin), self.details.python_requires
@@ -469,28 +473,37 @@ def with_project(func: Callable) -> Callable:
 
 
 def drop_pyversion_chlog(dropver: PyVersion, items: list[str]) -> list[str]:
+    return support_pyversion_chlog("Drop support for Python", dropver, items)
+
+
+def add_pyversion_chlog(dropver: PyVersion, items: list[str]) -> list[str]:
+    return support_pyversion_chlog("Support Python", dropver, items)
+
+
+def support_pyversion_chlog(
+    prefix: str, newver: PyVersion, items: list[str]
+) -> list[str]:
+    re_prefix = re.escape(prefix)
     for i, it in enumerate(items):
-        if m := re.fullmatch(r"- Drop support for Python (\d+\.\d+)", it):
+        if m := re.fullmatch(rf"- {re_prefix} (\d+\.\d+)", it):
             dropped = [m[1]]
-        elif m := re.fullmatch(
-            r"- Drop support for Python (\d+\.\d+) and (\d+\.\d+)", it
-        ):
+        elif m := re.fullmatch(rf"- {re_prefix} (\d+\.\d+) and (\d+\.\d+)", it):
             dropped = [m[1], m[2]]
         elif m := re.fullmatch(
-            r"- Drop support for Python (\d+\.\d+(?:, \d+\.\d+)+), and (\d+\.\d+)",
+            rf"- {re_prefix} (\d+\.\d+(?:, \d+\.\d+)+), and (\d+\.\d+)",
             it,
         ):
             dropped = [*m[1].split(", "), m[2]]
         else:
             continue
-        dropped.append(str(dropver))
+        dropped.append(str(newver))
         dropped.sort(key=PyVersion)
         if len(dropped) == 2:
-            ln = f"- Drop support for Python {dropped[0]} and {dropped[1]}"
+            ln = f"- {prefix} {dropped[0]} and {dropped[1]}"
         else:
             pre_and = ", ".join(dropped[:-1])
-            ln = f"- Drop support for Python {pre_and}, and {dropped[-1]}"
+            ln = f"- {prefix} {pre_and}, and {dropped[-1]}"
         items[i] = ln
         return items
-    items.append(f"- Drop support for Python {dropver}")
+    items.append(f"- {prefix} {newver}")
     return items
