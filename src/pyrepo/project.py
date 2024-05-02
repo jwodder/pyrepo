@@ -269,6 +269,7 @@ class Project:
             raise ValueError("No supported Python versions to drop")
         elif len(self.details.python_versions) == 1:
             raise ValueError("Only one supported Python version; not dropping")
+        self.begin_dev(quiet=True)
         dropver = self.details.python_versions.pop(0)
         log.info("Dropping %s from supported Python versions", dropver)
         newmin = self.details.python_versions[0]
@@ -294,6 +295,9 @@ class Project:
                     str(newmin),
                 ),
             )
+        self.update_latest_changelog_section(
+            lambda items: drop_pyversion_chlog(dropver, items)
+        )
 
         def edit_pyproject_line(line: str) -> Optional[str]:
             if line == f'    "Programming Language :: Python :: {dropver}",\n':
@@ -342,14 +346,15 @@ class Project:
                 edit_test_yml_line,
             )
 
-    def begin_dev(self, use_next_version: bool = True) -> None:
+    def begin_dev(self, use_next_version: bool = True, quiet: bool = False) -> None:
         chlog = self.get_changelog()
         if (
             chlog is not None
             and chlog.sections
             and chlog.sections[0].release_date is None
         ):
-            log.info("Project is already in dev state; not adjusting")
+            if not quiet:
+                log.info("Project is already in dev state; not adjusting")
             return
         log.info("Preparing for work on next version ...")
         # Set __version__ to the next version number plus ".dev1"
@@ -400,6 +405,29 @@ class Project:
                 )
             self.set_changelog(chlog, docs=docs)
 
+    def update_latest_changelog_section(
+        self, func: Callable[[list[str]], list[str]]
+    ) -> None:
+        for docs in (False, True):
+            if docs:
+                if not (self.directory / "docs").exists():
+                    continue
+                log.info("Updating docs/changelog.rst ...")
+            else:
+                log.info("Updating CHANGELOG ...")
+            chlog = self.get_changelog(docs=docs)
+            if chlog is not None and chlog.sections:
+                items = chlog.sections[0].get_items()
+                new_items = func(items)
+                if new_items != items:
+                    log.info("No change to content")
+                else:
+                    chlog.sections[0].set_items(new_items)
+                    self.set_changelog(chlog, docs=docs)
+            else:
+                ### TODO: Error?
+                log.warning("Changlog is absent/empty; not updating")
+
 
 def add_typing_env(envlist: str) -> str:
     envs = envlist.strip().split(",")
@@ -438,3 +466,31 @@ def with_project(func: Callable) -> Callable:
         return func(*args, project=project, **kwargs)
 
     return wrapped
+
+
+def drop_pyversion_chlog(dropver: PyVersion, items: list[str]) -> list[str]:
+    for i, it in enumerate(items):
+        if m := re.fullmatch(r"- Drop support for Python (\d+\.\d+)", it):
+            dropped = [m[1]]
+        elif m := re.fullmatch(
+            r"- Drop support for Python (\d+\.\d+) and (\d+\.\d+)", it
+        ):
+            dropped = [m[1], m[2]]
+        elif m := re.fullmatch(
+            r"- Drop support for Python (\d+\.\d+(?:, \d+\.\d+)+), and (\d+\.\d+)",
+            it,
+        ):
+            dropped = [*m[1].split(", "), m[2]]
+        else:
+            continue
+        dropped.append(str(dropver))
+        dropped.sort(key=PyVersion)
+        if len(dropped) == 2:
+            ln = f"- Drop support for Python {dropped[0]} and {dropped[1]}"
+        else:
+            pre_and = ", ".join(dropped[:-1])
+            ln = f"- Drop support for Python {pre_and}, and {dropped[-1]}"
+        items[i] = ln
+        return items
+    items.append(f"- Drop support for Python {dropver}")
+    return items

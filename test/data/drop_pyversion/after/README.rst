@@ -19,6 +19,7 @@
 `GitHub <https://github.com/jwodder/foobar>`_
 | `Documentation <https://foobar.readthedocs.io>`_
 | `Issues <https://github.com/jwodder/foobar/issues>`_
+| `Changelog <https://github.com/jwodder/foobar/blob/master/CHANGELOG.md>`_
 
 INSERT LONG DESCRIPTION HERE
 
