@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 import re
 import sys
-from typing import Any, List, Optional
+from typing import Any
 from intspan import intspan
 from packaging.specifiers import SpecifierSet
 from ruamel.yaml import YAML
@@ -197,8 +197,8 @@ def find_module(dirpath: Path) -> ModuleInfo:
 
 @dataclass
 class Requirements(JSONable):
-    python_requires: Optional[str] = None
-    requires: Optional[List[str]] = None
+    python_requires: str | None = None
+    requires: list[str] | None = None
 
 
 def extract_requires(filename: Path) -> Requirements:
@@ -264,7 +264,7 @@ def parse_extra_testenvs(filepath: Path) -> dict[str, str]:
     return {inc["toxenv"]: inc["python-version"] for inc in includes}
 
 
-def find_project_root(dirpath: Optional[Path] = None) -> Optional[Path]:
+def find_project_root(dirpath: Path | None = None) -> Path | None:
     if dirpath is None:
         dirpath = Path()
     for d in (dirpath, *dirpath.resolve().parents):

@@ -4,7 +4,7 @@ import logging
 from pathlib import Path
 import subprocess
 import time
-from typing import Any, Optional
+from typing import Any
 from . import util
 
 log = logging.getLogger(__name__)
@@ -47,14 +47,14 @@ class Git:
                 return guess
         raise InvalidProjectError("Could not determine default Git branch")
 
-    def get_latest_tag(self) -> Optional[str]:
+    def get_latest_tag(self) -> str | None:
         tags = self.readlines("tag", "-l", "--sort=-creatordate")
         if tags:
             return tags[0]
         else:
             return None
 
-    def get_config(self, key: str, default: Optional[str]) -> Optional[str]:
+    def get_config(self, key: str, default: str | None) -> str | None:
         if default is not None:
             opts = ["--default", default]
         else:

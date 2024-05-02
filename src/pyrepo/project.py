@@ -10,7 +10,7 @@ from pathlib import Path
 import re
 from shutil import rmtree
 import sys
-from typing import Any, Optional
+from typing import Any
 import click
 from configupdater import ConfigUpdater
 from in_place import InPlace
@@ -39,7 +39,7 @@ class Project:
     details: ProjectDetails
 
     @classmethod
-    def from_directory(cls, dirpath: Optional[Path] = None) -> Project:
+    def from_directory(cls, dirpath: Path | None = None) -> Project:
         if dirpath is None:
             dirpath = Path()
         return cls(directory=dirpath, details=ProjectDetails.inspect(dirpath))
@@ -90,13 +90,13 @@ class Project:
             if not extant or fpath.exists():
                 yield fpath
 
-    def get_changelog(self, docs: bool = False) -> Optional[Changelog]:
+    def get_changelog(self, docs: bool = False) -> Changelog | None:
         for p in self.get_changelog_paths(docs):
             with p.open(encoding="utf-8") as fp:
                 return Changelog.load(fp)
         return None
 
-    def set_changelog(self, value: Optional[Changelog], docs: bool = False) -> None:
+    def set_changelog(self, value: Changelog | None, docs: bool = False) -> None:
         for p in self.get_changelog_paths(docs):
             if value is None:
                 p.unlink()
@@ -303,7 +303,7 @@ class Project:
             lambda items: drop_pyversion_chlog(dropver, items)
         )
 
-        def edit_pyproject_line(line: str) -> Optional[str]:
+        def edit_pyproject_line(line: str) -> str | None:
             if line == f'    "Programming Language :: Python :: {dropver}",\n':
                 return None
             else:
@@ -327,7 +327,7 @@ class Project:
             )
         if self.details.has_ci:
 
-            def edit_test_yml_line(line: str) -> Optional[str]:
+            def edit_test_yml_line(line: str) -> str | None:
                 if re.fullmatch(
                     rf"{' ' * 10}- ['\x22]?(?:pypy-)?{re.escape(str(dropver))}"
                     rf"['\x22]?\s*",

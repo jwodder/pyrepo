@@ -2,7 +2,6 @@ from __future__ import annotations
 from collections.abc import Iterator
 import json
 import time
-from typing import Optional
 from packaging.specifiers import SpecifierSet
 import pytest
 from pytest_mock import MockerFixture
@@ -106,7 +105,7 @@ def test_pyversion_cmp() -> None:
     ],
 )
 def test_mkversion(
-    epoch: int, release: tuple[int, ...], post: Optional[int], v: str
+    epoch: int, release: tuple[int, ...], post: int | None, v: str
 ) -> None:
     assert mkversion(epoch=epoch, release=release, post=post) == v
 

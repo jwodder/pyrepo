@@ -1,7 +1,7 @@
 import logging
 from pathlib import Path
 import re
-from typing import Any, Optional
+from typing import Any
 import click
 from in_place import InPlace
 from jinja2 import Environment
@@ -95,14 +95,14 @@ def cli(
     author: str,
     author_email: str,
     ci: bool,
-    codecov_user: Optional[str],
-    command: Optional[str],
+    codecov_user: str | None,
+    command: str | None,
     description: str,
     docs: bool,
     doctests: bool,
-    github_user: Optional[str],
+    github_user: str | None,
     project_name: str,
-    python_requires: Optional[str],
+    python_requires: str | None,
     repo_name: str,
     rtfd_name: str,
     tests: bool,

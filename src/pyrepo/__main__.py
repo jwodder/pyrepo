@@ -2,7 +2,6 @@ from importlib import import_module
 import os
 from pathlib import Path
 import sys
-from typing import Optional
 import click
 from click_loglevel import LogLevel
 import colorlog
@@ -48,7 +47,7 @@ from .config import DEFAULT_CFG, configure
     "--version",
     message="jwodder-pyrepo %(version)s",
 )
-def main(chdir: Optional[Path], log_level: int) -> None:
+def main(chdir: Path | None, log_level: int) -> None:
     """Manage Python packaging boilerplate"""
     if chdir is not None:
         os.chdir(chdir)
