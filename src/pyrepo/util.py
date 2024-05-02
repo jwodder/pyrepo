@@ -18,6 +18,7 @@ import cattrs
 from in_place import InPlace
 from intspan import intspan
 from jinja2 import Environment, PackageLoader
+from linesep import ascii_splitlines
 from packaging.specifiers import SpecifierSet
 from packaging.version import Version
 from pyversion_info import VersionDatabase
@@ -309,3 +310,27 @@ def next_version(v: str, post: bool = False) -> str:
         return vobj.base_version
     else:
         return bump_version(vobj, Bump.POST if post else Bump.MINOR)
+
+
+# Items are returned without trailing newlines
+def split_markup_list(s: str) -> list[str]:
+    items: list[str] = []
+    for ln in ascii_splitlines(s, keepends=True):
+        if ln.startswith("- "):
+            items.append("")
+        elif not items:
+            if ln.strip() == "":
+                continue
+            else:
+                raise ValueError("Content before list items")
+        items[-1] += ln
+    return [it.rstrip("\r\n") for it in items]
+
+
+def join_markup_list(items: list[str]) -> str:
+    items = [it.rstrip("\r\n") for it in items]
+    if any("" in ascii_splitlines(it) for it in items):
+        joint = "\n\n"
+    else:
+        joint = "\n"
+    return joint.join(items)
