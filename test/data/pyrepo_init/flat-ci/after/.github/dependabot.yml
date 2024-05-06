@@ -16,7 +16,6 @@ updates:
       interval: weekly
     commit-message:
       prefix: "[gh-actions]"
-      include: scope
     labels:
       - dependencies
       - d:github-actions
