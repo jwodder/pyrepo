@@ -367,13 +367,23 @@ Create a new GitHub repository for the project; set the repository's
 description to the project's short description; set the repository's topics to
 the project's keywords plus "python"; create "dependencies",
 "d:github-actions", and "d:python" labels in the repository (if
-``.github/dependabot.yml`` exists); set the local repository's ``origin``
+``.github/dependabot.yml`` exists); set the ``CODECOV_TOKEN`` secret for GitHub
+Actions (including for Dependabot); set the local repository's ``origin``
 remote to point to the GitHub repository; and push all branches & tags to the
 remote.
 
 
 Options
 ^^^^^^^
+
+--codecov-token SECRET  Value to use for the ``CODECOV_TOKEN`` secret.  If this
+                        value is not set and ``--no-codecov-token`` is not
+                        given, a warning is emitted.
+
+                        This option can be set via the ``CODECOV_TOKEN``
+                        environment variable or via the configuration file.
+
+--no-codecov-token      Do not set the ``CODECOV_TOKEN`` secret.
 
 -P, --private           Make the new repository private.
 
