@@ -1,7 +1,6 @@
 import logging
 from pathlib import Path
 import re
-from typing import Any
 import click
 from in_place import InPlace
 from jinja2 import Environment
@@ -14,7 +13,7 @@ from ..details import ProjectDetails
 from ..gh import GitHub
 from ..inspecting import extract_requires, find_module, parse_requirements
 from ..project import Project
-from ..util import cpe_no_tb, ensure_license_years, runcmd
+from ..util import PyVersion, cpe_no_tb, ensure_license_years, runcmd
 
 log = logging.getLogger(__name__)
 
@@ -30,7 +29,6 @@ log = logging.getLogger(__name__)
     default="USER@HOST",
 )
 @click.option("--ci/--no-ci", help="Whether to generate CI configuration")
-@click.option("--codecov-user", metavar="USER", help="Codecov.io username")
 @click.option(
     "-c",
     "--command",
@@ -95,7 +93,6 @@ def cli(
     author: str,
     author_email: str,
     ci: bool,
-    codecov_user: str | None,
     command: str | None,
     description: str,
     docs: bool,
@@ -119,75 +116,53 @@ def cli(
 
     repo = git.Git(dirpath=dirpath)
 
-    env = {
-        "author": author,
-        "short_description": description,
-        "copyright_years": repo.get_commit_years(),
-        "has_doctests": doctests,
-        "has_tests": tests or ci,
-        "has_typing": typing,
-        "has_ci": ci,
-        "has_docs": docs,
-        "has_pypi": False,
-        "github_user": github_user,
-        "codecov_user": none_or(codecov_user, github_user),
-        "keywords": [],
-        "classifiers": [],
-        "version": "0.1.0.dev1",
-        "supports_pypy": True,
-        "extra_testenvs": {},
-        "default_branch": repo.get_default_branch(),
-        "uses_versioningit": False,
-    }
-
     log.info("Determining Python module ...")
     mod = find_module(dirpath)
-    env["import_name"] = mod.import_name
-    env["is_flat_module"] = mod.is_flat_module
-    if env["is_flat_module"]:
-        log.info("Found flat module %s.py", env["import_name"])
+    import_name = mod.import_name
+    is_flat_module = mod.is_flat_module
+    if is_flat_module:
+        log.info("Found flat module %s.py", import_name)
     else:
-        log.info("Found package %s", env["import_name"])
+        log.info("Found package %s", import_name)
 
     if not mod.src_layout and not mod.is_flat_module:
         log.info("Moving code to src/ directory ...")
         (dirpath / "src").mkdir(exist_ok=True)
-        code_path = env["import_name"]
-        (dirpath / code_path).rename(dirpath / "src" / code_path)
+        (dirpath / import_name).rename(dirpath / "src" / import_name)
 
-    if env["is_flat_module"] and env["has_typing"]:
+    if is_flat_module and typing:
         log.info("Unflattening for py.typed file ...")
-        pkgdir = dirpath / "src" / env["import_name"]
+        pkgdir = dirpath / "src" / import_name
         pkgdir.mkdir(parents=True, exist_ok=True)
-        (dirpath / f"{env['import_name']}.py").rename(dirpath / pkgdir / "__init__.py")
-        env["is_flat_module"] = False
+        (dirpath / f"{import_name}.py").rename(dirpath / pkgdir / "__init__.py")
+        is_flat_module = False
 
     jenv = Environment()
 
-    env["name"] = jenv.from_string(project_name).render(import_name=env["import_name"])
-    log.debug("Computed project name as %r", env["name"])
-    jenv_ctx = {"import_name": env["import_name"], "project_name": env["name"]}
+    project_name = jenv.from_string(project_name).render(import_name=import_name)
+    log.debug("Computed project name as %r", project_name)
+    jenv_ctx = {"import_name": import_name, "project_name": project_name}
 
-    env["repo_name"] = jenv.from_string(repo_name).render(jenv_ctx)
-    log.debug("Computed repo name as %r", env["repo_name"])
+    repo_name = jenv.from_string(repo_name).render(jenv_ctx)
+    log.debug("Computed repo name as %r", repo_name)
 
-    env["rtfd_name"] = jenv.from_string(rtfd_name).render(jenv_ctx)
-    log.debug("Computed RTFD name as %r", env["rtfd_name"])
+    rtfd_name = jenv.from_string(rtfd_name).render(jenv_ctx)
+    log.debug("Computed RTFD name as %r", rtfd_name)
 
-    env["author_email"] = jenv.from_string(author_email).render(jenv_ctx)
-    log.debug("Computed author email as %r", env["author_email"])
+    author_email = jenv.from_string(author_email).render(jenv_ctx)
+    log.debug("Computed author email as %r", author_email)
 
     log.info("Checking for requirements.txt ...")
     req_vars = parse_requirements(dirpath / "requirements.txt")
 
-    if env["is_flat_module"]:
-        initfile = dirpath / f"{env['import_name']}.py"
-        src_init = dirpath / "src" / f"{env['import_name']}.py"
+    if is_flat_module:
+        initfile = dirpath / f"{import_name}.py"
+        src_init = dirpath / "src" / f"{import_name}.py"
         if src_init.exists():
             src_init.rename(initfile)
             (dirpath / "src").rmdir()
     else:
-        initfile = dirpath / "src" / env["import_name"] / "__init__.py"
+        initfile = dirpath / "src" / import_name / "__init__.py"
     log.info("Checking for __requires__ ...")
     src_vars = extract_requires(initfile)
 
@@ -205,7 +180,7 @@ def cli(
                 f"Two different requirements for {name} found:"
                 f" {requirements[name][0]!r} and {r!r}"
             )
-    env["install_requires"] = [r for _, (r, _) in sorted(requirements.items())]
+    install_requires = [r for _, (r, _) in sorted(requirements.items())]
 
     supported_pythons = util.cpython_supported()
 
@@ -233,33 +208,65 @@ def cli(
         elif python_requires is None:
             python_requires = f">={supported_pythons[0]}"
 
-    env["python_requires"] = python_requires
     try:
         pyspec = SpecifierSet(python_requires)
     except ValueError:
         raise click.UsageError(
             f"Invalid specifier for python_requires: {python_requires!r}"
         )
-    env["python_versions"] = list(pyspec.filter(supported_pythons))
-    if not env["python_versions"]:
+    python_versions = list(pyspec.filter(supported_pythons))
+    if not python_versions:
         raise click.UsageError(
             f"No supported Python versions matching {python_requires!r}"
         )
-    minver = env["python_versions"][0]
+    minver = python_versions[0]
 
     if command is None:
-        env["commands"] = {}
-    elif env["is_flat_module"]:
-        env["commands"] = {command: f'{env["import_name"]}:main'}
+        commands = {}
+    elif is_flat_module:
+        commands = {command: f"{import_name}:main"}
     else:
-        env["commands"] = {command: f'{env["import_name"]}.__main__:main'}
+        commands = {command: f"{import_name}.__main__:main"}
 
-    if env["has_ci"]:
-        env["extra_testenvs"]["lint"] = minver
-        if env["has_typing"]:
-            env["extra_testenvs"]["typing"] = minver
+    extra_testenvs = {}
+    if ci:
+        extra_testenvs["lint"] = minver
+        if typing:
+            extra_testenvs["typing"] = minver
 
-    project = Project(directory=dirpath, details=ProjectDetails.parse_obj(env))
+    project = Project(
+        directory=dirpath,
+        details=ProjectDetails(
+            name=project_name,
+            version="0.1.0.dev1",
+            short_description=description,
+            author=author,
+            author_email=author_email,
+            install_requires=install_requires,
+            keywords=[],
+            classifiers=[],
+            supports_pypy=True,
+            extra_testenvs=extra_testenvs,
+            is_flat_module=is_flat_module,
+            import_name=import_name,
+            uses_versioningit=False,
+            python_versions=list(map(PyVersion, python_versions)),
+            python_requires=python_requires,
+            commands=commands,
+            github_user=github_user,
+            repo_name=repo_name,
+            rtfd_name=rtfd_name,
+            has_tests=tests or ci,
+            has_typing=typing,
+            has_doctests=doctests,
+            has_docs=docs,
+            has_ci=ci,
+            has_pypi=False,
+            copyright_years=repo.get_commit_years(),
+            default_branch=repo.get_default_branch(),
+        ),
+    )
+
     twriter = project.get_template_writer()
     twriter.write(".gitignore", force=False)
     twriter.write(".pre-commit-config.yaml", force=False)
@@ -267,13 +274,13 @@ def cli(
     twriter.write("pyproject.toml", force=False)
     twriter.write("tox.ini", force=False)
 
-    if env["has_typing"]:
-        log.info("Creating src/%s/py.typed ...", env["import_name"])
-        (project.directory / "src" / env["import_name"] / "py.typed").touch()
-    if env["has_ci"]:
+    if project.details.has_typing:
+        log.info("Creating src/%s/py.typed ...", project.details.import_name)
+        (project.directory / "src" / project.details.import_name / "py.typed").touch()
+    if project.details.has_ci:
         twriter.write(".github/dependabot.yml", force=False)
         twriter.write(".github/workflows/test.yml", force=False)
-    if env["has_docs"]:
+    if project.details.has_docs:
         twriter.write(".readthedocs.yaml", force=False)
         twriter.write("docs/index.rst", force=False)
         twriter.write("docs/conf.py", force=False)
@@ -281,7 +288,7 @@ def cli(
 
     if (dirpath / "LICENSE").exists():
         log.info("Setting copyright year in LICENSE ...")
-        ensure_license_years(dirpath / "LICENSE", env["copyright_years"])
+        ensure_license_years(dirpath / "LICENSE", project.details.copyright_years)
     else:
         twriter.write("LICENSE", force=False)
 
@@ -305,7 +312,3 @@ def cli(
 
     runcmd("pre-commit", "install", cwd=dirpath)
     log.info("TODO: Run `pre-commit run -a` after adding new files")
-
-
-def none_or(x: Any, y: Any) -> Any:
-    return x if x is not None else y

@@ -175,10 +175,6 @@ All of the following can be set via the configuration file, in the
 --ci, --no-ci           Whether to generate templates for testing with GitHub
                         Actions; implies ``--tests``; default: ``--no-ci``
 
---codecov-user USER     Set the username to use in the Codecov URL added to the
-                        README when ``--ci`` is given; defaults to the GitHub
-                        username
-
 -c, --command NAME      If the project defines a command-line entry point, use
                         this option to specify the name for the command.  The
                         entry point will then be assumed to be at either
@@ -199,9 +195,9 @@ All of the following can be set via the configuration file, in the
                         testing templates; only has an effect when ``--tests``
                         is also given; default: ``--no-doctests``
 
---github-user USER      Set the username to use in the project's GitHub URL;
-                        when not set, the user's GitHub login is retrieved
-                        using the GitHub API
+--github-user USER      Set the username to use in the project's GitHub and
+                        Codecov URLs; when not set, the user's GitHub login is
+                        retrieved using the GitHub API
 
 -p NAME, --project-name NAME
                         Set the name of the project as it will be known on

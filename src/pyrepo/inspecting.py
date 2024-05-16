@@ -123,19 +123,12 @@ def inspect_project(dirpath: str | Path | None = None) -> dict:
     env["has_ci"] = exists(".github", "workflows", "test.yml")
     env["has_docs"] = exists("docs", "index.rst")
 
-    env["codecov_user"] = env["github_user"]
     try:
         with (directory / "README.rst").open(encoding="utf-8") as fp:
             rdme = Readme.load(fp)
     except FileNotFoundError:
         env["has_pypi"] = False
     else:
-        for badge in rdme.badges:
-            if m := re.fullmatch(
-                r"https://codecov\.io/gh/([^/]+)/[^/]+/branch/.+/graph/badge\.svg",
-                badge.href,
-            ):
-                env["codecov_user"] = m[1]
         env["has_pypi"] = any(link["label"] == "PyPI" for link in rdme.header_links)
 
     with (directory / "LICENSE").open(encoding="utf-8") as fp:
