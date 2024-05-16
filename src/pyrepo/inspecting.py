@@ -6,7 +6,6 @@ import json
 from pathlib import Path
 import re
 import sys
-from typing import Any
 from intspan import intspan
 from packaging.specifiers import SpecifierSet
 from ruamel.yaml import YAML
@@ -197,14 +196,8 @@ class Requirements(JSONable):
 def extract_requires(filename: Path) -> Requirements:
     ### TODO: Split off the destructive functionality so that this can be run
     ### idempotently/in a read-only manner
-    variables: dict[str, Any] = {
-        "python_requires": None,
-        "requires": None,
-    }
-    field_map = {
-        "__python_requires__": "python_requires",
-        "__requires__": "requires",
-    }
+    python_requires: str | None = None
+    requires: list[str] | None = None
     src = filename.read_bytes()
     lines = src.splitlines(keepends=True)
     dellines: list[slice] = []
@@ -214,9 +207,19 @@ def extract_requires(filename: Path) -> Requirements:
             isinstance(node, ast.Assign)
             and len(node.targets) == 1
             and isinstance(node.targets[0], ast.Name)
-            and node.targets[0].id in field_map
         ):
-            variables[field_map[node.targets[0].id]] = ast.literal_eval(node.value)
+            match node.targets[0].id:
+                case "__python_requires__":
+                    value = ast.literal_eval(node.value)
+                    assert isinstance(value, str)
+                    python_requires = value
+                case "__requires__":
+                    value = ast.literal_eval(node.value)
+                    assert isinstance(value, list)
+                    assert all(isinstance(v, str) for v in value)
+                    requires = value
+                case _:
+                    continue
             if i + 1 < len(tree.body):
                 dellines.append(slice(node.lineno - 1, tree.body[i + 1].lineno - 1))
             else:
@@ -225,7 +228,7 @@ def extract_requires(filename: Path) -> Requirements:
         del lines[sl]
     with filename.open("wb") as fp:
         fp.writelines(lines)
-    return Requirements.parse_obj(variables)
+    return Requirements(python_requires=python_requires, requires=requires)
 
 
 def parse_requirements(filepath: Path) -> Requirements:
