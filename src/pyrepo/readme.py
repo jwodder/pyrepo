@@ -181,7 +181,7 @@ class Image(JSONable):
         if opt_name is not None:
             assert opt_value is not None
             options[opt_name] = opt_value.rstrip()
-        return cls.parse_obj({"tag": tag, "href": href, **options})
+        return cls(tag=tag, href=href, target=options["target"], alt=options["alt"])
 
     def __str__(self) -> str:
         s = f".. |{self.tag}| image:: {self.href}"
