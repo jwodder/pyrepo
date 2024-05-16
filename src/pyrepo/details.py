@@ -38,7 +38,6 @@ class ProjectDetails(JSONable):
     commands: dict[str, str]
 
     github_user: str
-    codecov_user: str
     repo_name: str
     rtfd_name: str
     has_tests: bool

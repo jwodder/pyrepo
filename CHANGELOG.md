@@ -4,6 +4,7 @@ In Development
 - `pyrepo add-pyversion` and `pyrepo drop-pyversion` now also update changelogs
 - Drop support for Python 3.8 and 3.9
 - `pyrepo mkgithub`: Set `CODECOV_TOKEN` secret for newly-created repositories
+- Merge `codecov_user` into `github_user`
 - Templates:
     - `test.yml`:
         - Update `actions/setup-python` to `v5`

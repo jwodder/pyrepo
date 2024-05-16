@@ -5,7 +5,6 @@
     "author": "Joe Q. Coder",
     "author_email": "jcoder@example.com",
     "github_user": "jcoder",
-    "codecov_user": "jcoder",
     "short_description": "This is a project description.",
     "python_versions": [
         "3.4",
