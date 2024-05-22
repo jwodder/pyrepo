@@ -1,148 +1,14 @@
 from __future__ import annotations
 import ast
-from configparser import ConfigParser
 from dataclasses import dataclass
-import json
 from pathlib import Path
 import re
-import sys
-from intspan import intspan
-from packaging.specifiers import SpecifierSet
 from ruamel.yaml import YAML
-from . import git  # Import module to keep mocking easy
-from .readme import Readme
-from .util import JSONable, PyVersion, readcmd, sort_specifier, yield_lines
-
-if sys.version_info[:2] >= (3, 11):
-    from tomllib import load as toml_load
-else:
-    from tomli import load as toml_load
+from .util import JSONable, yield_lines
 
 
 class InvalidProjectError(Exception):
     pass
-
-
-def inspect_project(dirpath: str | Path | None = None) -> dict:
-    """Fetch various information about an already-initialized project"""
-    if dirpath is None:
-        directory = Path()
-    else:
-        directory = Path(dirpath)
-
-    def exists(*fname: str) -> bool:
-        return Path(directory, *fname).exists()
-
-    try:
-        with (directory / "pyproject.toml").open("rb") as bf:
-            pyproj = toml_load(bf)
-    except FileNotFoundError:
-        raise InvalidProjectError("Project is missing pyproject.toml file")
-
-    metadata = json.loads(
-        readcmd(sys.executable, "-m", "hatch", "project", "metadata", cwd=dirpath)
-    )
-
-    env = {
-        # `hatch project metadata` normalizes the name, so get it directly from
-        # the source
-        "name": pyproj["project"]["name"],
-        "short_description": metadata["description"],
-        "author": metadata["authors"][0]["name"],
-        "author_email": metadata["authors"][0]["email"],
-        "python_requires": sort_specifier(SpecifierSet(metadata["requires-python"])),
-        "install_requires": metadata.get("dependencies", []),
-        "version": metadata["version"],
-        "keywords": metadata.get("keywords", []),
-        # `hatch project metadata` sorts classifiers, so get them directly from
-        # the source instead to preserve order:
-        "classifiers": pyproj["project"].get("classifiers", []),
-        "supports_pypy": False,
-        "default_branch": git.Git(dirpath=directory).get_default_branch(),
-    }
-
-    try:
-        version_source = pyproj["tool"]["hatch"]["version"]["source"]
-    except (AttributeError, LookupError, TypeError):
-        env["uses_versioningit"] = False
-    else:
-        env["uses_versioningit"] = version_source == "versioningit"
-
-    if (directory / "src").exists():
-        env["is_flat_module"] = False
-        (pkg,) = (directory / "src").iterdir()
-        env["import_name"] = pkg.name
-    else:
-        env["is_flat_module"] = True
-        (module,) = directory.glob("*.py")
-        env["import_name"] = module.stem
-
-    env["python_versions"] = []
-    for clsfr in env["classifiers"]:
-        if m := re.fullmatch(r"Programming Language :: Python :: (\d+\.\d+)", clsfr):
-            env["python_versions"].append(PyVersion.parse(m[1]))
-        if clsfr == "Programming Language :: Python :: Implementation :: PyPy":
-            env["supports_pypy"] = True
-
-    env["commands"] = metadata.get("scripts", {})
-
-    m = re.fullmatch(
-        r"https://github.com/([^/]+)/([^/]+)",
-        metadata["urls"]["Source Code"],
-    )
-    assert m, "Project URL is not a GitHub URL"
-    env["github_user"] = m[1]
-    env["repo_name"] = m[2]
-
-    if "Documentation" in metadata["urls"]:
-        m = re.fullmatch(
-            r"https?://([-a-zA-Z0-9]+)\.(?:readthedocs|rtfd)\.io",
-            metadata["urls"]["Documentation"],
-        )
-        assert m, "Documentation URL is not a Read the Docs URL"
-        env["rtfd_name"] = m[1]
-    else:
-        env["rtfd_name"] = env["name"]
-
-    toxcfg = ConfigParser(interpolation=None)
-    toxcfg.read(directory / "tox.ini")  # No-op when tox.ini doesn't exist
-    env["has_tests"] = toxcfg.has_section("testenv")
-
-    env["has_doctests"] = False
-    if env["is_flat_module"]:
-        pyfiles = [directory / f"{env['import_name']}.py"]
-    else:
-        pyfiles = list((directory / "src").rglob("*.py"))
-    for p in pyfiles:
-        if re.search(r"^\s*>>>\s+", p.read_text(encoding="utf-8"), flags=re.M):
-            env["has_doctests"] = True
-            break
-
-    env["has_typing"] = exists("src", env["import_name"], "py.typed")
-    env["has_ci"] = exists(".github", "workflows", "test.yml")
-    env["has_docs"] = exists("docs", "index.rst")
-
-    try:
-        with (directory / "README.rst").open(encoding="utf-8") as fp:
-            rdme = Readme.load(fp)
-    except FileNotFoundError:
-        env["has_pypi"] = False
-    else:
-        env["has_pypi"] = any(link["label"] == "PyPI" for link in rdme.header_links)
-
-    with (directory / "LICENSE").open(encoding="utf-8") as fp:
-        for line in fp:
-            if m := re.match(r"^Copyright \(c\) (\d[-,\d\s]+\d) \w+", line):
-                env["copyright_years"] = list(intspan(m[1]))
-                break
-        else:
-            raise InvalidProjectError("Copyright years not found in LICENSE")
-
-    env["extra_testenvs"] = parse_extra_testenvs(
-        directory / ".github" / "workflows" / "test.yml"
-    )
-
-    return env
 
 
 @dataclass
