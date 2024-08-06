@@ -15,6 +15,7 @@ In Development
     - `README.rst`: Use inline image syntax for badges
     - `tox.ini`: Configure flake8 to ignore A005 and E704
     - `.github/dependabot.yml`: Remove `include: scope`
+    - `pyproject.toml`: Remove `tool.hatch.envs.default.python`
 
 v2023.11.19
 -----------

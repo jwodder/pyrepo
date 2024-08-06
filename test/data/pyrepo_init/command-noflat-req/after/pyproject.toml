@@ -54,6 +54,3 @@ include = [
     "CONTRIBUTORS.*",
     "tox.ini",
 ]
-
-[tool.hatch.envs.default]
-python = "3"
