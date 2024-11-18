@@ -8,7 +8,7 @@ In Development
 - Templates:
     - `test.yml`:
         - Update `actions/setup-python` to `v5`
-        - Use v4 of Codecov action and pass token & Python version (as `name`)
+        - Use v5 of Codecov action and pass token & Python version (as `name`)
           to action
     - Update `.pre-commit-config.yaml`
     - `docs/requirements.txt`:
