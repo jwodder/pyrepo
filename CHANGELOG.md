@@ -10,6 +10,7 @@ In Development
         - Update `actions/setup-python` to `v5`
         - Use v5 of Codecov action and pass token & Python version (as `name`)
           to action
+        - Limit "push" trigger to the default branch
     - Update `.pre-commit-config.yaml`
     - `docs/requirements.txt`:
         - Update `Sphinx` requirement to `~=8.0`
@@ -18,7 +19,6 @@ In Development
     - `tox.ini`: Configure flake8 to ignore A005 and E704
     - `.github/dependabot.yml`: Remove `include: scope`
     - `pyproject.toml`: Remove `tool.hatch.envs.default.python`
-- Support Python 3.13
 
 v2023.11.19
 -----------
