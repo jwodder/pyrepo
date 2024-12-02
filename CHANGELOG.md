@@ -1,3 +1,7 @@
+In Development
+--------------
+- Update twine dependency to 6.0
+
 v2024.11.29
 -----------
 - Update twine dependency to 5.0
