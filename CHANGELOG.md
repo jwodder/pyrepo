@@ -1,6 +1,10 @@
 In Development
 --------------
 - Update twine dependency to 6.0
+- Templates:
+    - `pyproject.toml`:
+        - Use final PEP 639 syntax for `license-files`
+        - Remove license classifier to comply with PEP 639
 
 v2024.11.29
 -----------
