@@ -1,6 +1,7 @@
 In Development
 --------------
 - Update twine dependency to 6.0
+ `pyrepo release`: Allow using `--date` when there are no previous tags
 
 v2024.11.29
 -----------
