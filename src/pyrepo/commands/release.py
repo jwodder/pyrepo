@@ -325,10 +325,12 @@ def cli(project: Project, version: str | None, tox: bool, bump: Bump | None) -> 
             )
         last_tag = project.repo.get_latest_tag()
         if last_tag is None:
-            ### TODO: Permit this when --date is given
-            raise click.UsageError(
-                "Cannot use version bump options when there are no tags"
-            )
+            if bump is Bump.DATE:
+                last_tag = "1970.1.1"
+            else:
+                raise click.UsageError(
+                    "Cannot use version bump options when there are no tags"
+                )
         version = bump_version(last_tag, bump)
     elif version is None:
         if project.details.uses_versioningit:
