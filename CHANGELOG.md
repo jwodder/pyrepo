@@ -1,6 +1,6 @@
 In Development
 --------------
-- Update twine dependency to 6.0
+- Update twine dependency to 6.1
 - `pyrepo release`: Allow using `--date` when there are no previous tags
 - Templates:
     - `pyproject.toml`:
