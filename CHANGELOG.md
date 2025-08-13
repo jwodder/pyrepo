@@ -6,6 +6,8 @@ In Development
     - `pyproject.toml`:
         - Use final PEP 639 syntax for `license-files`
         - Remove license classifier to comply with PEP 639
+    - `test.yml`:
+        - Update `actions/checkout` to `v5`
 
 v2024.11.29
 -----------
