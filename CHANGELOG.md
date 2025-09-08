@@ -8,6 +8,7 @@ In Development
         - Remove license classifier to comply with PEP 639
     - `test.yml`:
         - Update `actions/checkout` to `v5`
+        - Update `actions/setup-python` to `v6`
 
 v2024.11.29
 -----------
