@@ -9,6 +9,7 @@ In Development
     - `test.yml`:
         - Update `actions/checkout` to `v5`
         - Update `actions/setup-python` to `v6`
+    - Update `.pre-commit-config.yaml`
 
 v2024.11.29
 -----------
