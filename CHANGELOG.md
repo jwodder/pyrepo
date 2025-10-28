@@ -10,6 +10,7 @@ In Development
         - Update `actions/checkout` to `v5`
         - Update `actions/setup-python` to `v6`
     - Update `.pre-commit-config.yaml`
+    - `init.j2`: Assume Python 3.8+ when versioningit is in use
 
 v2024.11.29
 -----------

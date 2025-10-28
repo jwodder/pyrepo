@@ -9,12 +9,7 @@ Visit <https://github.com/{{github_user}}/{{repo_name}}>{% if has_docs %} or
 """
 
 {% if uses_versioningit %}
-import sys
-
-if sys.version_info >= (3, 8):
-    from importlib.metadata import version
-else:
-    from importlib_metadata import version
+from importlib.metadata import version
 
 __version__ = version("{{project_name}}")
 {% else %}
