@@ -2,10 +2,8 @@ version: 2
 updates:
   - package-ecosystem: pip
     directory: /
-{% if has_docs %}
     exclude-paths:
       - docs/**
-{% endif %}
     schedule:
       interval: weekly
     commit-message:
@@ -14,7 +12,6 @@ updates:
       - dependencies
       - d:python
 
-{% if has_docs %}
   - package-ecosystem: pip
     directory: /docs
     versioning-strategy: increase-if-necessary
@@ -26,7 +23,6 @@ updates:
       - dependencies
       - d:python
 
-{% endif %}
   - package-ecosystem: github-actions
     directory: /
     schedule:

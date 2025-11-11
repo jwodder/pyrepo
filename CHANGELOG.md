@@ -11,6 +11,8 @@ In Development
         - Update `actions/setup-python` to `v6`
     - Update `.pre-commit-config.yaml`
     - `init.j2`: Assume Python 3.8+ when versioningit is in use
+    - `.github/dependabot.yml`: Add a block for `/docs` if `--docs` is in
+      effect
 
 v2024.11.29
 -----------
