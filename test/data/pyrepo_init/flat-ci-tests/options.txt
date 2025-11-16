@@ -1,3 +1,4 @@
 -d
 A project
 --ci
+--tests

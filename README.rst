@@ -173,7 +173,7 @@ All of the following can be set via the configuration file, in the
                         ``import_name``.
 
 --ci, --no-ci           Whether to generate templates for testing with GitHub
-                        Actions; implies ``--tests``; default: ``--no-ci``
+                        Actions; default: ``--no-ci``
 
 -c, --command NAME      If the project defines a command-line entry point, use
                         this option to specify the name for the command.  The
