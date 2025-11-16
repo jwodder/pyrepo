@@ -1,9 +1,8 @@
 from __future__ import annotations
 from collections.abc import Callable, Iterable, Iterator
-from datetime import date, datetime
+from datetime import date
 from enum import Enum
 from functools import partial, wraps
-import json
 import logging
 from operator import attrgetter
 from pathlib import Path
@@ -13,8 +12,7 @@ import subprocess
 import sys
 from textwrap import fill
 import time
-from typing import TYPE_CHECKING, Any, TextIO
-import cattrs
+from typing import Any, TextIO
 from in_place import InPlace
 from intspan import intspan
 from jinja2 import Environment, PackageLoader
@@ -22,9 +20,6 @@ from linesep import ascii_splitlines
 from packaging.specifiers import SpecifierSet
 from packaging.version import Version
 from pyversion_info import VersionDatabase
-
-if TYPE_CHECKING:
-    from typing_extensions import Self
 
 log = logging.getLogger(__name__)
 
@@ -81,30 +76,6 @@ class PyVersion(str):
     @property
     def pyenv(self) -> str:
         return f"py{self.major}{self.minor}"
-
-
-conv = cattrs.Converter()
-conv.register_structure_hook(date, lambda v, _: date.fromisoformat(v))
-conv.register_unstructure_hook(date, str)
-conv.register_structure_hook(datetime, lambda v, _: datetime.fromisoformat(v))
-conv.register_unstructure_hook(datetime, str)
-conv.register_structure_hook(PyVersion, lambda v, _: PyVersion.parse(v))
-
-
-class JSONable:
-    @classmethod
-    def parse_obj(cls, data: Any) -> Self:
-        return conv.structure(data, cls)
-
-    @classmethod
-    def parse_file(cls, path: str | Path) -> Self:
-        with open(path, encoding="utf-8") as fp:
-            return cls.parse_obj(json.load(fp))
-
-    def for_json(self) -> dict:
-        d = conv.unstructure(self)
-        assert isinstance(d, dict)
-        return d
 
 
 def runcmd(*args: str | Path, **kwargs: Any) -> subprocess.CompletedProcess:

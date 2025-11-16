@@ -1,10 +1,9 @@
 from __future__ import annotations
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from enum import Enum
 import re
-from typing import TextIO
+from typing import Any, TextIO
 from linesep import read_paragraphs
-from .util import JSONable
 
 ParserState = Enum(
     "ParserState", "START BADGES POST_LINKS POST_CONTENTS INTRO SECTIONS"
@@ -23,7 +22,7 @@ IMAGE_START_CRGX = re.compile(
 
 
 @dataclass
-class Readme(JSONable):
+class Readme:
     """
     See <https://github.com/jwodder/pyrepo/wiki/README-Format> for a
     description of the format parsed & emitted by this class
@@ -122,6 +121,9 @@ class Readme(JSONable):
             sections=sections,
         )
 
+    def for_json(self) -> dict[str, Any]:
+        return asdict(self)
+
     def __str__(self) -> str:
         s = ""
         if self.badge_tags:
@@ -142,7 +144,7 @@ class Readme(JSONable):
 
 
 @dataclass
-class Image(JSONable):
+class Image:
     tag: str
     href: str
     target: str | None

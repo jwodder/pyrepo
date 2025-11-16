@@ -1,10 +1,11 @@
 from __future__ import annotations
 import ast
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from pathlib import Path
 import re
+from typing import Any
 from ruamel.yaml import YAML
-from .util import JSONable, yield_lines
+from .util import yield_lines
 
 
 class InvalidProjectError(Exception):
@@ -54,9 +55,12 @@ def find_module(dirpath: Path) -> ModuleInfo:
 
 
 @dataclass
-class Requirements(JSONable):
+class Requirements:
     python_requires: str | None = None
     requires: list[str] | None = None
+
+    def for_json(self) -> dict[str, Any]:
+        return asdict(self)
 
 
 def extract_requires(filename: Path) -> Requirements:
