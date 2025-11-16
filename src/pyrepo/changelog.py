@@ -1,15 +1,15 @@
 from __future__ import annotations
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from datetime import date, datetime
 import re
-from typing import IO
-from .util import JSONable, join_markup_list, split_markup_list
+from typing import IO, Any
+from .util import join_markup_list, split_markup_list
 
 DATE_VERSION = re.compile(r"v\d{4}\.\d?\d\.\d?\d")
 
 
 @dataclass
-class Changelog(JSONable):
+class Changelog:
     """
     See <https://github.com/jwodder/pyrepo/wiki/CHANGELOG-Format> for a
     description of the format parsed & emitted by this class
@@ -89,6 +89,13 @@ class Changelog(JSONable):
 
     def dump(self, fp: IO[str]) -> None:
         print(self, file=fp, end="")
+
+    def for_json(self) -> dict[str, Any]:
+        data = asdict(self)
+        for sect in data["sections"]:
+            if isinstance(sect["release_date"], date):
+                sect["release_date"] = sect["release_date"].isoformat()
+        return data
 
     def __str__(self) -> str:
         if self.sections:

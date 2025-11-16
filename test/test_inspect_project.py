@@ -8,7 +8,6 @@ from pyrepo.details import ProjectDetails
 from pyrepo.inspecting import (
     InvalidProjectError,
     ModuleInfo,
-    Requirements,
     extract_requires,
     find_module,
     parse_requirements,
@@ -53,7 +52,7 @@ def test_extract_requires(dirpath: Path, tmp_path: Path) -> None:
     dest = tmp_path / "foobar.py"
     copyfile(dirpath / "before.py", dest)
     variables = extract_requires(dest)
-    assert variables == Requirements.parse_file(dirpath / "variables.json")
+    assert variables.for_json() == json.loads((dirpath / "variables.json").read_text())
     assert (dirpath / "after.py").read_text() == dest.read_text()
 
 
@@ -64,7 +63,7 @@ def test_extract_requires(dirpath: Path, tmp_path: Path) -> None:
 )
 def test_parse_requirements(reqfile: Path) -> None:
     variables = parse_requirements(reqfile)
-    assert variables == Requirements.parse_file(reqfile.with_suffix(".json"))
+    assert variables.for_json() == json.loads(reqfile.with_suffix(".json").read_text())
 
 
 @case_dirs("inspect_project")

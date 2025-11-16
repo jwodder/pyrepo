@@ -43,7 +43,6 @@ classifiers = [
 
 dependencies = [
     "build          ~= 1.0",
-    "cattrs         >= 22.2.0",
     "click          ~= 8.0",
     "click-loglevel ~= 0.5",
     "configupdater  ~= 3.1",
