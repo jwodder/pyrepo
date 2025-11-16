@@ -1,5 +1,5 @@
-In Development
---------------
+v2025.11.16
+-----------
 - Update twine dependency to 6.1
 - `pyrepo release`: Allow using `--date` when there are no previous tags
 - `pyrepo init`: `--ci` no longer implies `--tests`
