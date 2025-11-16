@@ -1,17 +1,18 @@
 from __future__ import annotations
 from configparser import ConfigParser
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 import json
 from pathlib import Path
 import re
 import sys
+from typing import Any
 from intspan import intspan
 from packaging.specifiers import SpecifierSet
 from . import git  # Import module to keep mocking easy
 from .inspecting import InvalidProjectError, parse_extra_testenvs
 from .readme import Readme
 from .tmpltr import Templater
-from .util import JSONable, PyVersion, readcmd, sort_specifier
+from .util import PyVersion, readcmd, sort_specifier
 
 if sys.version_info[:2] >= (3, 11):
     from tomllib import load as toml_load
@@ -20,7 +21,7 @@ else:
 
 
 @dataclass
-class ProjectDetails(JSONable):
+class ProjectDetails:
     #: The name of the project as it is/will be known on PyPI
     name: str
 
@@ -210,3 +211,6 @@ class ProjectDetails(JSONable):
 
     def get_templater(self) -> Templater:
         return Templater(context=self.for_json())
+
+    def for_json(self) -> dict[str, Any]:
+        return asdict(self)
