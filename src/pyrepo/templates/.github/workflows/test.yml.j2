@@ -18,6 +18,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        {% if has_tests %}
         python-version:
           {% for v in python_versions %}
           - '{{v}}'
@@ -28,6 +29,7 @@ jobs:
           {% endfor %}
           {% endif %}
         toxenv: [py]
+        {% endif %}
         {% if extra_testenvs %}
         include:
         {% for testenv, pyver in extra_testenvs.items()|sort %}

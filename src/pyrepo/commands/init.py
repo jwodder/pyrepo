@@ -256,7 +256,7 @@ def cli(
             github_user=github_user,
             repo_name=repo_name,
             rtfd_name=rtfd_name,
-            has_tests=tests or ci,
+            has_tests=tests,
             has_typing=typing,
             has_doctests=doctests,
             has_docs=docs,

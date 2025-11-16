@@ -1,14 +1,10 @@
-{% if has_tests or has_typing or has_docs %}
 [tox]
-{% if has_tests or has_typing %}
 envlist = lint{% if has_typing %},typing{% endif %}{% if has_tests %}{% for v in python_versions %},{{v.pyenv}}{% endfor %}{% if supports_pypy %}{% for v in python_versions|major_pypy_supported %},pypy{{v}}{% endfor %}{% endif %}{% endif +%}
 {% if has_tests %}
 skip_missing_interpreters = True
 {% endif %}
-{% endif %}
 isolated_build = True
 minversion = 3.3.0
-{% endif %}
 {% if has_tests %}
 
 [testenv]
@@ -31,7 +27,6 @@ commands =
     pytest {posargs} test
 {% endif %}
 {% endif %}
-{% if has_tests or has_typing %}
 
 [testenv:lint]
 skip_install = True
@@ -42,7 +37,6 @@ deps =
     flake8-unused-arguments
 commands =
     flake8 {% if is_flat_module %}{{import_name}}.py{% else %}src{% endif %}{% if has_tests %} test{% endif +%}
-{% endif %}
 {% if has_typing %}
 
 {% block testenv_typing %}
@@ -90,9 +84,7 @@ exclude_lines =
     if TYPE_CHECKING:
     \.\.\.
 {% endif %}
-{% if has_tests or has_typing or has_docs %}
 
-{% endif %}
 [flake8]
 doctests = True
 extend-exclude = build/,dist/,test/data,venv/

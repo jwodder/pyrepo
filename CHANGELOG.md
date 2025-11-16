@@ -2,6 +2,7 @@ In Development
 --------------
 - Update twine dependency to 6.1
 - `pyrepo release`: Allow using `--date` when there are no previous tags
+- `pyrepo init`: `--ci` no longer implies `--tests`
 - Templates:
     - `pyproject.toml`:
         - Use final PEP 639 syntax for `license-files`
@@ -13,6 +14,7 @@ In Development
     - `init.j2`: Assume Python 3.8+ when versioningit is in use
     - `.github/dependabot.yml`: Add a block for `/docs` if `--docs` is in
       effect
+    - `tox.ini`: Linting configuration is now always present
 
 v2024.11.29
 -----------
