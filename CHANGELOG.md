@@ -1,3 +1,9 @@
+In Development
+--------------
+- Templates:
+    - `test.yml`:
+        - Update `actions/checkout` to `v6`
+
 v2025.11.16
 -----------
 - Update twine dependency to 6.1
