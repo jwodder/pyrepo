@@ -3,6 +3,7 @@ In Development
 - Templates:
     - `test.yml`:
         - Update `actions/checkout` to `v6`
+        - Update `codecov/codecov-action` to `v6`
 
 v2025.11.16
 -----------
