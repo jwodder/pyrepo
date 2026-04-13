@@ -61,7 +61,7 @@ dependencies = [
     "ruamel.yaml    >= 0.15, < 1.0",
     "tomli          >= 1.2, < 3.0; python_version < '3.11'",
     "twine          ~= 6.1",
-    "uritemplate    ~= 4.1",
+    "uritemplate    ~= 4.2",
     # Running `python -m hatch ...` for inspection purposes seems to cause
     # Hatch to use the current environment rather than one of its managed
     # environments, which means that pyrepo needs to depend on all build
