@@ -66,7 +66,7 @@ dependencies = [
     # Hatch to use the current environment rather than one of its managed
     # environments, which means that pyrepo needs to depend on all build
     # requirements that my packages will be using (i.e., versioningit).
-    "versioningit   >= 2.3.0",
+    "versioningit   >= 3.3.0",
 ]
 
 [project.scripts]
