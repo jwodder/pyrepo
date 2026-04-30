@@ -4,6 +4,8 @@ In Development
     - `test.yml`:
         - Update `actions/checkout` to `v6`
         - Update `codecov/codecov-action` to `v6`
+        - Set `permissions: {}`
+        - Set `persist-credentials: false` under `actions/checkout`
 
 v2025.11.16
 -----------
