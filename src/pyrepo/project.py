@@ -218,10 +218,10 @@ class Project:
         self.details.extra_testenvs[testenv] = pyver
         twriter = self.get_template_writer()
         twriter.write(".github/workflows/test.yml")
-        if not (self.directory / ".github" / "dependabot.yml").exists():
-            log.info("Creating Dependabot configuration")
-            twriter.write(".github/dependabot.yml")
-            log.warning("Please set up custom Dependabot labels separately")
+        if not (self.directory / ".github" / "renovate.json5").exists():
+            log.info("Creating Renovate configuration")
+            twriter.write(".github/renovate.json5")
+            log.warning("Please set up custom Renovate labels separately")
 
     def add_pyversion(self, v: str) -> None:
         pyv = PyVersion.parse(v)

@@ -278,7 +278,7 @@ def cli(
         log.info("Creating src/%s/py.typed ...", project.details.import_name)
         (project.directory / "src" / project.details.import_name / "py.typed").touch()
     if project.details.has_ci:
-        twriter.write(".github/dependabot.yml", force=False)
+        twriter.write(".github/renovate.json5", force=False)
         twriter.write(".github/workflows/test.yml", force=False)
     if project.details.has_docs:
         twriter.write(".readthedocs.yaml", force=False)

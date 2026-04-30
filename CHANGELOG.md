@@ -6,6 +6,7 @@ In Development
         - Update `codecov/codecov-action` to `v6`
         - Set `permissions: {}`
         - Set `persist-credentials: false` under `actions/checkout`
+    - Switch from Dependabot to Renovate
 
 v2025.11.16
 -----------

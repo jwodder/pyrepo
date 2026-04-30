@@ -55,7 +55,7 @@ def cli(
             keywords.append("python")
         log.info("Setting repository topics to: %s", " ".join(keywords))
         (ghrepo / "topics").put({"names": keywords})
-        if (project.directory / ".github" / "dependabot.yml").exists():
+        if (project.directory / ".github" / "renovate.json5").exists():
             log.info('Creating "dependencies" label')
             (ghrepo / "labels").post(
                 {
@@ -82,7 +82,8 @@ def cli(
             )
             if not no_codecov_token:
                 if codecov_token:
-                    for scope in ["actions", "dependabot"]:
+                    # for scope in ["actions", "dependabot"]:
+                    for scope in ["actions"]:
                         log.info("Setting CODECOV_TOKEN secret (%s)", scope)
                         secrets = ghrepo / scope / "secrets"
                         pubkey = (secrets / "public-key").get()
