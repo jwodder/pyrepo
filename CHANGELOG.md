@@ -3,7 +3,7 @@ In Development
 - Templates:
     - `test.yml`:
         - Update `actions/checkout` to `v6`
-        - Update `codecov/codecov-action` to `v6`
+        - Update `codecov/codecov-action` to `v7`
         - Set `permissions: {}`
         - Set `persist-credentials: false` under `actions/checkout`
     - Switch from Dependabot to Renovate
