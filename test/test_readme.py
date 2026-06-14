@@ -8,7 +8,7 @@ from test_helpers import DATA_DIR
 
 @pytest.mark.parametrize(
     "filepath",
-    (DATA_DIR / "readme").glob("*.rst"),
+    list((DATA_DIR / "readme").glob("*.rst")),
     ids=attrgetter("name"),
 )
 def test_readme(filepath: Path) -> None:
