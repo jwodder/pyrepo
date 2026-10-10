@@ -1,6 +1,6 @@
 from __future__ import annotations
 from collections.abc import Callable, Iterable, Iterator
-from datetime import date
+import datetime
 from enum import Enum
 from functools import partial, wraps
 import logging
@@ -243,7 +243,7 @@ def bump_version(v: str | Version, level: Bump) -> str:
         post = vobj.post if vobj.post is not None else 0
         return mkversion(epoch=vobj.epoch, release=vobj.release, post=post + 1)
     elif level is Bump.DATE:
-        today = date.today()
+        today = datetime.date.today()
         release: tuple[int, ...] = (today.year, today.month, today.day)
         if vobj.release[:3] == release:
             if len(vobj.release) > 3:

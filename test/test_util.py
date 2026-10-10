@@ -1,5 +1,6 @@
 from __future__ import annotations
 from collections.abc import Iterator
+from datetime import date
 import json
 import time
 from packaging.specifiers import SpecifierSet
@@ -118,6 +119,9 @@ def use_fixed_time(
         m.setenv("TZ", "EST5EDT,M3.2.0,M11.1.0")
         time.tzset()
         mocker.patch("time.time", return_value=1612373696)
+        mocker.patch(  # type: ignore[call-overload]
+            "datetime.date", **{"today.return_value": date(2021, 2, 3)}
+        )
         # Time is now 2021-02-03T12:34:56-05:00
         yield
     time.tzset()

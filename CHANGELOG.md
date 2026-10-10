@@ -8,6 +8,7 @@ In Development
         - Set `permissions: {}`
         - Set `persist-credentials: false` under `actions/checkout`
     - Switch from Dependabot to Renovate
+- Support Python 3.15
 
 v2025.11.16
 -----------
