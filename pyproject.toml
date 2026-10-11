@@ -54,7 +54,6 @@ dependencies = [
     "in_place       ~= 1.0",
     "intspan        ~= 1.6",
     "Jinja2         ~= 3.0",
-    "lineinfile     ~= 0.1",
     "linesep        ~= 0.3",
     "packaging      >= 24.2",
     "pynacl         ~= 1.4",
