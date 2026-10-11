@@ -9,6 +9,11 @@ In Development
         - Set `persist-credentials: false` under `actions/checkout`
     - Switch from Dependabot to Renovate
 - Support Python 3.15
+- `pyrepo add-pyversion`:
+    - Don't add a `python-version` string to `test.yml` if it doesn't already
+      contain any
+    - Don't add a minor Python version classifier to `pyproject.toml` if it
+      doesn't already contain any
 
 v2025.11.16
 -----------

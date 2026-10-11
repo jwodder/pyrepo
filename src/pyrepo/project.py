@@ -14,7 +14,6 @@ from typing import Any
 import click
 from configupdater import ConfigUpdater
 from in_place import InPlace
-from lineinfile import AfterLast, add_line_to_file
 from packaging.specifiers import SpecifierSet
 from . import git
 from .changelog import Changelog, ChangelogSection
@@ -23,6 +22,7 @@ from .inspecting import InvalidProjectError, find_project_root
 from .tmpltr import TemplateWriter
 from .util import (
     PyVersion,
+    insert_after_last,
     map_lines,
     maybe_map_lines,
     next_version,
@@ -236,11 +236,10 @@ class Project:
         log.info("Adding %s to supported Python versions", pyv)
         self.begin_dev(quiet=True)
         log.info("Updating pyproject.toml ...")
-        add_line_to_file(
+        insert_after_last(
             self.directory / "pyproject.toml",
-            f'    "Programming Language :: Python :: {pyv}",\n',
-            inserter=AfterLast(r'^    "Programming Language :: Python :: \d+\.\d+",$'),
-            encoding="utf-8",
+            f'    "Programming Language :: Python :: {pyv}",',
+            r'^    "Programming Language :: Python :: \d+\.\d+",$',
         )
         if self.details.has_tests:
             log.info("Updating tox.ini ...")
@@ -254,11 +253,10 @@ class Project:
             )
         if self.details.has_ci:
             log.info("Updating .github/workflows/test.yml ...")
-            add_line_to_file(
+            insert_after_last(
                 self.directory / ".github" / "workflows" / "test.yml",
-                f"{' ' * 10}- '{pyv}'\n",  # noqa: B028
-                inserter=AfterLast(rf"^{' ' * 10}- ['\x22]?\d+\.\d+['\x22]?$"),
-                encoding="utf-8",
+                f"{' ' * 10}- '{pyv}'",
+                rf"^{' ' * 10}- ['\x22]?\d+\.\d+['\x22]?$",
             )
         self.update_latest_changelog_section(
             lambda items: add_pyversion_chlog(pyv, items)

@@ -303,3 +303,18 @@ def join_markup_list(items: list[str]) -> str:
     else:
         joint = "\n"
     return joint.join(items)
+
+
+def insert_after_last(fpath: Path, line: str, regex: str) -> None:
+    # Like `add_line_to_file(inserter=AfterLast())`, but nothing is inserted if
+    # `regex` doesn't match.  Cf.
+    # <https://github.com/jwodder/lineinfile/issues/31>.
+    contents = fpath.read_text(encoding="utf-8").splitlines()
+    rgx = re.compile(regex)
+    i = None
+    for j, ln in enumerate(contents):
+        if rgx.search(ln):
+            i = j
+    if i is not None:
+        contents.insert(i + 1, line)
+        fpath.write_text("".join(f"{ln}\n" for ln in contents), encoding="utf-8")
