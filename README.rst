@@ -272,6 +272,27 @@ environment ``<testenv>`` against ``<python-version>``.
 Configure the project to declare support for and test against the given Python
 version(s) (which must be given in the form "``X.Y``").
 
+This command performs the following operations in order for each version:
+
+- If the project already supports the given Python version, nothing happens.
+
+- If the project's version is not ``0.0.0``, then the ``begin-dev`` command is
+  run.
+
+- If ``pyproject.toml`` declares any classifiers of the form ``Programming
+  Language :: Python :: X.Y``, a new one is added for the given Python version.
+
+- If the project's ``tox.ini`` file contains a ``[testenv]`` section, then a
+  ``pyXY`` environment for the given Python version is added to the file's
+  ``envlist``.
+
+- If the project's ``.github/workflows/test.yml`` file lists any Python
+  versions in the form ``- 'X.Y'``, a new one is added for the given Python
+  version.
+
+- If the project's version is not ``0.0.0``, then the ``CHANGELOG.md`` file is
+  updated to mention support for the given Python version being added.
+
 Note that this command will not modify the project's ``requires-python``
 setting.  If a given version is out of bounds for ``requires-python``, an error
 will result; update ``requires-python`` and try again.
@@ -336,6 +357,29 @@ Options
 
 Configure the project to no longer declare support for or test against the
 current lowest supported minor Python version.
+
+This command performs the following operations in order:
+
+- If the project's version is not ``0.0.0``, then the ``begin-dev`` command is
+  run.
+
+- The ``README.rst`` file (and the ``docs/index.rst`` file, if present) is
+  edited to list the next lowest Python version as the minimum requirement.
+
+- If the project's version is not ``0.0.0``, then the ``CHANGELOG.md`` file is
+  updated to mention dropping support for the affected Python version.
+
+- The ``Programming Language :: Python :: X.Y`` classifier for the affected
+  Python version is removed from ``pyproject.toml``.
+
+- The ``requires-python`` string in ``pyproject.toml`` is updated to list the
+  next lowest Python version as the minimum requirement.
+
+- The environment for the affected Python version is removed from ``envlist``
+  in ``tox.ini``.
+
+- ``.github/workflows/test.yml`` is updated to no longer test against or use
+  the affected version.
 
 It is an error to run this command when the project declares support for only
 zero or one minor Python version.
