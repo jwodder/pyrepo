@@ -234,7 +234,8 @@ class Project:
                 f" {self.details.python_requires!r}"
             )
         log.info("Adding %s to supported Python versions", pyv)
-        self.begin_dev(quiet=True)
+        if self.details.version != "0.0.0":
+            self.begin_dev(quiet=True)
         log.info("Updating pyproject.toml ...")
         insert_after_last(
             self.directory / "pyproject.toml",
@@ -258,9 +259,10 @@ class Project:
                 f"{' ' * 10}- '{pyv}'",
                 rf"^{' ' * 10}- ['\x22]?\d+\.\d+['\x22]?$",
             )
-        self.update_latest_changelog_section(
-            lambda items: add_pyversion_chlog(pyv, items)
-        )
+        if self.details.version != "0.0.0":
+            self.update_latest_changelog_section(
+                lambda items: add_pyversion_chlog(pyv, items)
+            )
         insort(self.details.python_versions, pyv)
 
     def drop_pyversion(self) -> None:
@@ -273,7 +275,8 @@ class Project:
             raise ValueError("Only one supported Python version; not dropping")
         dropver = self.details.python_versions.pop(0)
         log.info("Dropping %s from supported Python versions", dropver)
-        self.begin_dev(quiet=True)
+        if self.details.version != "0.0.0":
+            self.begin_dev(quiet=True)
         newmin = self.details.python_versions[0]
         self.details.python_requires = re.sub(
             r"\d+(?:\.\d+)*", str(newmin), self.details.python_requires
@@ -297,9 +300,10 @@ class Project:
                     str(newmin),
                 ),
             )
-        self.update_latest_changelog_section(
-            lambda items: drop_pyversion_chlog(dropver, items)
-        )
+        if self.details.version != "0.0.0":
+            self.update_latest_changelog_section(
+                lambda items: drop_pyversion_chlog(dropver, items)
+            )
 
         def edit_pyproject_line(line: str) -> str | None:
             if line == f'    "Programming Language :: Python :: {dropver}",\n':
