@@ -14,6 +14,10 @@ In Development
       contain any
     - Don't add a minor Python version classifier to `pyproject.toml` if it
       doesn't already contain any
+    - Don't run `begin-dev` or update the changelog if the project version is
+      0.0.0
+- `pyrepo drop-pyversion`: Don't run `begin-dev` or update the changelog if the
+  project version is 0.0.0
 
 v2025.11.16
 -----------
