@@ -1,13 +1,8 @@
 from __future__ import annotations
 from pathlib import Path
-import sys
+from tomllib import load as toml_load
 import click
 from .clack import ConfigurableGroup
-
-if sys.version_info >= (3, 11):
-    from tomllib import load as toml_load
-else:
-    from tomli import load as toml_load
 
 DEFAULT_CFG = Path.home() / ".config" / "pyrepo.toml"
 

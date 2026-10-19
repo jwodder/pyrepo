@@ -7,7 +7,7 @@ name = "jwodder-pyrepo"
 dynamic = ["version"]
 description = "Python repository templater & releaser"
 readme = "README.rst"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 license = "MIT"
 license-files = ["LICENSE"]
 authors = [
@@ -26,7 +26,6 @@ classifiers = [
     "Private :: Keep Off PyPI",
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -59,7 +58,6 @@ dependencies = [
     "pynacl         ~= 1.4",
     "pyversion-info ~= 1.0",
     "ruamel.yaml    >= 0.15, < 1.0",
-    "tomli          >= 1.2, < 3.0; python_version < '3.11'",
     "twine          ~=7.0",
     "uritemplate    ~= 4.1",
     # Running `python -m hatch ...` for inspection purposes seems to cause

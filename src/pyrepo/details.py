@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import re
 import sys
+from tomllib import load as toml_load
 from typing import Any
 from intspan import intspan
 from packaging.specifiers import SpecifierSet
@@ -13,11 +14,6 @@ from .inspecting import InvalidProjectError, parse_extra_testenvs
 from .readme import Readme
 from .tmpltr import Templater
 from .util import PyVersion, readcmd, sort_specifier
-
-if sys.version_info[:2] >= (3, 11):
-    from tomllib import load as toml_load
-else:
-    from tomli import load as toml_load
 
 
 @dataclass

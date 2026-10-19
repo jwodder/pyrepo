@@ -18,6 +18,7 @@ In Development
       0.0.0
 - `pyrepo drop-pyversion`: Don't run `begin-dev` or update the changelog if the
   project version is 0.0.0
+- Drop support for Python 3.10
 
 v2025.11.16
 -----------
